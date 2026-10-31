@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Tierhelden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen in einer 3D-Arena gegeneinander an.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Tierhelden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Seit Version **0.4** ergänzen der Solo-Modus **Turm der Prüfungen**, der Gruppenboss **Runengolem** und eine Sammlung kosmetischer Belohnungen das Spiel.
 
 ## Start
 
@@ -29,6 +29,9 @@ Im standardmäßig aktiven Demomodus stehen diese Konten bereit. Alle verwenden 
 3. Unter **Inventar** eine Truhe öffnen, Gegenstände vergleichen und ausrüsten. Die Demokonten Lina und Ben erhalten einmalig zwei Truhen, eine kleine Trankflasche und vier Beispielgegenstände, darunter einen doppelten Helm zum Ausprobieren des XP-Tauschs.
 4. Als Lehrkraft anmelden und einem Schülerkonto XP und/oder eine Truhe oder einen der drei Heiltränke mit Begründung vergeben.
 5. Für ein echtes Schülerduell Lina und Ben in **zwei getrennten Browserprofilen** (z. B. normal und privat) anmelden. Eine Herausforderung senden, auf dem anderen Konto annehmen und abwechselnd Aktionen wählen. Ein zweiter Tab desselben Browserprofils teilt denselben Login.
+6. Unter **Abenteuer → Turm der Prüfungen** allein einen Aufstieg beginnen. Nach einer gewonnenen Etage die Funde sichern oder mit einem Turmsegen weiterspielen. Den ersten Begleiter gibt es nach abgeschlossener Etage 2, sobald die Funde gesichert werden.
+7. Für **Abenteuer → Runengolem** drei getrennte Schülerkonten verwenden: Lina, Ben und ein über **Schüleraccount erstellen** neu registriertes Demokonto. Es wird kein drittes Schülerkonto automatisch angelegt. Drei unabhängige Browserprofile oder Geräte verwenden, etwa Edge, Chrome und ein Edge-InPrivate-Fenster. In einem Konto eine Gruppe eröffnen, in den anderen beiden beitreten und als Gruppenleitung starten.
+8. Unter **Sammlung** freigeschaltete Begleiter und Outfits auswählen sowie die verdienten Trophäen ansehen.
 
 Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Registrierungen erhalten ausschließlich die Schülerrolle, keine Lehrerrechte und keine selbst gewählten XP. Alle Konten gehören in dieser Version zur gemeinsamen Demoklasse „Campus Nord“.
 
@@ -43,7 +46,51 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 - Der Herausforderer beginnt. Fähigkeiten, Ausrüstungsboni und Aussehen werden bei Kampfbeginn festgehalten; spätere Änderungen gelten für das nächste Duell. Vorhandene Duelle aus der ersten Version behalten ihre bisherigen Werte.
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
 - Bei 0 LP endet der Kampf. Nach spätestens 30 Runden entscheidet der höhere verbleibende LP-Anteil; bei exaktem Gleichstand gewinnt der Herausforderer.
-- Kämpfe und Training vergeben **keine XP oder Gegenstände**. Damit bleiben Belohnungen an die schulische Mitarbeit gebunden.
+- Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm und Runengolem vergeben ausschließlich kosmetische Begleiter, Outfits und Trophäen. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+
+## Turm der Prüfungen
+
+Der Turm ist ein allein spielbares Abenteuer mit **zehn Etagen**. Verschiedene Gegner kündigen ihre nächste Aktion an: normaler Angriff, Deckung, Fokusstoß oder schwerer Schlag. Wer diese Ankündigung beachtet, kann seine eigene Aktion darauf abstimmen. Angreifen, Fokus und Deckung funktionieren mit den beim Start gespeicherten Charakter- und Ausrüstungswerten.
+
+Nach jeder besiegten Etage bis Etage 9 wartet eine Entscheidung: **Funde sichern und zurückkehren** oder **weiter aufsteigen**. Für den nächsten Kampf wird einer von drei Segen gewählt:
+
+| Turmsegen | Wirkung für den laufenden Aufstieg |
+| --- | --- |
+| Lebensfunke | +18 maximale LP und bis zu 25 LP Heilung |
+| Mutklinge | +4 Angriffsschaden |
+| Sternenfokus | +5 Fokus-Schaden |
+
+Die aktuellen LP werden zwischen den Etagen übernommen. Die **Turmquelle** heilt einmal pro Etage bis zu **20 LP** und verbraucht einen Zug. Sie ist eine eigene Abenteueraktion; Heiltränke und andere Gegenstände aus dem Inventar werden im Turm nicht verbraucht. Turmsegen und zusätzliche Kampfwerte gelten nur für diesen Aufstieg und werden nicht auf Schülerduelle oder das Konto übertragen.
+
+Neue kosmetische Funde sind zunächst **ungesichert**. Sie werden erst beim freiwilligen Sichern oder nach dem vollständigen Sieg über Etage 10 dauerhaft freigeschaltet. Bei Niederlage oder Abbruch gehen nur die noch ungesicherten Funde dieses Versuchs verloren. Bereits freigeschaltete Sammlungseinträge, schulische XP und die eigene Ausrüstung bleiben erhalten. Ein laufender Aufstieg kann nach einem Serverneustart fortgesetzt werden; ein neuer Versuch ist erst nach Abschluss oder Abbruch des bisherigen möglich.
+
+## Runengolem als Gruppenboss
+
+Für den Start braucht es **drei bis fünf unterschiedliche Schülerkonten derselben Demoklasse**. Die Gruppenleitung eröffnet die Gruppe und startet, sobald genügend Mitglieder beigetreten sind. Vor dem Start können Mitglieder die Gruppe verlassen; verlässt die Leitung die Gruppe, übernimmt das nächste Mitglied.
+
+Pro Runde wählt jedes noch aktive Gruppenmitglied genau eine Aktion: **Angriff, Fokus, Deckung, Sonnenrune oder Mondrune**. Die bereits gewählten Aktionen sind für die Gruppe sichtbar. Erst wenn alle noch lebenden Helden gewählt haben, wird die gemeinsame Runde aufgelöst. Eine festgelegte Aktion lässt sich in dieser Runde nicht nachträglich ändern.
+
+Der Runenschild wird nur dann für die Runde gebrochen, wenn **zwei verschiedene Helden in derselben Runde Sonnen- und Mondrune aktivieren**. Das verursacht zusätzlichen Runenschaden und ermöglicht wirksame Angriffe der übrigen Gruppe. Der Golem kündigt Stampfen gegen die ganze Gruppe oder einen Faustschlag gegen ein bestimmtes Mitglied an; Deckung verringert den Schaden. Ein einzelner überlebender Held kann den Kampf nicht zu Ende führen. Ist der Golem nach zwölf Runden nicht besiegt, beendet seine Runenwut den Versuch.
+
+Nach **120 Sekunden** kann ein Gruppenmitglied über die Funktion zum Fortsetzen die Runde mit fehlenden Aktionen abschließen. Diese fehlenden Züge werden als Deckung behandelt; die Frist wird auf dem Server geprüft. Für eine Siegesbelohnung muss ein Konto im Kampf mindestens **eine echte Aktion selbst abgegeben** haben. Konten, die ausschließlich durch solche automatischen Deckungszüge vertreten wurden, erhalten keine Belohnung. Im laufenden Kampf kann die Gruppenleitung den gesamten Versuch beenden; Gegenstände oder XP gehen dabei nicht verloren.
+
+Die Gruppe, gewählte Aktionen und aktuelle Runde bleiben bei einem Serverneustart gespeichert. Der Golemkampf ist ein gemeinsamer Kampf mit echten Schülerkonten; fehlende Mitspieler werden nicht durch Bots ersetzt.
+
+## Begleiter, Outfits und Trophäen
+
+Alle neun Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegenstände oder Kampfboni. Ein bereits freigeschalteter Fund wird nicht doppelt vergeben. In **Sammlung** kann jeweils ein Begleiter und ein Outfit ausgewählt oder wieder abgelegt werden; beide sind in der 3D-Charakterdarstellung sichtbar. Trophäen bleiben als Sammlungseinträge erhalten und benötigen keinen Ausrüstungsplatz.
+
+| Fund | Art | Freischaltung | ID |
+| --- | --- | --- | --- |
+| Glühwürmchen | Begleiter | Etage 2 abschließen und Funde sichern | `pet-firefly` |
+| Sternenmantel | Outfit | Etage 4 abschließen und Funde sichern | `outfit-starlight` |
+| Turmtrophäe | Trophäe | Etage 6 abschließen und Funde sichern | `trophy-tower-bronze` |
+| Wolkengeist | Begleiter | Etage 8 abschließen und Funde sichern | `pet-cloud` |
+| Turmwächter | Outfit | Alle zehn Etagen bezwingen | `outfit-warden` |
+| Turmmeister | Trophäe | Alle zehn Etagen bezwingen | `trophy-tower-gold` |
+| Runenfunke | Begleiter | Runengolem als aktives Gruppenmitglied besiegen | `pet-rune` |
+| Runenhüter | Outfit | Runengolem als aktives Gruppenmitglied besiegen | `outfit-runekeeper` |
+| Runengolembezwinger | Trophäe | Runengolem als aktives Gruppenmitglied besiegen | `trophy-golem` |
 
 ## Truhen, Inventar und Ausrüstung
 
@@ -76,7 +123,7 @@ Three.js **0.180.0** und seine MIT-Lizenz sind unter `public/vendor/` mitgeliefe
 
 ## Speicherung und Konfiguration
 
-Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
+Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch der aktuelle Turmaufstieg, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
 
 ### Update unter Windows
 
@@ -102,6 +149,6 @@ Umgebungsvariablen direkt beim Start übergeben; `.env` wird nicht automatisch g
 
 Node-HTTP-Server, SQLite, Vanilla JavaScript, CSS und die mitgelieferte Three.js-Bibliothek, ohne separat zu installierende Pakete. Rollen, Zugfolge, Inventarverbrauch und XP-Ausgaben werden auf dem Server geprüft. Sitzungen verwenden HttpOnly-/SameSite-Cookies; Passwörter werden mit individuellem Salt und scrypt gehasht. JSON-Mutationen von fremden Origins werden abgewiesen.
 
-`npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf.
+`npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf. Die Abenteuerprüfungen decken Turmfortschritt und Belohnungssicherung, Gruppenbildung, Runenaktionen, veraltete oder doppelte Spielzüge, serverseitige Zeitfristen, kosmetische Besitzrechte sowie die Speicherung nach einem Neustart ab.
 
-Wichtige Dateien: `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `public/` (Oberfläche und Effekte), `test/` (Tests).
+Wichtige Dateien: `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).

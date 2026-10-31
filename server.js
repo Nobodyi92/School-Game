@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { openStore, hashPassword, verifyPassword, userView, battleView, normalizeAppearance, APPEARANCE_OPTIONS } from './lib/store.js';
 import { createBattleState, applyAction } from './lib/combat.js';
+import { createAdventureApi } from './lib/adventure-api.js';
 import { catalogue, normalizeInventory, normalizeEquipment, resolveItem, compatibleSlot, rollChest, SLOTS, POTIONS } from './lib/items.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +52,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
   secureCookies = false, now = () => Date.now(), lootRandomInt } = {}) {
   const db = openStore(dbPath, { demo });
   const attempts = new Map();
+  const viewUser = (row, options = {}) => userView(row, { ...options, db });
   const byId = id => db.prepare('SELECT * FROM users WHERE id = ?').get(id);
   const readBattle = id => db.prepare('SELECT * FROM battles WHERE id = ?').get(id);
   const cookie = (token, maxAge) => `kh_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}${secureCookies ? '; Secure' : ''}`;
@@ -98,6 +100,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       .run(JSON.stringify(state), state.status, id);
   }
 
+  const adventures = createAdventureApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly });
+
   async function api(req, res, path) {
     const method = req.method;
     let body = null;
@@ -114,7 +118,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
 
     if (path === '/api/session' && method === 'GET') {
       const user = currentUser(req);
-      return { user: user ? userView(user, { includeEmail: true }) : null, demoMode: demo };
+      return { user: user ? viewUser(user, { includeEmail: true }) : null, demoMode: demo };
     }
 
     if (path === '/api/auth/login' && method === 'POST') {
@@ -127,7 +131,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       const valid = verifyPassword(password, user?.password_hash || fallbackHash);
       requireThat(user && valid, 401, 'E-Mail-Adresse oder Passwort stimmt nicht.');
       login(res, user.id);
-      return { user: userView(user, { includeEmail: true }) };
+      return { user: viewUser(user, { includeEmail: true }) };
     }
 
     if (path === '/api/auth/register' && method === 'POST') {
@@ -144,7 +148,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       db.prepare(`INSERT INTO users (id, name, email, password_hash, role, character_name, created_at)
         VALUES (?, ?, ?, ?, 'student', ?, ?)`).run(id, name, email, hashPassword(password), character, new Date(now()).toISOString());
       login(res, id);
-      return { user: userView(byId(id), { includeEmail: true }) };
+      return { user: viewUser(byId(id), { includeEmail: true }) };
     }
 
     const user = currentUser(req);
@@ -167,14 +171,18 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         WHERE s.school_id = ? AND (? = 'teacher' OR rewards.student_id = ?)
         ORDER BY rewards.created_at DESC LIMIT 100`).all(user.school_id, user.role, user.id);
       return {
-        user: userView(user, { includeEmail: true }),
-        students: students.map(s => userView(s, { includeEmail: user.role === 'teacher' || s.id === user.id })),
+        user: viewUser(user, { includeEmail: true }),
+        students: students.map(s => viewUser(s, { includeEmail: user.role === 'teacher' || s.id === user.id })),
         battles: battles.map(battleView),
         catalogue: catalogue(),
+        adventure: adventures.stateFor(user),
         rewards: rewards.map(r => ({ id: r.id, studentId: r.student_id, studentName: r.student_name,
           teacherName: r.teacher_name, xp: r.xp, item: r.item, reason: r.reason, createdAt: r.created_at })),
       };
     }
+
+    const adventureResult = adventures.handle(path, method, body, user);
+    if (adventureResult !== null) return adventureResult;
 
     if (path === '/api/character' && method === 'POST') {
       studentOnly(user);
@@ -192,7 +200,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       }
       db.prepare('UPDATE users SET character_name = ?, avatar = ?, appearance = ? WHERE id = ?')
         .run(character, body.avatar, JSON.stringify(appearance), user.id);
-      return { user: userView(byId(user.id), { includeEmail: true }) };
+      return { user: viewUser(byId(user.id), { includeEmail: true }) };
     }
 
     if (path === '/api/chests/open' && method === 'POST') {
@@ -213,7 +221,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         });
         inventory.chests--;
         db.prepare('UPDATE users SET inventory = ? WHERE id = ?').run(JSON.stringify(inventory), user.id);
-        return { drops, user: userView(byId(user.id), { includeEmail: true }) };
+        return { drops, user: viewUser(byId(user.id), { includeEmail: true }) };
       });
     }
 
@@ -232,7 +240,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       }
       equipment[body.slot] = body.itemId;
       db.prepare('UPDATE users SET equipment = ? WHERE id = ?').run(JSON.stringify(equipment), user.id);
-      return { user: userView(byId(user.id), { includeEmail: true }) };
+      return { user: viewUser(byId(user.id), { includeEmail: true }) };
     }
 
     if (path === '/api/inventory/recycle' && method === 'POST') {
@@ -251,7 +259,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         inventory.items = inventory.items.filter(other => other.id !== body.itemId);
         db.prepare('UPDATE users SET inventory = ?, xp = xp + ?, total_xp = total_xp + ? WHERE id = ?')
           .run(JSON.stringify(inventory), item.recycleXp, item.recycleXp, user.id);
-        return { xpAwarded: item.recycleXp, user: userView(byId(user.id), { includeEmail: true }) };
+        return { xpAwarded: item.recycleXp, user: viewUser(byId(user.id), { includeEmail: true }) };
       });
     }
 
@@ -264,7 +272,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(user.xp >= cost, 400, `Dafür brauchst du ${cost} verfügbare XP.`);
       skills[body.skill]++;
       db.prepare('UPDATE users SET skills = ?, xp = xp - ? WHERE id = ?').run(JSON.stringify(skills), cost, user.id);
-      return { user: userView(byId(user.id), { includeEmail: true }) };
+      return { user: viewUser(byId(user.id), { includeEmail: true }) };
     }
 
     if (path === '/api/rewards' && method === 'POST') {
@@ -300,7 +308,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(ongoing.length < 5, 409, 'Du hast bereits fünf offene Duelle. Beende zuerst eines davon.');
       requireThat(!ongoing.some(b => (b.challenger_id === user.id && b.opponent_id === opponent.id)
         || (b.challenger_id === opponent.id && b.opponent_id === user.id)), 409, 'Mit diesem Gegner hast du bereits ein offenes Duell.');
-      const state = training ? createBattleState(userView(user), opponent) : null;
+      const state = training ? createBattleState(viewUser(user), opponent) : null;
       const id = randomUUID();
       db.prepare('INSERT INTO battles (id, type, challenger_id, opponent_id, status, state, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
         .run(id, training ? 'training' : 'pvp', user.id, opponent.id, training ? 'active' : 'pending',
@@ -336,7 +344,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         requireThat(battle.status === 'pending', 409, 'Diese Einladung wurde bereits beantwortet.');
         requireThat(typeof body.accept === 'boolean', 400, 'Bitte annehmen oder ablehnen.');
         if (body.accept) {
-          const state = createBattleState(userView(byId(battle.challenger_id)), userView(user));
+          const state = createBattleState(viewUser(byId(battle.challenger_id)), viewUser(user));
           saveBattle(id, state);
         } else db.prepare("UPDATE battles SET status = 'declined' WHERE id = ?").run(id);
       } else {
@@ -382,6 +390,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'],
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
+        '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
         '/vendor/three.module.min.js': ['vendor/three.module.min.js', 'text/javascript'],
         '/vendor/three.core.min.js': ['vendor/three.core.min.js', 'text/javascript'],
         '/vendor/THREE-LICENSE.txt': ['vendor/THREE-LICENSE.txt', 'text/plain'],

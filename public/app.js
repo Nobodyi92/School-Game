@@ -1,5 +1,6 @@
 import { playBattleEvents, isAnimating, cancelBattleEffects } from './battle-effects.js';
-import { mountHero3D, mountArena3D } from './hero3d.js';
+import { mountHero3D, mountArena3D, mountRaid3D } from './hero3d.js';
+import { renderAdventures, renderCollection, mountAdventure3D, handleAdventureAction, adventureEventCandidates, animateAdventures, adventureIsAnimating, cancelAdventureAnimations, resetAdventureState, updateAdventureClocks } from './adventures.js';
 
 const app = document.querySelector('#app');
 const toastElement = document.querySelector('#toast');
@@ -81,6 +82,7 @@ function avatar(type = 'fox', className = '', label = '', appearance = null) {
 }
 
 function dispose3DViews() {
+  cancelAdventureAnimations();
   for (const entry of mounted3DViews) {
     try { entry.controller?.dispose(); } catch { /* A lost graphics context must not block navigation. */ }
     entry.host.__hero3d = null;
@@ -116,6 +118,7 @@ function mount3DViews() {
     const fighters = battle.state.fighters.map(value => ({ ...value, equipmentVisuals: value.equipmentVisuals || {} }));
     register(host, () => mountArena3D(host, fighters, { userId: state.user.id, interactive: false }));
   }
+  mountAdventure3D({ state, mountArena3D, mountRaid3D, register });
 }
 
 function defaultAppearance() { return { color: 'amber', outfit: 'adventurer', emblem: 'star' }; }
@@ -199,6 +202,7 @@ async function refresh(force = false) {
   if (!state && !force) return;
   const data = await api('/state');
   const json = JSON.stringify(data);
+  const adventureEvents = adventureEventCandidates(data);
   const eventCandidates = new Map();
   for (const battle of data.battles) {
     const previous = seenBattleEvents.get(battle.id);
@@ -208,7 +212,7 @@ async function refresh(force = false) {
   state = data;
   if (!profileDraft) profileDraft = { characterName: data.user.characterName || '', avatar: data.user.avatar || 'fox', appearance: { ...defaultAppearance(), ...data.user.appearance } };
   if (!rewardDraft.studentId && data.students.length) rewardDraft.studentId = data.students[0].id;
-  if (force || (json !== lastStateJSON && !document.activeElement?.matches('input, textarea, select') && !busy && !isAnimating())) {
+  if (force || (json !== lastStateJSON && !document.activeElement?.matches('input, textarea, select') && !busy && !isAnimating() && !adventureIsAnimating())) {
     render();
     lastStateJSON = json;
     const battle = data.battles.find(value => value.id === selectedBattleId);
@@ -220,6 +224,7 @@ async function refresh(force = false) {
       try { await playBattleEvents(events, { userId: data.user.id, battleId: battle.id, finished: battle.status === 'finished' }); }
       finally { document.body.classList.remove('is-animating'); panel?.removeAttribute('aria-busy'); }
     }
+    if (tab === 'adventures') await animateAdventures(adventureEvents);
   }
 }
 
@@ -238,7 +243,7 @@ function renderDemoSection() {
 function navItems() {
   return state.user.role === 'teacher'
     ? [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'class', name: 'Meine Klasse', icon: 'users' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }]
-    : [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'arena', name: 'Arena', icon: 'swords' }, { id: 'character', name: 'Mein Held', icon: 'hero' }, { id: 'inventory', name: 'Inventar', icon: 'chest' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }];
+    : [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'arena', name: 'Arena', icon: 'swords' }, { id: 'adventures', name: 'Abenteuer', icon: 'book' }, { id: 'collection', name: 'Sammlung', icon: 'trophy' }, { id: 'character', name: 'Mein Held', icon: 'hero' }, { id: 'inventory', name: 'Inventar', icon: 'chest' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }];
 }
 
 function render() {
@@ -250,8 +255,9 @@ function render() {
   if (!items.some(x => x.id === tab)) tab = 'overview';
   const currentNav = items.find(x => x.id === tab);
   dispose3DViews();
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><a href="/" class="brand" data-action="nav" data-tab="overview">${brand()}</a><div class="campus-switch"><span class="campus-icon">${icon('book')}</span><span><strong>${e(user.schoolName || 'Campus Nord')}</strong><small>${teacher ? 'Lehrkraftbereich' : 'Dein Schülerbereich'}</small></span><span class="online-dot" title="Verbunden"></span></div><div class="nav-label">DEIN CAMPUS</div><nav aria-label="Hauptnavigation" style="--nav-columns:${items.length}">${items.map(item => `<button class="nav-item ${tab === item.id ? 'active' : ''}" data-action="nav" data-tab="${item.id}" ${tab === item.id ? 'aria-current="page"' : ''}>${icon(item.icon)}<span>${item.name}</span>${item.id === 'arena' && pending ? `<span class="nav-count">${pending}</span>` : ''}</button>`).join('')}</nav><div class="sidebar-note"><span class="note-icon">${icon(teacher ? 'spark' : 'book', '', 25)}</span><h3>${teacher ? 'Anerkennung, die ankommt.' : 'Dein Einsatz zählt.'}</h3><p>${teacher ? 'Mach aus guter Mitarbeit einen besonderen Moment.' : 'Erfahrung sammelst du durch gute Mitarbeit im Schulalltag.'}</p><span class="note-stars">✦<i>✧</i>✦</span></div><div class="sidebar-profile">${teacher ? `<span class="profile-initials">${e(initials(user.name))}</span>` : heroAvatar(user)}<span><strong>${e(user.name)}</strong><small>${teacher ? 'Lehrkraft' : `Level ${user.level} · Schüleraccount`}</small></span><button class="icon-button" data-action="logout" aria-label="Abmelden" title="Abmelden">${icon('logout', '', 18)}</button></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">${icon('book', '', 16)}<span>${e(user.schoolName || 'Campus Nord')}</span><span>/</span><strong>${currentNav.name}</strong></div><div class="topbar-right"><span class="live-label"><i></i> Dein Abenteuer läuft</span><span class="role-badge">${demoMode ? 'Demo · ' : ''}${teacher ? 'Lehrkraft' : 'Schüler:in'}</span><button class="icon-button mobile-logout" data-action="logout" aria-label="Abmelden">${icon('logout')}</button></div></header><main id="main-content" tabindex="-1">${tab === 'overview' ? renderOverview() : tab === 'arena' ? renderArena() : tab === 'character' ? renderCharacter() : tab === 'class' ? renderClass() : tab === 'inventory' ? renderInventory() : renderRewardsPage()}</main><footer class="app-footer"><span>klassenhelden <i>✦</i> Gemeinsam wachsen.</span><span>Fair spielen. Stärker werden.</span></footer></div></div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><a href="/" class="brand" data-action="nav" data-tab="overview">${brand()}</a><div class="campus-switch"><span class="campus-icon">${icon('book')}</span><span><strong>${e(user.schoolName || 'Campus Nord')}</strong><small>${teacher ? 'Lehrkraftbereich' : 'Dein Schülerbereich'}</small></span><span class="online-dot" title="Verbunden"></span></div><div class="nav-label">DEIN CAMPUS</div><nav class="${teacher ? 'teacher-navigation' : 'student-navigation'}" aria-label="Hauptnavigation" style="--nav-columns:${items.length}">${items.map(item => `<button class="nav-item ${tab === item.id ? 'active' : ''}" data-action="nav" data-tab="${item.id}" aria-label="${e(item.name)}" ${tab === item.id ? 'aria-current="page"' : ''}>${icon(item.icon)}<span>${item.name}</span>${item.id === 'arena' && pending ? `<span class="nav-count">${pending}</span>` : ''}</button>`).join('')}</nav><div class="sidebar-note"><span class="note-icon">${icon(teacher ? 'spark' : 'book', '', 25)}</span><h3>${teacher ? 'Anerkennung, die ankommt.' : 'Dein Einsatz zählt.'}</h3><p>${teacher ? 'Mach aus guter Mitarbeit einen besonderen Moment.' : 'Erfahrung sammelst du durch gute Mitarbeit im Schulalltag.'}</p><span class="note-stars">✦<i>✧</i>✦</span></div><div class="sidebar-profile">${teacher ? `<span class="profile-initials">${e(initials(user.name))}</span>` : heroAvatar(user)}<span><strong>${e(user.name)}</strong><small>${teacher ? 'Lehrkraft' : `Level ${user.level} · Schüleraccount`}</small></span><button class="icon-button" data-action="logout" aria-label="Abmelden" title="Abmelden">${icon('logout', '', 18)}</button></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">${icon('book', '', 16)}<span>${e(user.schoolName || 'Campus Nord')}</span><span>/</span><strong>${currentNav.name}</strong></div><div class="topbar-right"><span class="live-label"><i></i> Dein Abenteuer läuft</span><span class="role-badge">${demoMode ? 'Demo · ' : ''}${teacher ? 'Lehrkraft' : 'Schüler:in'}</span><button class="icon-button mobile-logout" data-action="logout" aria-label="Abmelden">${icon('logout')}</button></div></header><main id="main-content" tabindex="-1">${tab === 'overview' ? renderOverview() : tab === 'arena' ? renderArena() : tab === 'character' ? renderCharacter() : tab === 'class' ? renderClass() : tab === 'inventory' ? renderInventory() : tab === 'adventures' ? renderAdventures({ state, e, icon, heroAvatar }) : tab === 'collection' ? renderCollection({ state, e, icon }) : renderRewardsPage()}</main><footer class="app-footer"><span>klassenhelden <i>✦</i> Gemeinsam wachsen.</span><span>Fair spielen. Stärker werden.</span></footer></div></div>`;
   mount3DViews();
+  updateAdventureClocks();
 }
 
 function heading(eyebrow, title, subtitle, action = '') {
@@ -360,7 +366,7 @@ function confirmDialog(title, description, confirmLabel) {
 }
 
 async function mutate(callback) {
-  if (busy || isAnimating()) return;
+  if (busy || isAnimating() || adventureIsAnimating()) return;
   busy = true;
   document.body.classList.add('is-busy');
   try {
@@ -375,9 +381,10 @@ app.addEventListener('click', async event => {
   if (!button || button.disabled) return;
   event.preventDefault();
   const action = button.dataset.action;
-  if ((busy || isAnimating()) && !['nav', 'select-battle', 'dismiss-battle'].includes(action)) return;
+  if ((busy || isAnimating() || adventureIsAnimating()) && !['nav', 'select-battle', 'dismiss-battle'].includes(action)) return;
   if (action === 'auth-mode') { authMode = button.dataset.mode; renderAuth(); return; }
-  if (action === 'nav') { cancelBattleEffects(); document.body.classList.remove('is-animating'); tab = button.dataset.tab; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (action === 'nav') { cancelBattleEffects(); cancelAdventureAnimations(); document.body.classList.remove('is-animating'); tab = button.dataset.tab; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (/^(adventure-|tower-|raid-|cosmetic-)/.test(action)) { await handleAdventureAction(button, { api, mutate, render, toast, confirmDialog }); return; }
   if (action === 'demo-login') {
     if (busy) return;
     busy = true; button.disabled = true;
@@ -387,6 +394,7 @@ app.addEventListener('click', async event => {
     return;
   }
   if (action === 'logout') {
+    resetAdventureState();
     try { await api('/auth/logout', {}); state = null; profileDraft = null; lastStateJSON = ''; selectedBattleId = null; selectedEquipmentSlot = null; seenBattleEvents.clear(); lastDrops = null; rewardDraft = { studentId: '', xp: '50', item: 'chest', reason: '' }; renderAuth(); }
     catch (error) { toast(error.message, true); }
     return;
@@ -489,5 +497,6 @@ async function boot() {
 }
 window.addEventListener('pagehide', dispose3DViews);
 window.addEventListener('pageshow', event => { if (event.persisted) mount3DViews(); });
-setInterval(() => { if (state && !busy && !isAnimating() && !document.hidden) refresh().catch(error => { if (state) toast(error.message, true); }); }, 5000);
+setInterval(updateAdventureClocks, 1000);
+setInterval(() => { if (state && !busy && !isAnimating() && !adventureIsAnimating() && !document.hidden) refresh().catch(error => { if (state) toast(error.message, true); }); }, 5000);
 boot();

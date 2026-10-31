@@ -55,3 +55,10 @@
 @media(max-width:600px){.paperdoll-slot.slot-necklace{height:108px}}
 /* Compact mobile slots keep their labels inside the card; full bonuses remain in the item list. */
 @media(max-width:600px){.paperdoll-slot .slot-bonuses{display:none}}
+/* Seven student destinations stay readable and touchable on small screens. */
+@media(max-width:540px){.sidebar nav.student-navigation{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:7px 6px}.student-navigation .nav-item{min-height:48px;min-width:0;padding:5px 3px}.student-navigation .nav-item>span:not(.nav-count){font-size:10px}.app-shell:has(.student-navigation) .app-footer{padding-bottom:132px}.toast{bottom:132px}}
+.is-adventure-animating .adventure-move,.is-adventure-animating [data-action^="tower-"],.is-adventure-animating [data-action^="raid-"]{pointer-events:none;opacity:.65}
+@media(max-width:540px){.sidebar:has(nav.student-navigation){height:114px}.sidebar nav.student-navigation{height:100%}}
+
+@media(min-width:541px) and (max-width:760px){.sidebar nav.student-navigation{display:flex;flex-direction:column;height:auto;padding:0}.sidebar nav.student-navigation .nav-item{min-height:44px}}
+@media(max-width:540px){.sidebar nav.student-navigation .nav-item{height:48px;min-height:48px}}

@@ -8,6 +8,11 @@ const PALETTES = {
 };
 const RARITY_COLORS = { common: 0xa6ae9c, rare: 0x548fc7, epic: 0x9c65c4, legendary: 0xe4b653 };
 const FUR = { fox: 0xdf8c48, owl: 0x9582b1, dragon: 0x65a88c, cat: 0xb0947a };
+const COSMETIC_OUTFITS = {
+  'outfit-starlight': [0x4c568f, 0xb9c7f4],
+  'outfit-warden': [0x347e6c, 0xa5d7bf],
+  'outfit-runekeeper': [0x7852a7, 0xd0b1ef],
+};
 const TAU = Math.PI * 2;
 
 function material(color, extra = {}) {
@@ -96,10 +101,106 @@ function makeWeapon(parent, item, direction) {
   }
 }
 
+function selectedCosmetic(hero, type) {
+  const selected = hero.cosmetics?.selected?.[type];
+  return Array.isArray(hero.cosmetics?.owned) && hero.cosmetics.owned.includes(selected) ? selected : null;
+}
+
+function makeCompanion(parent, id) {
+  if (!['pet-firefly', 'pet-cloud', 'pet-rune'].includes(id)) return null;
+  const group = new THREE.Group();
+  group.position.set(.99, 1.64, .14);
+  group.userData.cosmetic = id;
+  parent.add(group);
+  const eyes = material(0x343044);
+  if (id === 'pet-cloud') {
+    const cloud = material(0xe2eef6);
+    sphere(group, cloud, [0, 0, 0], [.25, .18, .18]);
+    sphere(group, cloud, [-.16, -.04, 0], [.16, .13, .14]);
+    sphere(group, cloud, [.16, -.04, 0], [.17, .13, .14]);
+    sphere(group, cloud, [-.07, .10, 0], [.18, .16, .16]);
+    for (const side of [-1, 1]) sphere(group, eyes, [side * .075, -.015, .17], [.025, .035, .016]);
+    const tear = cone(group, material(0xa5cce5), [0, -.25, .02], .035, .16, 5);
+    tear.rotation.z = -.12;
+  } else if (id === 'pet-firefly') {
+    const light = material(0xf1cf66, { emissive: 0xb29a36, emissiveIntensity: .65 });
+    sphere(group, light, [0, 0, 0], [.14, .17, .13]);
+    for (const side of [-1, 1]) {
+      const wing = sphere(group, material(0xe4f1e6, { transparent: true, opacity: .78 }),
+        [side * .15, .03, -.02], [.16, .08, .025]);
+      wing.rotation.z = side * .45;
+      sphere(group, eyes, [side * .047, .03, .12], [.02, .026, .014]);
+    }
+    const halo = addMesh(group, new THREE.TorusGeometry(.25, .012, 4, 18), light);
+    halo.rotation.y = .45;
+  } else {
+    const stone = material(0x9d82d0, { emissive: 0x644097, emissiveIntensity: .45, metalness: .15 });
+    const rune = addMesh(group, new THREE.OctahedronGeometry(.22), stone);
+    rune.rotation.z = Math.PI / 5;
+    box(group, material(0xf4d88a, { emissive: 0xa88a31, emissiveIntensity: .4 }), [0, .015, .19], [.045, .20, .025]);
+    box(group, material(0xf4d88a), [.04, .055, .19], [.12, .035, .025]);
+    const halo = addMesh(group, new THREE.TorusGeometry(.32, .015, 4, 20), material(0xc4b4e5));
+    halo.rotation.x = .55;
+  }
+  return { group, y: group.position.y };
+}
+
+function makeGolem(hero = {}) {
+  const root = new THREE.Group();
+  root.userData.heroId = String(hero.id || 'rune-golem');
+  const stone = material(0x7c878e, { roughness: .94 });
+  const darkStone = material(0x505a68);
+  const pale = material(0xb0b6bc);
+  const rune = material(0xa993df, { emissive: 0x7654b0, emissiveIntensity: .85 });
+  const gold = material(0xe4c575, { emissive: 0x8c7231, emissiveIntensity: .4 });
+  const rig = { root, id: String(hero.id || 'rune-golem'), arms: [], legs: [], materials: [], base: new THREE.Vector3(), golem: true };
+  for (const side of [-1, 1]) {
+    const leg = new THREE.Group(); leg.position.set(side * .39, .78, 0); root.add(leg);
+    box(leg, stone, [0, -.20, 0], [.55, .75, .55]);
+    box(leg, darkStone, [0, -.62, .12], [.65, .24, .78]);
+    box(leg, rune, [0, -.18, .285], [.07, .40, .03]);
+    rig.legs.push(leg);
+    const arm = new THREE.Group(); arm.position.set(side * .97, 2.0, 0); root.add(arm);
+    sphere(arm, pale, [0, -.03, 0], [.40, .38, .42], 1, 5);
+    box(arm, stone, [0, -.45, 0], [.53, .72, .54]);
+    box(arm, darkStone, [0, -.94, .08], [.63, .42, .66]);
+    box(arm, rune, [0, -.40, .29], [.08, .40, .03]);
+    rig.arms.push(arm);
+  }
+  box(root, stone, [0, 1.55, 0], [1.45, 1.35, .86]);
+  box(root, darkStone, [0, 1.35, .45], [1.10, .28, .08]);
+  const heart = addMesh(root, new THREE.OctahedronGeometry(.28), rune, [0, 1.79, .51]);
+  heart.rotation.z = .3;
+  for (const side of [-1, 1]) box(root, gold, [side * .46, 1.80, .46], [.06, .44, .04]);
+  const head = new THREE.Group(); head.position.y = 2.60; root.add(head); rig.head = head;
+  box(head, pale, [0, 0, 0], [.92, .77, .78]);
+  for (const side of [-1, 1]) {
+    box(head, darkStone, [side * .23, .06, .405], [.28, .15, .035]);
+    box(head, rune, [side * .23, .07, .43], [.19, .06, .025]);
+    const horn = cone(head, darkStone, [side * .40, .52, -.10], .14, .44, 4);
+    horn.rotation.z = side * -.45;
+  }
+  box(head, darkStone, [0, -.19, .41], [.34, .06, .035]);
+  const crown = addMesh(head, starGeometry(.14), gold, [0, .27, .41]); crown.rotation.z = .2;
+  if (hero.shielded) {
+    const ward = addMesh(root, new THREE.TorusGeometry(1.29, .026, 5, 32),
+      material(0xb699df, { emissive: 0x7b56ac, emissiveIntensity: .8, transparent: true, opacity: .78 }), [0, 1.57, .10]);
+    ward.rotation.x = Math.PI / 7;
+    rig.ward = ward;
+  }
+  const seen = new Set();
+  root.traverse(node => { if (node.isMesh && node.material?.color && !seen.has(node.material)) {
+    seen.add(node.material); rig.materials.push({ mat: node.material, color: node.material.color.clone() });
+  } });
+  return rig;
+}
+
 function makeHero(hero = {}) {
+  if (hero.avatar === 'golem' || hero.kind === 'golem' || hero.id === 'rune-golem') return makeGolem(hero);
   const root = new THREE.Group();
   root.userData.heroId = String(hero.id || 'hero');
-  const palette = PALETTES[hero.appearance?.color] || PALETTES.amber;
+  const cosmeticOutfit = selectedCosmetic(hero, 'outfit');
+  const palette = COSMETIC_OUTFITS[cosmeticOutfit] || PALETTES[hero.appearance?.color] || PALETTES.amber;
   const type = Object.hasOwn(FUR, hero.avatar) ? hero.avatar : 'fox';
   const fur = material(FUR[type]);
   const cream = material(type === 'dragon' ? 0xc4dbb1 : 0xffedce);
@@ -131,9 +232,16 @@ function makeHero(hero = {}) {
       lapel.rotation.z = side * -.35;
     }
   }
-  const cape = cone(root, pale, [0, 1.10, -.33], .51, 1.35, 4);
+  const cape = cone(root, cosmeticOutfit ? coat : pale, [0, 1.10, -.33], cosmeticOutfit ? .59 : .51, 1.35, 4);
   cape.scale.z = .22;
   cape.rotation.x = -.10;
+  if (cosmeticOutfit) {
+    for (const side of [-1, 1]) {
+      const trim = box(root, gold, [side * .32, 1.33, -.47], [.045, .90, .035]);
+      trim.rotation.z = side * -.22;
+      addMesh(root, starGeometry(.085), gold, [side * .44, 1.68, .22]);
+    }
+  }
   cylinder(root, cream, [0, 1.89, .01], .24, .25, .26, 8);
 
   for (const side of [-1, 1]) {
@@ -234,6 +342,7 @@ function makeHero(hero = {}) {
     addMesh(rig.arms[1], new THREE.TorusGeometry(.075, .025, 5, 10), ring, [0, -.64, .17]);
     addMesh(rig.arms[1], new THREE.OctahedronGeometry(.055), ring, [0, -.57, .19]);
   }
+  rig.companion = makeCompanion(root, selectedCosmetic(hero, 'companion'));
   const seenMaterials = new Set();
   root.traverse(node => {
     if (node.isMesh && node.material?.color && !seenMaterials.has(node.material)) {
@@ -244,14 +353,15 @@ function makeHero(hero = {}) {
   return rig;
 }
 
-function makeStage(scene, arena) {
+function makeStage(scene, arena, raid = false) {
   const stone = material(0xe4dbc9);
   const edge = material(0xafa08b);
   const gold = material(0xd7b25c, { metalness: .3 });
   const purple = material(0x817093);
-  cylinder(scene, edge, [0, -.14, 0], arena ? 3.60 : 1.31, arena ? 3.72 : 1.39, .27, arena ? 40 : 24);
-  cylinder(scene, stone, [0, .005, 0], arena ? 3.53 : 1.25, arena ? 3.53 : 1.25, .04, arena ? 40 : 24);
-  const rim = addMesh(scene, new THREE.TorusGeometry(arena ? 3.26 : 1.15, .025, 5, 48), gold, [0, .035, 0]);
+  const radius = arena ? (raid ? 4.7 : 3.6) : 1.31;
+  cylinder(scene, edge, [0, -.14, 0], radius, radius + .12, .27, arena ? 40 : 24);
+  cylinder(scene, stone, [0, .005, 0], radius - .07, radius - .07, .04, arena ? 40 : 24);
+  const rim = addMesh(scene, new THREE.TorusGeometry(radius - .34, .025, 5, 48), gold, [0, .035, 0]);
   rim.rotation.x = Math.PI / 2;
   if (arena) {
     const center = addMesh(scene, new THREE.TorusGeometry(.72, .018, 5, 32), gold, [0, .04, 0]);
@@ -285,12 +395,12 @@ function unsupportedController(host) {
   return { supported: false, dispose() {}, cancel() {}, update() {}, turn() {}, play: async () => {} };
 }
 
-function mount(host, heroes, { arena = false, userId, interactive = !arena } = {}) {
+function mount(host, heroes, { arena = false, raid = false, userId, interactive = !arena } = {}) {
   if (!host) return { supported: false, dispose() {}, cancel() {}, update() {}, turn() {}, play: async () => {} };
   const canvas = document.createElement('canvas');
   canvas.dataset.renderer = 'webgl';
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', arena ? 'Dreidimensionale Arena mit beiden Kämpfern' : 'Dreidimensionaler Charakter mit seiner Ausrüstung');
+  canvas.setAttribute('aria-label', raid ? 'Dreidimensionale Gruppenarena mit Runengolem' : arena ? 'Dreidimensionale Arena mit beiden Kämpfern' : 'Dreidimensionaler Charakter mit seiner Ausrüstung');
   canvas.style.cssText = 'display:block;width:100%;height:100%;touch-action:pan-y;';
   let gl;
   try { gl = canvas.getContext('webgl2', { alpha: true, antialias: true, powerPreference: 'low-power' }); }
@@ -322,7 +432,7 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
   scene.add(light);
   const fill = new THREE.DirectionalLight(0xb7b4f4, 1.1);
   fill.position.set(4, 3, -3); scene.add(fill);
-  makeStage(scene, arena);
+  makeStage(scene, arena, raid);
   const models = new THREE.Group(); scene.add(models);
   const fx = new THREE.Group(); scene.add(fx);
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -342,6 +452,10 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
       rig.head.rotation.set(0, 0, 0);
       for (const [i, arm] of rig.arms.entries()) arm.rotation.set(0, 0, i === 0 ? -.10 : .10);
       for (const leg of rig.legs) leg.rotation.set(0, 0, 0);
+      if (rig.companion) {
+        rig.companion.group.position.y = rig.companion.y;
+        rig.companion.group.rotation.y = 0;
+      }
       for (const { mat, color } of rig.materials) mat.color.copy(color);
     }
   }
@@ -381,6 +495,10 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
           rig.head.rotation.z = Math.sin(now * .0011 + index) * .015;
           rig.arms[0].rotation.x = breath * .035;
           rig.arms[1].rotation.x = -breath * .035;
+          if (rig.companion) {
+            rig.companion.group.position.y = rig.companion.y + Math.sin(now * .0025 + index) * .07;
+            rig.companion.group.rotation.y = Math.sin(now * .0011 + index) * .25;
+          }
         }
       }
       render();
@@ -394,10 +512,25 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
     for (const child of [...models.children]) disposeObject(child);
     const values = (Array.isArray(next) ? [...next] : [next]).filter(Boolean);
     if (arena && userId) values.sort((a, b) => Number(String(b.id) === String(userId)) - Number(String(a.id) === String(userId)));
+    const members = raid ? values.filter(value => value.id !== 'rune-golem' && value.kind !== 'golem' && value.avatar !== 'golem') : values;
     rigs = values.map((hero, index) => {
       const rig = makeHero(hero);
-      rig.side = arena ? (index === 0 ? -1 : 1) : 0;
-      rig.base.set(arena ? rig.side * 1.48 : 0, .06, 0);
+      if (raid) {
+        if (rig.golem) {
+          rig.side = 1;
+          rig.root.scale.setScalar(1.10);
+          rig.base.set(1.75, .06, -.05);
+        } else {
+          const memberIndex = members.indexOf(hero);
+          const offset = members.length <= 1 ? 0 : memberIndex / (members.length - 1) * 2 - 1;
+          rig.side = -1;
+          rig.root.scale.setScalar(.64);
+          rig.base.set(-2.55 + Math.abs(offset) * .65, .06, offset * 2.0);
+        }
+      } else {
+        rig.side = arena ? (index === 0 ? -1 : 1) : 0;
+        rig.base.set(arena ? rig.side * 1.48 : 0, .06, 0);
+      }
       models.add(rig.root);
       return rig;
     });
@@ -410,7 +543,11 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
     const width = Math.max(1, rect.width || 380), height = Math.max(1, rect.height || 420);
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    if (arena) {
+    if (raid) {
+      const fit = Math.max(1, 1.65 / camera.aspect);
+      camera.position.set(3.0 * fit, 6.3 * fit, 11.4 * fit);
+      camera.lookAt(0, 1.15, 0);
+    } else if (arena) {
       const fit = Math.max(1, 1.45 / camera.aspect);
       camera.position.set(3.0 * fit, 4.6 * fit, 8.8 * fit);
       camera.lookAt(0, 1.0, 0);
@@ -430,6 +567,8 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
     const target = rigs.find(rig => rig.id === String(event.targetId));
     if (!actor || !target) return Promise.resolve();
     const action = event.action;
+    const runeAction = action === 'runeSun' || action === 'runeMoon';
+    const healingAction = action === 'rest' || action.startsWith('potion');
     const mainDuration = action === 'surrender' ? 0 : 520;
     const duration = mainDuration + (event.winnerId ? 260 : 0);
     if (!duration) return Promise.resolve();
@@ -437,12 +576,17 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
     const start = performance.now();
     const props = [];
     let orb = null, bubble = null;
-    const glow = material(action === 'focus' ? 0xb18bea : action === 'guard' ? 0x90c1ea : 0x84d1a0,
-      { emissive: action === 'focus' ? 0x7550ae : action === 'guard' ? 0x4e8eb8 : 0x4da66d,
+    const glow = material(action === 'runeSun' ? 0xf3cd6a : action === 'focus' || action === 'runeMoon' ? 0xb18bea : action === 'guard' ? 0x90c1ea : 0x84d1a0,
+      { emissive: action === 'runeSun' ? 0xb19033 : action === 'focus' || action === 'runeMoon' ? 0x7550ae : action === 'guard' ? 0x4e8eb8 : 0x4da66d,
         emissiveIntensity: .55, transparent: true, opacity: .75, depthWrite: false });
     if (action === 'focus') orb = sphere(fx, glow, [0, 1.5, 0], [.20, .20, .20]);
-    if (action === 'guard') bubble = sphere(fx, glow, [actor.base.x, 1.51, 0], [.94, 1.38, .80]);
-    if (action.startsWith('potion') || action === 'guard') {
+    if (action === 'guard') bubble = sphere(fx, glow, [actor.base.x, 1.51, actor.base.z], [.94, 1.38, .80]);
+    if (runeAction) {
+      bubble = addMesh(fx, new THREE.TorusGeometry(.72, .045, 6, 24), glow, [actor.base.x, 2.35, actor.base.z]);
+      addMesh(fx, action === 'runeSun' ? starGeometry(.26) : new THREE.TorusGeometry(.22, .045, 6, 14, Math.PI * 1.6), glow,
+        [actor.base.x, 2.35, actor.base.z]);
+    }
+    if (healingAction || action === 'guard' || runeAction) {
       for (let index = 0; index < 6; index++) props.push(addMesh(fx, new THREE.OctahedronGeometry(.065), glow));
     }
     const victoryStars = [];
@@ -479,18 +623,23 @@ function mount(host, heroes, { arena = false, userId, interactive = !arena } = {
           actor.arms[1].rotation.x = -pulse * 1.20;
           if (orb) {
             const path = THREE.MathUtils.smoothstep(p, .20, .82);
-            orb.position.set(THREE.MathUtils.lerp(actor.base.x, target.base.x, path), 1.62 + Math.sin(path * Math.PI) * .25, .35);
+            orb.position.set(THREE.MathUtils.lerp(actor.base.x, target.base.x, path), 1.62 + Math.sin(path * Math.PI) * .25,
+              THREE.MathUtils.lerp(actor.base.z, target.base.z, path) + .35);
             orb.scale.setScalar(.13 + pulse * .22);
             orb.rotation.y = p * TAU;
           }
           if (p > .65) for (const value of target.materials) value.mat.color.lerp(new THREE.Color(0xd6b5f6), .3 * Math.sin((p - .65) / .35 * Math.PI));
-        } else if (elapsed <= mainDuration && (action === 'guard' || action.startsWith('potion'))) {
+        } else if (elapsed <= mainDuration && (action === 'guard' || healingAction || runeAction)) {
           actor.arms[0].rotation.x = -pulse * .45;
           actor.arms[1].rotation.x = -pulse * .45;
-          if (bubble) { bubble.position.x = actor.root.position.x; glow.opacity = .08 + pulse * .20; }
+          if (bubble) {
+            bubble.position.x = actor.root.position.x;
+            glow.opacity = .08 + pulse * .35;
+            if (runeAction) { bubble.rotation.z = p * Math.PI; bubble.scale.setScalar(.7 + pulse * .4); }
+          }
           for (let index = 0; index < props.length; index++) {
             const angle = index / props.length * TAU + p * 4;
-            props[index].position.set(actor.base.x + Math.cos(angle) * .72, .40 + ((p + index / props.length) % 1) * 2.50, Math.sin(angle) * .63);
+            props[index].position.set(actor.base.x + Math.cos(angle) * .72, .40 + ((p + index / props.length) % 1) * 2.50, actor.base.z + Math.sin(angle) * .63);
             props[index].rotation.y = p * TAU;
           }
         }
@@ -602,4 +751,10 @@ export function mountHero3D(host, hero, options = {}) {
 /** Mount both battle snapshots. Their gear visuals must also be snapshots. */
 export function mountArena3D(host, fighters, options = {}) {
   return mount(host, fighters, { ...options, arena: true });
+}
+
+/** Group members and the golem use the same persistent action/snapshot contract. */
+export function mountRaid3D(host, members, boss, options = {}) {
+  return mount(host, [...(members || []), { ...boss, id: boss?.id || 'rune-golem', avatar: 'golem', kind: 'golem' }],
+    { ...options, arena: true, raid: true, interactive: false });
 }
