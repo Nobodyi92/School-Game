@@ -1,10 +1,10 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene Helden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Tierhelden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen in einer 3D-Arena gegeneinander an.
 
 ## Start
 
-Voraussetzung: **Node.js 24 oder neuer** (mit integriertem `node:sqlite`). Keine externen Pakete, Paketinstallation, Datenbankdienste oder Zugangsschlüssel erforderlich.
+Voraussetzung: **Node.js 24 oder neuer** (mit integriertem `node:sqlite`). Keine zusätzliche Paketinstallation, Datenbankdienste oder Zugangsschlüssel erforderlich. Die für die 3D-Darstellung benötigte Three.js-Version liegt bereits im Projekt.
 
 ```sh
 cd /workspace/School-Game
@@ -56,7 +56,7 @@ Es gibt einen Truhentyp. Jede Truhe enthält mit gleicher Wahrscheinlichkeit **e
 | Episch | 10 % | 7 XP |
 | Legendär | 2 % | 10 XP |
 
-Der Katalog enthält 48 Ausrüstungsvarianten mit festen, nachvollziehbaren Boni. Sechs Plätze stehen zur Verfügung: **Helm, Brustplatte, Hand 1, Hand 2, Kette und Ring**. Beide Hände können jeweils eine Waffe oder einen Schild tragen. Zwei gleiche Designs sind möglich, benötigen aber zwei tatsächlich vorhandene Exemplare. Dieselbe Instanz kann niemals beide Plätze gleichzeitig belegen.
+Der Katalog enthält 48 Ausrüstungsvarianten mit festen, nachvollziehbaren Boni. Sechs Plätze stehen zur Verfügung: **Helm, Brustplatte, Hand 1, Hand 2, Kette und Ring**. Die Plätze sind im Inventar um den 3D-Avatar an den passenden Körperstellen angeordnet. Beide Hände können jeweils eine Waffe oder einen Schild tragen. Zwei gleiche Designs sind möglich, benötigen aber zwei tatsächlich vorhandene Exemplare. Dieselbe Instanz kann niemals beide Plätze gleichzeitig belegen.
 
 Ausrüstung verbessert Angriff, Fokus, maximale LP oder Rüstung. Rüstung reduziert Trefferschaden vor der Deckung um höchstens 12 Punkte; jeder Treffer verursacht mindestens einen Schadenspunkt. Farben, Kleidung und Emblem sind rein optisch.
 
@@ -65,6 +65,14 @@ Nur **zusätzliche Exemplare desselben Gegenstands in derselben Seltenheit** las
 ## Kampfanimationen
 
 Angriff und Fokusstoß zeigen Bewegung, Trefferreaktion und Schadenszahlen; Deckung und Heiltränke haben eigene Effekte. Trainingszüge von Spieler und Gegner werden nacheinander abgespielt. Eine Siegesanimation schließt das Duell ab. Die Animationen ändern keine serverseitig berechneten Kampfwerte und blockieren Eingaben nur während des kurzen Effekts. Die Betriebssystem-/Browser-Einstellung für reduzierte Bewegung wird berücksichtigt.
+
+## 3D-Figuren und Ausrüstungsansicht
+
+Unter **Mein Held** und im **Inventar** wird die vollständige Tierfigur als 3D-Modell angezeigt. Die Vorschau lässt sich mit gedrückter Maustaste oder per Touch ziehen und drehen. Farbe, Outfit, Wappen sowie ausgerüsteter Helm, Brustplatte, Waffen, Schilde, Kette und Ring sind an der Figur sichtbar. Die Kämpfe zeigen beide Helden gemeinsam auf einer 3D-Arenaplattform; Zugfolge, Skills und Belohnungen funktionieren wie zuvor.
+
+Für 3D wird ein Browser mit aktiviertem **WebGL 2** benötigt, etwa eine aktuelle Version von Edge, Chrome oder Firefox. Wenn keine geeignete Grafikunterstützung verfügbar ist, zeigt das Spiel automatisch die vorhandenen 2D-Figuren und Effekte. Inventar und Kämpfe bleiben bedienbar. Die Einstellung für reduzierte Bewegung gilt auch für die 3D-Darstellung.
+
+Three.js **0.180.0** und seine MIT-Lizenz sind unter `public/vendor/` mitgeliefert. Modelle, 3D-Bibliothek und alle Effekte werden vom Spielserver geladen; zur Laufzeit sind keine externen CDNs oder Modelldienste nötig. Auch für das 3D-Update genügt `npm start`.
 
 ## Speicherung und Konfiguration
 
@@ -92,8 +100,8 @@ Umgebungsvariablen direkt beim Start übergeben; `.env` wird nicht automatisch g
 
 ## Technik und Prüfung
 
-Node-HTTP-Server, SQLite, Vanilla JavaScript und CSS, ohne externe Laufzeitabhängigkeiten. Rollen, Zugfolge, Inventarverbrauch und XP-Ausgaben werden auf dem Server geprüft. Sitzungen verwenden HttpOnly-/SameSite-Cookies; Passwörter werden mit individuellem Salt und scrypt gehasht. JSON-Mutationen von fremden Origins werden abgewiesen.
+Node-HTTP-Server, SQLite, Vanilla JavaScript, CSS und die mitgelieferte Three.js-Bibliothek, ohne separat zu installierende Pakete. Rollen, Zugfolge, Inventarverbrauch und XP-Ausgaben werden auf dem Server geprüft. Sitzungen verwenden HttpOnly-/SameSite-Cookies; Passwörter werden mit individuellem Salt und scrypt gehasht. JSON-Mutationen von fremden Origins werden abgewiesen.
 
-`npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen.
+`npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf.
 
 Wichtige Dateien: `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `public/` (Oberfläche und Effekte), `test/` (Tests).

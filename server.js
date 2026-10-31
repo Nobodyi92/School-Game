@@ -381,6 +381,10 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(req.method === 'GET' || req.method === 'HEAD', 405, 'Diese Methode wird nicht unterstützt.');
       const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'],
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
+        '/hero3d.js': ['hero3d.js', 'text/javascript'],
+        '/vendor/three.module.min.js': ['vendor/three.module.min.js', 'text/javascript'],
+        '/vendor/three.core.min.js': ['vendor/three.core.min.js', 'text/javascript'],
+        '/vendor/THREE-LICENSE.txt': ['vendor/THREE-LICENSE.txt', 'text/plain'],
         '/favicon.svg': ['favicon.svg', 'image/svg+xml'] };
       requireThat(Object.hasOwn(assets, path), 404, 'Seite nicht gefunden.');
       const [filename, mime] = assets[path];

@@ -23,6 +23,38 @@ function fighter(ctx, id) {
   return ctx.panel.querySelector(id === ctx.userId ? '.fighter.self' : '.fighter.opponent');
 }
 
+function arenaController(ctx) {
+  const arena = ctx.panel.querySelector('.arena-3d');
+  const controller = arena?.__hero3d;
+  return arena?.dataset.renderState === 'ready' && controller?.supported !== false &&
+    typeof controller?.play === 'function' ? controller : null;
+}
+
+// Renderer effects and DOM feedback share one turn. Cancellation must release
+// the turn even when a WebGL context disappears during an animation.
+function playArenaEvent(ctx, controller, event) {
+  return new Promise(resolve => {
+    let settled = false;
+    let timer;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      ctx.waiters.delete(finish);
+      ctx.controllers.delete(controller);
+      resolve();
+    };
+    ctx.waiters.add(finish);
+    ctx.controllers.add(controller);
+    timer = setTimeout(() => {
+      try { controller.cancel?.(); } catch { /* A lost context is already gone. */ }
+      finish();
+    }, 1600);
+    try { Promise.resolve(controller.play(event)).catch(() => {}).finally(finish); }
+    catch { finish(); }
+  });
+}
+
 function visual(ctx, host, className, text = '') {
   if (!host || !alive(ctx)) return null;
   const node = document.createElement('span');
@@ -174,21 +206,26 @@ function victory(ctx, winnerId) {
 
 async function playEvent(ctx, event) {
   if (!alive(ctx)) return;
+  const controller = arenaController(ctx);
   const actor = fighter(ctx, event.actorId)?.querySelector('.fighter-avatar');
   const target = fighter(ctx, event.targetId)?.querySelector('.fighter-avatar');
-  if (!actor || !target) return;
+  if (!actor || !target) {
+    if (controller) await playArenaEvent(ctx, controller, event);
+    return;
+  }
   const nodesBefore = new Set(ctx.nodes);
   const work = [updateHealth(ctx, event)];
+  if (controller) work.push(playArenaEvent(ctx, controller, event));
   if (event.action === 'attack' || event.action === 'focus') {
     const direction = event.actorId === ctx.userId ? 1 : -1;
     const step = direction * Math.min(38, Math.max(14, Math.abs(target.getBoundingClientRect().left - actor.getBoundingClientRect().left) * .13));
-    work.push(animate(ctx, actor, [
+    if (!controller) work.push(animate(ctx, actor, [
       { transform: 'translateX(0) scale(1)' },
       { transform: `translateX(${-step * .2}px) scale(.97)`, offset: .2 },
       { transform: `translateX(${step}px) scale(1.05)`, offset: .46 },
       { transform: 'translateX(0) scale(1)' },
     ], { duration: 440 }));
-    work.push(animate(ctx, target, [
+    if (!controller) work.push(animate(ctx, target, [
       { transform: 'translateX(0)', filter: 'brightness(1)' },
       { transform: `translateX(${direction * 6}px)`, filter: 'brightness(1.35)', offset: .2 },
       { transform: `translateX(${-direction * 4}px)`, filter: 'brightness(1)', offset: .4 },
@@ -198,7 +235,8 @@ async function playEvent(ctx, event) {
     work.push(ring(ctx, target, event.action === 'focus' ? 'purple' : 'damage', 140));
     work.push(number(ctx, target, `−${event.damage}`, event.action === 'focus' ? 'purple' : 'damage', 150));
     if (event.action === 'focus') {
-      work.push(ring(ctx, actor, 'purple'), focusBeam(ctx, actor, target));
+      work.push(ring(ctx, actor, 'purple'));
+      if (!controller) work.push(focusBeam(ctx, actor, target));
     }
     if (event.blocked) {
       const caption = visual(ctx, target, 'fx-caption fx-blue', 'Deckung');
@@ -227,6 +265,10 @@ async function playEvent(ctx, event) {
 function cleanup(ctx) {
   if (ctx.cleaned) return;
   ctx.cleaned = true;
+  for (const controller of ctx.controllers) {
+    try { controller.cancel?.(); } catch { /* App disposal can happen first. */ }
+  }
+  ctx.controllers.clear();
   for (const animation of ctx.animations) animation.cancel();
   for (const finish of [...ctx.waiters]) finish();
   for (const node of ctx.nodes) node.remove();
@@ -267,7 +309,7 @@ export function playBattleEvents(events, { userId, battleId, finished = false } 
     const ctx = {
       panel, userId, battleId, finished, generation: thisGeneration,
       reduced: typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches,
-      nodes: new Set(), animations: new Set(), waiters: new Set(), health: new Map(),
+      nodes: new Set(), animations: new Set(), waiters: new Set(), controllers: new Set(), health: new Map(),
     };
     if (!alive(ctx)) return;
     contexts.add(ctx);
