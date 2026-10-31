@@ -3,8 +3,9 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { openStore, hashPassword, verifyPassword, userView, battleView } from './lib/store.js';
+import { openStore, hashPassword, verifyPassword, userView, battleView, normalizeAppearance, APPEARANCE_OPTIONS } from './lib/store.js';
 import { createBattleState, applyAction } from './lib/combat.js';
+import { catalogue, normalizeInventory, normalizeEquipment, resolveItem, compatibleSlot, rollChest, SLOTS, POTIONS } from './lib/items.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const SESSION_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -47,7 +48,7 @@ async function readJson(req) {
 }
 
 export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite'), demo = true,
-  secureCookies = false, now = () => Date.now() } = {}) {
+  secureCookies = false, now = () => Date.now(), lootRandomInt } = {}) {
   const db = openStore(dbPath, { demo });
   const attempts = new Map();
   const byId = id => db.prepare('SELECT * FROM users WHERE id = ?').get(id);
@@ -169,6 +170,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         user: userView(user, { includeEmail: true }),
         students: students.map(s => userView(s, { includeEmail: user.role === 'teacher' || s.id === user.id })),
         battles: battles.map(battleView),
+        catalogue: catalogue(),
         rewards: rewards.map(r => ({ id: r.id, studentId: r.student_id, studentName: r.student_name,
           teacherName: r.teacher_name, xp: r.xp, item: r.item, reason: r.reason, createdAt: r.created_at })),
       };
@@ -178,8 +180,79 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       studentOnly(user);
       const character = text(body.characterName, 2, 30, 'Heldenname');
       requireThat(['fox', 'owl', 'dragon', 'cat'].includes(body.avatar), 400, 'Bitte einen verfügbaren Avatar wählen.');
-      db.prepare('UPDATE users SET character_name = ?, avatar = ? WHERE id = ?').run(character, body.avatar, user.id);
+      const appearance = normalizeAppearance(user.appearance);
+      if (body.appearance !== undefined) {
+        requireThat(body.appearance && typeof body.appearance === 'object' && !Array.isArray(body.appearance), 400, 'Ungültige Charaktergestaltung.');
+        for (const [key, choices] of Object.entries(APPEARANCE_OPTIONS)) {
+          if (body.appearance[key] !== undefined) {
+            requireThat(choices.includes(body.appearance[key]), 400, 'Bitte eine verfügbare Charaktergestaltung wählen.');
+            appearance[key] = body.appearance[key];
+          }
+        }
+      }
+      db.prepare('UPDATE users SET character_name = ?, avatar = ?, appearance = ? WHERE id = ?')
+        .run(character, body.avatar, JSON.stringify(appearance), user.id);
       return { user: userView(byId(user.id), { includeEmail: true }) };
+    }
+
+    if (path === '/api/chests/open' && method === 'POST') {
+      studentOnly(user);
+      return transaction(() => {
+        const inventory = normalizeInventory(byId(user.id).inventory);
+        requireThat(inventory.chests > 0, 400, 'Du hast gerade keine Truhe. Deine Lehrkraft kann dir eine vergeben.');
+        const rolled = rollChest(lootRandomInt);
+        const drops = rolled.map(drop => {
+          if (drop.kind === 'equipment') {
+            const entry = { id: randomUUID(), templateId: drop.templateId };
+            inventory.items.push(entry);
+            return { kind: 'equipment', ...resolveItem(entry) };
+          }
+          const potion = POTIONS.find(p => p.id === drop.potionId);
+          inventory[drop.potionId]++;
+          return { ...drop, name: potion.name, healing: potion.healing };
+        });
+        inventory.chests--;
+        db.prepare('UPDATE users SET inventory = ? WHERE id = ?').run(JSON.stringify(inventory), user.id);
+        return { drops, user: userView(byId(user.id), { includeEmail: true }) };
+      });
+    }
+
+    if (path === '/api/equipment' && method === 'POST') {
+      studentOnly(user);
+      requireThat(SLOTS.some(slot => slot.id === body.slot), 400, 'Unbekannter Ausrüstungsplatz.');
+      requireThat(body.itemId === null || (typeof body.itemId === 'string' && body.itemId.length > 0 && body.itemId.length <= 100), 400, 'Bitte einen Gegenstand auswählen.');
+      const equipment = normalizeEquipment(user.equipment);
+      if (body.itemId !== null) {
+        const inventory = normalizeInventory(user.inventory);
+        const item = resolveItem(inventory.items.find(entry => entry.id === body.itemId));
+        requireThat(item, 404, 'Dieser Gegenstand gehört nicht zu deinem Inventar.');
+        requireThat(compatibleSlot(item, body.slot), 400, 'Dieser Gegenstand passt nicht auf den gewählten Platz.');
+        requireThat(!Object.entries(equipment).some(([slot, id]) => slot !== body.slot && id === body.itemId), 409,
+          'Dieser Gegenstand ist bereits auf einem anderen Platz ausgerüstet. Lege ihn zuerst ab.');
+      }
+      equipment[body.slot] = body.itemId;
+      db.prepare('UPDATE users SET equipment = ? WHERE id = ?').run(JSON.stringify(equipment), user.id);
+      return { user: userView(byId(user.id), { includeEmail: true }) };
+    }
+
+    if (path === '/api/inventory/recycle' && method === 'POST') {
+      studentOnly(user);
+      requireThat(typeof body.itemId === 'string' && body.itemId.trim().length > 0 && body.itemId.length <= 100, 400, 'Bitte einen Gegenstand auswählen.');
+      return transaction(() => {
+        const fresh = byId(user.id);
+        const inventory = normalizeInventory(fresh.inventory);
+        const equipment = normalizeEquipment(fresh.equipment);
+        const entry = inventory.items.find(item => item.id === body.itemId);
+        const item = resolveItem(entry);
+        requireThat(item, 404, 'Dieser Gegenstand gehört nicht zu deinem Inventar.');
+        requireThat(!Object.values(equipment).includes(body.itemId), 400, 'Lege den Gegenstand vor dem Eintauschen ab.');
+        requireThat(inventory.items.filter(other => other.templateId === entry.templateId).length >= 2, 400,
+          'Du kannst nur zusätzliche Exemplare desselben Gegenstands in derselben Seltenheit eintauschen.');
+        inventory.items = inventory.items.filter(other => other.id !== body.itemId);
+        db.prepare('UPDATE users SET inventory = ?, xp = xp + ?, total_xp = total_xp + ? WHERE id = ?')
+          .run(JSON.stringify(inventory), item.recycleXp, item.recycleXp, user.id);
+        return { xpAwarded: item.recycleXp, user: userView(byId(user.id), { includeEmail: true }) };
+      });
     }
 
     if (path === '/api/skills/upgrade' && method === 'POST') {
@@ -200,11 +273,11 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       const student = byId(body.studentId);
       requireThat(student?.role === 'student' && student.school_id === user.school_id, 404, 'Schülerkonto nicht gefunden.');
       requireThat(Number.isInteger(body.xp) && body.xp >= 0 && body.xp <= 100, 400, 'Bitte 0 bis 100 XP vergeben.');
-      requireThat(body.item === null || body.item === 'potion', 400, 'Unbekannter Gegenstand.');
+      requireThat(body.item === null || ['chest', ...POTIONS.map(p => p.id)].includes(body.item), 400, 'Unbekannter Gegenstand.');
       requireThat(body.xp > 0 || body.item, 400, 'Bitte XP oder einen Gegenstand auswählen.');
       const reason = text(body.reason, 3, 160, 'Begründung');
-      const inventory = JSON.parse(student.inventory);
-      if (body.item) inventory[body.item]++;
+      const inventory = normalizeInventory(student.inventory);
+      if (body.item) inventory[body.item === 'chest' ? 'chests' : body.item]++;
       transaction(() => {
         db.prepare('UPDATE users SET xp = xp + ?, total_xp = total_xp + ?, inventory = ? WHERE id = ?')
           .run(body.xp, body.xp, JSON.stringify(inventory), student.id);
@@ -252,6 +325,10 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
           state.winnerId = state.fighters.find(f => f.id !== user.id).id;
           state.log.push(`${user.character_name} gibt das Duell auf.`);
           state.log = state.log.slice(-24);
+          state.eventSeq = (state.eventSeq || 0) + 1;
+          state.events = [...(state.events || []), { id: state.eventSeq, turn: state.turns || 0,
+            actorId: user.id, targetId: state.winnerId, action: 'surrender', damage: 0, healing: 0,
+            blocked: false, winnerId: state.winnerId }].slice(-64);
           saveBattle(id, state);
         }
       } else if (operation === 'respond') {
@@ -264,7 +341,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         } else db.prepare("UPDATE battles SET status = 'declined' WHERE id = ?").run(id);
       } else {
         requireThat(battle.status === 'active', 409, 'Dieses Duell ist nicht aktiv.');
-        const inventory = JSON.parse(user.inventory);
+        const inventory = normalizeInventory(user.inventory);
         let result;
         try { result = applyAction(JSON.parse(battle.state), user.id, body.action, inventory); }
         catch (error) { throw new HttpError(400, error.message); }
@@ -302,7 +379,9 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         return;
       }
       requireThat(req.method === 'GET' || req.method === 'HEAD', 405, 'Diese Methode wird nicht unterstützt.');
-      const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'], '/favicon.svg': ['favicon.svg', 'image/svg+xml'] };
+      const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'],
+        '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
+        '/favicon.svg': ['favicon.svg', 'image/svg+xml'] };
       requireThat(Object.hasOwn(assets, path), 404, 'Seite nicht gefunden.');
       const [filename, mime] = assets[path];
       const content = await readFile(join(root, 'public', filename));

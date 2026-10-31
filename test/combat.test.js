@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createBattleState, applyAction, getCombatStats } from '../lib/combat.js';
+import { ITEMS, POTIONS, equipmentBonuses } from '../lib/items.js';
 
 const player = (id, skills = {}) => ({
   id,
@@ -138,4 +139,128 @@ test('time limit compares HP percentages rather than absolute endurance bonus', 
   state = act(state, 'guard');
   assert.equal(state.status, 'finished');
   assert.equal(state.winnerId, 'b');
+});
+
+test('equipped bonuses affect stats and are frozen together with appearance at battle start', () => {
+  const weapon = ITEMS.find(item => item.type === 'weapon' && item.rarity === 'legendary');
+  const helmet = ITEMS.find(item => item.type === 'helmet' && item.rarity === 'rare');
+  assert.ok(weapon);
+  assert.ok(helmet);
+  const a = {
+    ...player('a'), avatar: 'owl',
+    appearance: { color: 'mint', outfit: 'scholar', emblem: 'moon' },
+    inventory: { items: [{ id: 'weapon-a', templateId: weapon.id }, { id: 'helmet-a', templateId: helmet.id }] },
+    equipment: { hand1: 'weapon-a', helmet: 'helmet-a' },
+  };
+  const bonuses = equipmentBonuses(a.inventory, a.equipment);
+  const stats = getCombatStats(a);
+  assert.equal(stats.attackDamage, 14 + bonuses.attack);
+  assert.equal(stats.maxHp, 92 + bonuses.health);
+  let state = createBattleState(a, player('b'));
+  assert.deepEqual(state.fighters[0].stats, stats);
+  assert.equal(state.fighters[0].avatar, 'owl');
+  assert.equal(state.fighters[0].appearance.color, 'mint');
+  a.equipment.hand1 = null;
+  a.appearance.color = 'rose';
+  a.inventory.items.length = 0;
+  assert.equal(state.fighters[0].equipment.hand1, 'weapon-a');
+  assert.equal(state.fighters[0].appearance.color, 'mint');
+  // Even a changed display skill cannot replace the start-of-duel stats.
+  state.fighters[0].skills.strength = 10;
+  state = applyAction(state, 'a', 'attack').state;
+  assert.equal(state.fighters[1].hp, 92 - stats.attackDamage);
+});
+
+test('armor reduces damage before guarding, is capped, and never makes fighters invulnerable', () => {
+  const a = player('a');
+  const b = player('b');
+  const state = createBattleState(a, b);
+  state.fighters[1].stats.defense = 999;
+  const hit = applyAction(state, 'a', 'attack').state;
+  assert.equal(hit.fighters[1].hp, 92 - 2); // attack14 - capped defense12
+  assert.equal(hit.events[0].damage, 2);
+  const guarded = structuredClone(state);
+  guarded.fighters[1].guarding = true;
+  const blocked = applyAction(guarded, 'a', 'attack').state;
+  assert.equal(blocked.fighters[1].hp, 91);
+  assert.equal(blocked.events[0].blocked, true);
+  const lowAttack = structuredClone(state);
+  lowAttack.fighters[0].stats.attackDamage = 1;
+  const minimumHit = applyAction(lowAttack, 'a', 'attack').state;
+  assert.equal(minimumHit.fighters[1].hp, 91);
+  assert.equal(minimumHit.events[0].damage, 1);
+  const negativeDefense = structuredClone(state);
+  negativeDefense.fighters[1].stats.defense = -30;
+  assert.equal(applyAction(negativeDefense, 'a', 'attack').state.events[0].damage, 14);
+});
+
+test('small, medium and large potions heal their own amount and consume only their own inventory key', () => {
+  assert.deepEqual(POTIONS.map(potion => potion.healing), [20, 35, 60]);
+  for (const potion of POTIONS) {
+    const state = battle();
+    state.fighters[0].hp = 10;
+    const inventory = { [potion.id]: 1 };
+    const result = applyAction(state, 'a', potion.id, inventory);
+    assert.equal(result.state.fighters[0].hp, 10 + potion.healing);
+    assert.equal(result.consumedItem, potion.id);
+    assert.deepEqual(inventory, { [potion.id]: 1 });
+    assert.equal(result.state.events[0].healing, potion.healing);
+    assert.equal(result.state.events[0].action, potion.id);
+    assert.equal(result.state.events[0].targetId, 'a');
+    assert.throws(() => applyAction(state, 'a', potion.id, {}), /keinen Heiltrank/);
+    assert.throws(() => applyAction(battle(), 'a', potion.id, inventory), /bereits voll/);
+  }
+});
+
+test('animation events distinguish attacks, defense and healing with stable monotonic IDs', () => {
+  let state = battle();
+  assert.deepEqual(state.events, []);
+  state = applyAction(state, 'a', 'attack').state;
+  state = applyAction(state, 'b', 'guard').state;
+  state = applyAction(state, 'a', 'focus').state;
+  assert.deepEqual(state.events.map(event => event.id), [1, 2, 3]);
+  assert.deepEqual(state.events.map(event => event.turn), [1, 2, 3]);
+  assert.deepEqual(state.events[0], {
+    id: 1, turn: 1, actorId: 'a', targetId: 'b', action: 'attack',
+    damage: 14, healing: 0, blocked: false,
+  });
+  assert.equal(state.events[1].action, 'guard');
+  assert.equal(state.events[1].healing, 7);
+  assert.equal(state.events[1].targetId, 'b');
+  assert.equal(state.events[2].blocked, true);
+  assert.equal(state.events[2].damage, Math.ceil(21 * .45));
+});
+
+test('legacy saved battles without stats, appearances or event fields remain playable', () => {
+  const legacy = battle();
+  delete legacy.events;
+  delete legacy.eventSeq;
+  for (const fighter of legacy.fighters) {
+    delete fighter.stats;
+    delete fighter.equipment;
+    delete fighter.appearance;
+    delete fighter.avatar;
+  }
+  const before = structuredClone(legacy);
+  const next = applyAction(legacy, 'a', 'attack').state;
+  assert.equal(next.fighters[1].hp, 78);
+  assert.equal(next.events[0].id, 1);
+  assert.equal(next.eventSeq, 1);
+  assert.deepEqual(legacy, before);
+});
+
+test('animation history is bounded without reusing IDs and final events identify the winner', () => {
+  const state = battle();
+  state.events = Array.from({ length: 64 }, (_, index) => ({ id: index + 1 }));
+  state.eventSeq = 10; // An old persisted sequence cannot re-use an existing ID.
+  state.fighters[1].hp = 1;
+  const result = applyAction(state, 'a', 'attack');
+  assert.equal(result.state.events.length, 64);
+  assert.equal(result.state.events[0].id, 2);
+  assert.equal(result.state.events.at(-1).id, 65);
+  assert.equal(result.state.eventSeq, 65);
+  assert.equal(result.state.events.at(-1).winnerId, 'a');
+  assert.equal(result.state.events.at(-1).damage, 1);
+  assert.equal(state.events.length, 64);
+  assert.equal(state.eventSeq, 10);
 });
