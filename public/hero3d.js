@@ -12,6 +12,7 @@ const COSMETIC_OUTFITS = {
   'outfit-starlight': [0x4c568f, 0xb9c7f4],
   'outfit-warden': [0x347e6c, 0xa5d7bf],
   'outfit-runekeeper': [0x7852a7, 0xd0b1ef],
+  'outfit-pathfinder': [0x358e83, 0xf1ddaa],
 };
 const TAU = Math.PI * 2;
 
@@ -107,13 +108,24 @@ function selectedCosmetic(hero, type) {
 }
 
 function makeCompanion(parent, id) {
-  if (!['pet-firefly', 'pet-cloud', 'pet-rune'].includes(id)) return null;
+  if (!['pet-firefly', 'pet-cloud', 'pet-rune', 'pet-tide'].includes(id)) return null;
   const group = new THREE.Group();
   group.position.set(.99, 1.64, .14);
   group.userData.cosmetic = id;
   parent.add(group);
   const eyes = material(0x343044);
-  if (id === 'pet-cloud') {
+  if (id === 'pet-tide') {
+    const water = material(0x71cec6, { emissive: 0x246c78, emissiveIntensity: .35, transparent: true, opacity: .92 });
+    sphere(group, water, [0, 0, 0], [.22, .25, .19]);
+    const crest = cone(group, water, [.02, .22, 0], .14, .24, 7); crest.rotation.z = -.35;
+    for (const side of [-1, 1]) {
+      sphere(group, eyes, [side * .075, .02, .17], [.027, .037, .018]);
+      sphere(group, material(0xd8f7e7), [side * .075 + .008, .034, .184], [.009, .012, .009]);
+      sphere(group, water, [side * .28, -.08, 0], [.12, .07, .05]);
+    }
+    const tide = addMesh(group, new THREE.TorusGeometry(.31, .018, 5, 20), material(0xc7eee4));
+    tide.rotation.x = 1.25;
+  } else if (id === 'pet-cloud') {
     const cloud = material(0xe2eef6);
     sphere(group, cloud, [0, 0, 0], [.25, .18, .18]);
     sphere(group, cloud, [-.16, -.04, 0], [.16, .13, .14]);

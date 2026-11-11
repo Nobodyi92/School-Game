@@ -118,7 +118,7 @@ function mount3DViews() {
     const fighters = battle.state.fighters.map(value => ({ ...value, equipmentVisuals: value.equipmentVisuals || {} }));
     register(host, () => mountArena3D(host, fighters, { userId: state.user.id, interactive: false }));
   }
-  mountAdventure3D({ state, mountArena3D, mountRaid3D, register });
+  mountAdventure3D({ state, mountHero3D, mountArena3D, mountRaid3D, register });
 }
 
 function defaultAppearance() { return { color: 'amber', outfit: 'adventurer', emblem: 'star' }; }
@@ -384,7 +384,7 @@ app.addEventListener('click', async event => {
   if ((busy || isAnimating() || adventureIsAnimating()) && !['nav', 'select-battle', 'dismiss-battle'].includes(action)) return;
   if (action === 'auth-mode') { authMode = button.dataset.mode; renderAuth(); return; }
   if (action === 'nav') { cancelBattleEffects(); cancelAdventureAnimations(); document.body.classList.remove('is-animating'); tab = button.dataset.tab; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-  if (/^(adventure-|tower-|raid-|cosmetic-)/.test(action)) { await handleAdventureAction(button, { api, mutate, render, toast, confirmDialog }); return; }
+  if (/^(adventure-|tower-|island-|raid-|cosmetic-)/.test(action)) { await handleAdventureAction(button, { api, mutate, render, toast, confirmDialog }); return; }
   if (action === 'demo-login') {
     if (busy) return;
     busy = true; button.disabled = true;

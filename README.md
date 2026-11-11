@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Tierhelden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Seit Version **0.4** ergänzen der Solo-Modus **Turm der Prüfungen**, der Gruppenboss **Runengolem** und eine Sammlung kosmetischer Belohnungen das Spiel.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Tierhelden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -31,6 +31,7 @@ Im standardmäßig aktiven Demomodus stehen diese Konten bereit. Alle verwenden 
 5. Für ein echtes Schülerduell Lina und Ben in **zwei getrennten Browserprofilen** (z. B. normal und privat) anmelden. Eine Herausforderung senden, auf dem anderen Konto annehmen und abwechselnd Aktionen wählen. Ein zweiter Tab desselben Browserprofils teilt denselben Login.
 6. Unter **Abenteuer → Turm der Prüfungen** allein einen Aufstieg beginnen. Nach einer gewonnenen Etage die Funde sichern oder mit einem Turmsegen weiterspielen. Den ersten Begleiter gibt es nach abgeschlossener Etage 2, sobald die Funde gesichert werden.
 7. Für **Abenteuer → Runengolem** drei getrennte Schülerkonten verwenden: Lina, Ben und ein über **Schüleraccount erstellen** neu registriertes Demokonto. Es wird kein drittes Schülerkonto automatisch angelegt. Drei unabhängige Browserprofile oder Geräte verwenden, etwa Edge, Chrome und ein Edge-InPrivate-Fenster. In einem Konto eine Gruppe eröffnen, in den anderen beiden beitreten und als Gruppenleitung starten.
+8. Unter **Abenteuer → Die wandelnde Insel** eine Solo-Reise beginnen. Wähle an den Weggabelungen zwischen verschiedenen Begegnungen. Nach drei bzw. fünf abgeschlossenen Stationen lassen sich neue kosmetische Funde sichern; die siebte Station führt zum Gezeitenwächter.
 8. Unter **Sammlung** freigeschaltete Begleiter und Outfits auswählen sowie die verdienten Trophäen ansehen.
 
 Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Registrierungen erhalten ausschließlich die Schülerrolle, keine Lehrerrechte und keine selbst gewählten XP. Alle Konten gehören in dieser Version zur gemeinsamen Demoklasse „Campus Nord“.
@@ -46,7 +47,22 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 - Der Herausforderer beginnt. Fähigkeiten, Ausrüstungsboni und Aussehen werden bei Kampfbeginn festgehalten; spätere Änderungen gelten für das nächste Duell. Vorhandene Duelle aus der ersten Version behalten ihre bisherigen Werte.
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
 - Bei 0 LP endet der Kampf. Nach spätestens 30 Runden entscheidet der höhere verbleibende LP-Anteil; bei exaktem Gleichstand gewinnt der Herausforderer.
-- Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm und Runengolem vergeben ausschließlich kosmetische Begleiter, Outfits und Trophäen. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+- Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm, Insel und Runengolem vergeben ausschließlich kosmetische Begleiter, Outfits und Trophäen. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+
+## Die wandelnde Insel
+
+Die Insel ist eine allein spielbare Expedition über **sieben Stationen**. Bei jeder neuen Reise werden Reihenfolge und Ausgestaltung der Weggabelungen neu ausgewürfelt. Du wählst zwischen Rätseln, Kämpfen, Lagerplätzen, Inselfunden und besonderen Begegnungen. Die letzte Station ist immer der **Gezeitenwächter**.
+
+- **Rätsel:** Zahlenfolgen, Muschelwaagen und Zeichenmuster. Eine richtige Lösung bringt zwei Sternsplitter und bis zu sechs LP. Ein Fehler kostet acht LP, versperrt aber nicht den weiteren Weg.
+- **Begegnungen:** Auf der Windbrücke gibt es einen sicheren Weg oder einen Sprung mit ausdrücklich angezeigtem 50-Prozent-Risiko. Bei Händlern können Splitter gegen Heilung oder Reisefähigkeiten getauscht werden. Einer gestrandeten Späherin lässt sich auf unterschiedliche Weise helfen.
+- **Lager und Inselfunde:** Entscheide zwischen Heilung, Splittern und einem Windsegen. Jeder Halt kann nur einmal genutzt werden.
+- **Kämpfe:** Gegner kündigen ihre nächste Aktion an. Angriff, Fokus, Deckung und eine Notquelle mit 20 LP stehen zur Verfügung. Die Notquelle ist einmal pro Kampf nutzbar und verbraucht keinen Inventartrank. Nach einem Sieg wählst du zwischen zwei angebotenen Reisefähigkeiten.
+
+Reisefähigkeiten verändern nur den laufenden Versuch: **Doppelblitz** löst bei jedem zweiten normalen Angriff einen zusätzlichen Treffer aus; **Spiegelschild** wirft bei einem abgewehrten Treffer Schaden zurück. **Wurzelkraft**, **Windklinge** und **Gezeitenquelle** verstärken oder heilen den Helden. LP bleiben zwischen den Stationen erhalten. Sternsplitter dienen nur als Vorräte für diese Reise; sie lassen sich nicht gegen Konto-XP, Truhen oder Ausrüstung tauschen.
+
+Nach abgeschlossenen Stationen kannst du außerhalb eines Kampfes oder einer offenen Begegnung **Funde sichern und zurückkehren**. Das ist auch während der Wahl eines Windsegens möglich. Nach Station 3 wartet der Begleiter **Gezeitengeist**, nach Station 5 das Outfit **Inselwanderer**. Beim Sieg über den Wächter auf Station 7 werden sämtliche Funde und die Trophäe **Kompass der Insel** automatisch gesichert. Eine Niederlage oder Aufgabe verliert nur noch ungesicherte Funde dieses Versuchs. Bereits freigeschaltete Kosmetik, Konto-XP, Ausrüstung und Tränke bleiben erhalten.
+
+Die Reise einschließlich unbeantworteter Rätsel bleibt bei Schließen der Seite oder Neustart gespeichert. Pro Konto kann eine Inselreise gleichzeitig laufen. Entscheidungen werden mit Reisekennung und fortlaufender Version geprüft; wiederholte oder verspätete Anfragen geben keine zusätzlichen Funde. Zukünftige Wege und noch unbeantwortete Rätsellösungen verbleiben auf dem Server.
 
 ## Turm der Prüfungen
 
@@ -78,7 +94,7 @@ Die Gruppe, gewählte Aktionen und aktuelle Runde bleiben bei einem Serverneusta
 
 ## Begleiter, Outfits und Trophäen
 
-Alle neun Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegenstände oder Kampfboni. Ein bereits freigeschalteter Fund wird nicht doppelt vergeben. In **Sammlung** kann jeweils ein Begleiter und ein Outfit ausgewählt oder wieder abgelegt werden; beide sind in der 3D-Charakterdarstellung sichtbar. Trophäen bleiben als Sammlungseinträge erhalten und benötigen keinen Ausrüstungsplatz.
+Alle zwölf Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegenstände oder Kampfboni. Ein bereits freigeschalteter Fund wird nicht doppelt vergeben. In **Sammlung** kann jeweils ein Begleiter und ein Outfit ausgewählt oder wieder abgelegt werden; beide sind in der 3D-Charakterdarstellung sichtbar. Trophäen bleiben als Sammlungseinträge erhalten und benötigen keinen Ausrüstungsplatz.
 
 | Fund | Art | Freischaltung | ID |
 | --- | --- | --- | --- |
@@ -91,6 +107,9 @@ Alle neun Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegenst
 | Runenfunke | Begleiter | Runengolem als aktives Gruppenmitglied besiegen | `pet-rune` |
 | Runenhüter | Outfit | Runengolem als aktives Gruppenmitglied besiegen | `outfit-runekeeper` |
 | Runengolembezwinger | Trophäe | Runengolem als aktives Gruppenmitglied besiegen | `trophy-golem` |
+| Gezeitengeist | Begleiter | 3 Inselstationen abschließen und Funde sichern | `pet-tide` |
+| Inselwanderer | Outfit | 5 Inselstationen abschließen und Funde sichern | `outfit-pathfinder` |
+| Kompass der Insel | Trophäe | Alle 7 Inselstationen und den Wächter bezwingen | `trophy-island` |
 
 ## Truhen, Inventar und Ausrüstung
 
@@ -123,7 +142,7 @@ Three.js **0.180.0** und seine MIT-Lizenz sind unter `public/vendor/` mitgeliefe
 
 ## Speicherung und Konfiguration
 
-Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch der aktuelle Turmaufstieg, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
+Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch der aktuelle Turmaufstieg, die Inselreise, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
 
 ### Update unter Windows
 
@@ -151,4 +170,4 @@ Node-HTTP-Server, SQLite, Vanilla JavaScript, CSS und die mitgelieferte Three.js
 
 `npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf. Die Abenteuerprüfungen decken Turmfortschritt und Belohnungssicherung, Gruppenbildung, Runenaktionen, veraltete oder doppelte Spielzüge, serverseitige Zeitfristen, kosmetische Besitzrechte sowie die Speicherung nach einem Neustart ab.
 
-Wichtige Dateien: `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).
+Wichtige Dateien: `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).

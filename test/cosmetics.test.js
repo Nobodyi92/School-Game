@@ -2,12 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { COSMETICS, cosmeticCatalogue, normalizeCosmetics } from '../lib/cosmetics.js';
 
-test('cosmetic catalogue contains exactly the nine agreed visual rewards', () => {
-  assert.equal(COSMETICS.length, 9);
-  assert.equal(COSMETICS.filter(item => item.type === 'companion').length, 3);
-  assert.equal(COSMETICS.filter(item => item.type === 'outfit').length, 3);
-  assert.equal(COSMETICS.filter(item => item.type === 'trophy').length, 3);
-  assert.equal(new Set(COSMETICS.map(item => item.id)).size, 9);
+test('cosmetic catalogue includes tower, golem and island rewards without combat bonuses', () => {
+  assert.equal(COSMETICS.length, 12);
+  assert.equal(COSMETICS.filter(item => item.type === 'companion').length, 4);
+  assert.equal(COSMETICS.filter(item => item.type === 'outfit').length, 4);
+  assert.equal(COSMETICS.filter(item => item.type === 'trophy').length, 4);
+  assert.equal(new Set(COSMETICS.map(item => item.id)).size, 12);
+  for (const id of ['pet-tide', 'outfit-pathfinder', 'trophy-island']) assert.ok(COSMETICS.some(item => item.id === id));
   for (const item of COSMETICS) {
     assert.ok(item.source && item.name && item.description && item.color);
     assert.equal('bonuses' in item, false);
@@ -42,6 +43,6 @@ test('catalogue callers receive independent mutable copies', () => {
   const catalogue = cosmeticCatalogue();
   catalogue[0].name = 'Changed';
   catalogue.push({ id: 'fake' });
-  assert.equal(cosmeticCatalogue().length, 9);
+  assert.equal(cosmeticCatalogue().length, 12);
   assert.equal(cosmeticCatalogue()[0].name, 'Glühwürmchen');
 });

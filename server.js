@@ -49,7 +49,7 @@ async function readJson(req) {
 }
 
 export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite'), demo = true,
-  secureCookies = false, now = () => Date.now(), lootRandomInt } = {}) {
+  secureCookies = false, now = () => Date.now(), lootRandomInt, islandRandomInt } = {}) {
   const db = openStore(dbPath, { demo });
   const attempts = new Map();
   const viewUser = (row, options = {}) => userView(row, { ...options, db });
@@ -100,7 +100,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       .run(JSON.stringify(state), state.status, id);
   }
 
-  const adventures = createAdventureApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly });
+  const adventures = createAdventureApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly, islandRandomInt });
 
   async function api(req, res, path) {
     const method = req.method;
@@ -391,6 +391,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
         '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
+        '/island.js': ['island.js', 'text/javascript'], '/island.css': ['island.css', 'text/css'],
         '/vendor/three.module.min.js': ['vendor/three.module.min.js', 'text/javascript'],
         '/vendor/three.core.min.js': ['vendor/three.core.min.js', 'text/javascript'],
         '/vendor/THREE-LICENSE.txt': ['vendor/THREE-LICENSE.txt', 'text/plain'],
