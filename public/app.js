@@ -1,5 +1,6 @@
 import { playBattleEvents, isAnimating, cancelBattleEffects } from './battle-effects.js';
 import { mountHero3D, mountArena3D, mountRaid3D } from './hero3d.js';
+import { ANCESTRIES, DEFAULT_ANCESTRY, ancestryFor, isAncestry, skillsFor } from './ancestries.js';
 import { renderAdventures, renderCollection, mountAdventure3D, handleAdventureAction, adventureEventCandidates, animateAdventures, adventureIsAnimating, cancelAdventureAnimations, resetAdventureState, updateAdventureClocks } from './adventures.js';
 
 const app = document.querySelector('#app');
@@ -65,6 +66,7 @@ function icon(name, className = '', size = 20) {
 }
 
 function avatar(type = 'fox', className = '', label = '', appearance = null) {
+  if (isAncestry(type)) return ancestryAvatar(type, className, label, appearance);
   const animals = {
     fox: { bg: '#f8d5a6', body: '#e88548', ears: '<path d="m29 49-5-30 26 18m21 12 5-30-26 18" fill="#e88548"/><path d="m29 39-2-12 13 13m31-1 2-12-13 13" fill="#76463b"/>', face: '<path d="M25 48c0-20 50-20 50 0l-7 27-18 9-18-9-7-27Z" fill="#e88548"/><path d="m27 52 23 14 23-14-5 22-18 10-18-10-5-22Z" fill="#fff1dc"/><path d="m44 63 6 5 6-5Z" fill="#493933"/>', eyes: '<path d="m35 51 7 3m23-3-7 3"/>' },
     owl: { bg: '#dbd7f5', body: '#8270b3', ears: '<path d="m25 44 1-20 21 13m28 7-1-20-21 13" fill="#8270b3"/>', face: '<ellipse cx="50" cy="58" rx="28" ry="29" fill="#8270b3"/><ellipse cx="38" cy="51" rx="15" ry="17" fill="#f9f2e6"/><ellipse cx="62" cy="51" rx="15" ry="17" fill="#f9f2e6"/><path d="m44 61 6 9 6-9" fill="#eab252"/>', eyes: '<circle cx="38" cy="51" r="4" fill="#493933"/><circle cx="62" cy="51" r="4" fill="#493933"/>' },
@@ -79,6 +81,38 @@ function avatar(type = 'fox', className = '', label = '', appearance = null) {
   const emblem = appearance?.emblem === 'moon' ? '<path d="M53 85a5 5 0 1 0 0 8 5 5 0 0 1 0-8Z"/>' : appearance?.emblem === 'leaf' ? '<path d="M45 93c-1-7 4-9 10-9-1 6-4 10-10 9Z"/>' : '<path d="m50 83 2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1Z"/>';
   const outfit = appearance ? (appearance.outfit === 'knight' ? `<path d="m21 86 13-8 16 5 16-5 13 8-8 14H29Z" fill="${cloth}"/><path d="m37 85 13 4 13-4v15H37Z" fill="#d3d7dd"/><path d="M50 89v11" stroke="#697786"/>` : appearance.outfit === 'scholar' ? `<path d="m22 100 9-20 19 6 19-6 9 20Z" fill="${cloth}"/><path d="m40 82 10 8 10-8-4 18H44Z" fill="#f6edda"/>` : `<path d="m19 100 11-19 20 5 20-5 11 19Z" fill="${cloth}"/><path d="m41 84 9 7 9-7-4 16H45Z" fill="#f6edda"/>`) + `<g fill="#e8b960">${emblem}</g>` : '';
   return `<svg class="avatar ${className}" data-look-color="${e(appearance?.color || 'default')}" data-look-outfit="${e(appearance?.outfit || 'default')}" data-look-emblem="${e(appearance?.emblem || 'default')}" viewBox="0 0 100 100" ${label ? `role="img" aria-label="${e(label)}"` : 'aria-hidden="true"'}><rect x="0" y="0" width="100" height="100" rx="29" fill="${bg}"/><circle cx="83" cy="15" r="14" fill="white" opacity=".2"/>${a.ears}${a.face}<g fill="none" stroke="#493933" stroke-width="3" stroke-linecap="round">${a.eyes}</g><path d="M47 73q3 3 6 0" stroke="#493933" fill="none" stroke-width="2" stroke-linecap="round"/>${outfit}</svg>`;
+}
+
+function ancestryAvatar(type, className, label, appearance) {
+  const looks = {
+    'aether-elf': ['#e4dfef', '#e9cbb6', '#e6e9d4', '#4e997e'],
+    'aether-engineer': ['#f0dfc3', '#c89570', '#75503c', '#9c7847'],
+    'cloud-warden': ['#d9eaf4', '#d2e4f0', '#f5fafc', '#6d92c2'],
+    'sky-nomad': ['#f4dbc7', '#b87c59', '#513d3a', '#af7053'],
+    'aether-druid': ['#d9e5d0', '#b4ba84', '#57744d', '#558a60'],
+    'aether-dusk': ['#eadac0', '#c4a078', '#373343', '#9e784e'],
+  };
+  const [bg, skin, hair, natural] = looks[type];
+  const colors = { amber: '#b68b42', violet: '#8972b1', mint: '#589e85', rose: '#b96d85', sky: '#628fb6' };
+  const cloth = colors[appearance?.color] || natural;
+  const clothes = appearance?.outfit === 'knight'
+    ? `<path d="M17 100V89q33-30 66 0v11" fill="${cloth}"/><path d="m32 83 18 8 18-8v17H32Z" fill="#c6cbd0"/><path d="M50 91v9" stroke="#87929e"/>`
+    : `<path d="M17 100V89q33-30 66 0v11" fill="${cloth}"/><path d="m35 81 15 11 15-11-7 19H42Z" fill="${appearance?.outfit === 'scholar' ? '#e4d4b5' : '#f5e9d4'}"/>`;
+  const emblem = appearance?.emblem === 'leaf' ? '<path d="M47 99q-2-8 8-9-1 8-8 9Z"/>'
+    : appearance?.emblem === 'moon' ? '<path d="M53 90a5 5 0 1 0 0 9 5 5 0 0 1 0-9Z"/>'
+    : '<path d="m50 88 2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1Z"/>';
+  const ears = type === 'aether-elf' ? `<path d="m29 47-14-8 9 21m47-13 14-8-9 21" fill="${skin}"/>` : '';
+  const ornament = type === 'aether-engineer' ? '<g fill="#9ac4d2" stroke="#8b6c40" stroke-width="4"><circle cx="38" cy="37" r="9"/><circle cx="62" cy="37" r="9"/><path d="M47 37h6"/></g>'
+    : type === 'aether-druid' ? '<g fill="#78a363"><ellipse cx="31" cy="32" rx="5" ry="12" transform="rotate(-40 31 32)"/><ellipse cx="49" cy="27" rx="5" ry="12"/><ellipse cx="68" cy="32" rx="5" ry="12" transform="rotate(40 68 32)"/></g>'
+    : type === 'cloud-warden' ? '<g fill="#f5fafc"><circle cx="29" cy="33" r="12"/><circle cx="44" cy="24" r="14"/><circle cx="61" cy="25" r="13"/><circle cx="74" cy="36" r="12"/></g>'
+    : type === 'sky-nomad' || type === 'aether-dusk' ? `<path d="M23 36q27-24 54 0l-1 8q-26-14-52 0Z" fill="${cloth}"/><path d="m71 37 14 24-12-6" fill="${cloth}"/>`
+    : '<path d="m50 27 5 9-5 7-5-7Z" fill="#6ac4bd"/>';
+  return `<svg class="avatar ${className}" data-ancestry="${type}" data-look-color="${e(appearance?.color || 'default')}" data-look-outfit="${e(appearance?.outfit || 'default')}" data-look-emblem="${e(appearance?.emblem || 'default')}" viewBox="0 0 100 100" ${label ? `role="img" aria-label="${e(label)}"` : 'aria-hidden="true"'}><rect width="100" height="100" rx="29" fill="${bg}"/><circle cx="83" cy="15" r="14" fill="white" opacity=".25"/>${clothes}<path d="M24 68V43q0-29 26-29t26 29v30" fill="${hair}"/>${ears}<rect x="29" y="32" width="42" height="49" rx="20" fill="${skin}"/><path d="M28 43q7-30 27-16l17 16-3-18-34-4Z" fill="${hair}"/>${ornament}<g fill="${type === 'aether-elf' || type === 'aether-dusk' ? '#63c6ac' : '#433d4b'}"><ellipse cx="40" cy="53" rx="3" ry="4"/><ellipse cx="60" cy="53" rx="3" ry="4"/></g><path d="m49 58-2 6h5m-8 6q6 5 12 0" stroke="#856658" fill="none" stroke-width="1.6" stroke-linecap="round"/><g fill="#e8bd62">${emblem}</g></svg>`;
+}
+
+function ancestrySummary(id) {
+  const people = ancestryFor(id);
+  return `<strong>${e(people.title)}</strong><p>${e(people.description)}</p><div class="ancestry-levels">${Object.entries(people.skills).map(([key, level]) => `<span>${skillInfo[key].name} <b>${level}</b></span>`).join('')}</div>`;
 }
 
 function dispose3DViews() {
@@ -122,7 +156,7 @@ function mount3DViews() {
 }
 
 function defaultAppearance() { return { color: 'amber', outfit: 'adventurer', emblem: 'star' }; }
-function heroAvatar(user, className = '') { return avatar(user?.avatar || 'fox', className, '', user?.appearance || null); }
+function heroAvatar(user, className = '') { return avatar(user?.ancestry || user?.avatar || DEFAULT_ANCESTRY, className, '', user?.appearance || null); }
 function gearItems() { return state?.user.inventory.items || []; }
 const slotNames = { helmet: 'Helm', chest: 'Brustplatte', hand1: 'Hand 1', hand2: 'Hand 2', necklace: 'Kette', ring: 'Ring' };
 const typeNames = { helmet: 'Helme', chest: 'Brustplatten', weapon: 'Waffen', shield: 'Schilde', necklace: 'Ketten', ring: 'Ringe' };
@@ -210,7 +244,7 @@ async function refresh(force = false) {
     seenBattleEvents.set(battle.id, battle.state?.eventSeq || 0);
   }
   state = data;
-  if (!profileDraft) profileDraft = { characterName: data.user.characterName || '', avatar: data.user.avatar || 'fox', appearance: { ...defaultAppearance(), ...data.user.appearance } };
+  if (!profileDraft) profileDraft = { characterName: data.user.characterName || '', ancestry: data.user.ancestry || DEFAULT_ANCESTRY, avatar: data.user.ancestry || DEFAULT_ANCESTRY, appearance: { ...defaultAppearance(), ...data.user.appearance } };
   if (!rewardDraft.studentId && data.students.length) rewardDraft.studentId = data.students[0].id;
   if (force || (json !== lastStateJSON && !document.activeElement?.matches('input, textarea, select') && !busy && !isAnimating() && !adventureIsAnimating())) {
     render();
@@ -233,11 +267,11 @@ function brand() { return '<span class="brand-mark">k<span>✦</span></span><spa
 function renderAuth() {
   const register = authMode === 'register';
   dispose3DViews();
-  app.innerHTML = `<main class="auth-page"><section class="auth-story"><a class="brand" href="/" aria-label="Klassenhelden Startseite">${brand()}</a><div class="auth-copy"><span class="eyebrow"><i></i> DEIN SCHULALLTAG. DEIN ABENTEUER.</span><h1>In dir steckt<br>ein <span>Held.</span></h1><p>Gute Mitarbeit wird zu neuer Stärke.<br>Entwickle deinen Charakter und fordere<br>deine Klasse in fairen Duellen heraus.</p><div class="auth-hero-art"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="art-star star-one">✦</span><span class="art-star star-two">✧</span><span class="floating-tag tag-top">${icon('spark')} +50 Erfahrung</span><div class="hero-avatar">${avatar('fox')}</div><span class="level-floating">${icon('trophy')} Level 3</span><div class="small-avatar owl-float">${avatar('owl')}</div><div class="small-avatar dragon-float">${avatar('dragon')}</div></div><div class="auth-values"><span>${icon('shield')} Fair & rundenbasiert</span><span>${icon('book')} Von Lehrkräften belohnt</span></div></div><p class="auth-footer">Kleine Schritte im Klassenzimmer. Große Abenteuer im Spiel.</p></section><section class="auth-form-side"><div class="auth-form-wrap"><span class="pill neutral">WILLKOMMEN BEI KLASSENHELDEN</span><h2>${register ? 'Dein Abenteuer beginnt.' : 'Schön, dass du da bist.'}</h2><p class="muted">${register ? 'Erstelle einen Schüleraccount in der gemeinsamen Demoklasse.' : 'Melde dich an und entdecke deinen nächsten Schritt.'}</p><div class="auth-tabs ${demoMode ? '' : 'login-only'}" role="tablist" aria-label="Anmeldung"><button type="button" role="tab" aria-selected="${!register}" class="${!register ? 'active' : ''}" data-action="auth-mode" data-mode="login">Anmelden</button>${demoMode ? `<button type="button" role="tab" aria-selected="${register}" class="${register ? 'active' : ''}" data-action="auth-mode" data-mode="register">Schüleraccount erstellen</button>` : ''}</div><form id="auth-form">${register ? '<label for="name">Dein Name</label><input id="name" name="name" minlength="2" autocomplete="name" placeholder="z. B. Lina Sommer" required maxlength="60"><label for="characterName">Name deines Charakters</label><input id="characterName" name="characterName" placeholder="z. B. Funkenfuchs" required minlength="2" maxlength="30">' : ''}<label for="email">E-Mail-Adresse</label><input id="email" name="email" type="email" autocomplete="email" placeholder="du@deine-schule.de" required maxlength="120"><label for="password">Passwort ${register ? '<span class="label-hint">mindestens 10 Zeichen</span>' : ''}</label><input id="password" name="password" type="password" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="${register ? '10' : '1'}" required placeholder="${register ? 'Wähle ein starkes Passwort' : 'Dein Passwort'}" maxlength="128"><p id="auth-error" class="form-error" role="alert"></p><button class="button primary full" type="submit">${register ? 'Meinen Helden erstellen' : 'Ins Abenteuer starten'}${icon('arrow')}</button></form>${renderDemoSection()}<p class="auth-note">${icon('lock', '', 15)} ${demoMode ? 'Demoumgebung · Alle Schüleraccounts teilen eine Klasse.' : 'Lehrkraftkonten werden separat bereitgestellt.'}</p></div></section></main>`;
+  app.innerHTML = `<main class="auth-page"><section class="auth-story"><a class="brand" href="/" aria-label="Klassenhelden Startseite">${brand()}</a><div class="auth-copy"><span class="eyebrow"><i></i> DEIN SCHULALLTAG. DEIN ABENTEUER.</span><h1>In dir steckt<br>ein <span>Held.</span></h1><p>Gute Mitarbeit wird zu neuer Stärke.<br>Entwickle deinen Charakter und fordere<br>deine Klasse in fairen Duellen heraus.</p><div class="auth-hero-art"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="art-star star-one">✦</span><span class="art-star star-two">✧</span><span class="floating-tag tag-top">${icon('spark')} +50 Erfahrung</span><div class="hero-avatar">${avatar('sky-nomad')}</div><span class="level-floating">${icon('trophy')} Level 3</span><div class="small-avatar owl-float">${avatar('aether-elf')}</div><div class="small-avatar dragon-float">${avatar('aether-druid')}</div></div><div class="auth-values"><span>${icon('shield')} Fair & rundenbasiert</span><span>${icon('book')} Von Lehrkräften belohnt</span></div></div><p class="auth-footer">Kleine Schritte im Klassenzimmer. Große Abenteuer im Spiel.</p></section><section class="auth-form-side"><div class="auth-form-wrap"><span class="pill neutral">WILLKOMMEN BEI KLASSENHELDEN</span><h2>${register ? 'Dein Abenteuer beginnt.' : 'Schön, dass du da bist.'}</h2><p class="muted">${register ? 'Erstelle einen Schüleraccount in der gemeinsamen Demoklasse.' : 'Melde dich an und entdecke deinen nächsten Schritt.'}</p><div class="auth-tabs ${demoMode ? '' : 'login-only'}" role="tablist" aria-label="Anmeldung"><button type="button" role="tab" aria-selected="${!register}" class="${!register ? 'active' : ''}" data-action="auth-mode" data-mode="login">Anmelden</button>${demoMode ? `<button type="button" role="tab" aria-selected="${register}" class="${register ? 'active' : ''}" data-action="auth-mode" data-mode="register">Schüleraccount erstellen</button>` : ''}</div><form id="auth-form">${register ? '<label for="name">Dein Name</label><input id="name" name="name" minlength="2" autocomplete="name" placeholder="z. B. Lina Sommer" required maxlength="60"><label for="characterName">Name deines Charakters</label><input id="characterName" name="characterName" placeholder="z. B. Sternenlicht" required minlength="2" maxlength="30">' : ''}${register ? `<label for="ancestry">Dein Volk</label><select id="ancestry" name="ancestry">${ANCESTRIES.map(people => `<option value="${people.id}" ${people.id === DEFAULT_ANCESTRY ? 'selected' : ''}>${people.name}</option>`).join('')}</select><div id="ancestry-preview" class="ancestry-preview">${ancestrySummary(DEFAULT_ANCESTRY)}</div>` : ''}<label for="email">E-Mail-Adresse</label><input id="email" name="email" type="email" autocomplete="email" placeholder="du@deine-schule.de" required maxlength="120"><label for="password">Passwort ${register ? '<span class="label-hint">mindestens 10 Zeichen</span>' : ''}</label><input id="password" name="password" type="password" autocomplete="${register ? 'new-password' : 'current-password'}" minlength="${register ? '10' : '1'}" required placeholder="${register ? 'Wähle ein starkes Passwort' : 'Dein Passwort'}" maxlength="128"><p id="auth-error" class="form-error" role="alert"></p><button class="button primary full" type="submit">${register ? 'Meinen Helden erstellen' : 'Ins Abenteuer starten'}${icon('arrow')}</button></form>${renderDemoSection()}<p class="auth-note">${icon('lock', '', 15)} ${demoMode ? 'Demoumgebung · Alle Schüleraccounts teilen eine Klasse.' : 'Lehrkraftkonten werden separat bereitgestellt.'}</p></div></section></main>`;
 }
 
 function renderDemoSection() {
-  return demoMode ? `<div class="demo-section"><div class="divider"><span>Erst einmal ausprobieren?</span></div><p>Entdecke die beiden Perspektiven mit Demodaten.</p><div class="demo-buttons"><button class="demo-button" data-action="demo-login" data-email="lina@demo.schule">${avatar('fox')}<span><strong>Als Schülerin</strong><small>Lina · eigener Charakter</small></span>${icon('chevron')}</button><button class="demo-button" data-action="demo-login" data-email="lehrer@demo.schule"><span class="demo-teacher">${icon('book')}</span><span><strong>Als Lehrkraft</strong><small>Belohnungen vergeben</small></span>${icon('chevron')}</button></div><button class="text-button secondary-demo" data-action="demo-login" data-email="ben@demo.schule">Als Ben anmelden, um ein Schülerduell zu spielen ${icon('arrow', '', 15)}</button></div>` : '';
+  return demoMode ? `<div class="demo-section"><div class="divider"><span>Erst einmal ausprobieren?</span></div><p>Entdecke die beiden Perspektiven mit Demodaten.</p><div class="demo-buttons"><button class="demo-button" data-action="demo-login" data-email="lina@demo.schule">${avatar('aether-elf')}<span><strong>Als Schülerin</strong><small>Lina · eigener Charakter</small></span>${icon('chevron')}</button><button class="demo-button" data-action="demo-login" data-email="lehrer@demo.schule"><span class="demo-teacher">${icon('book')}</span><span><strong>Als Lehrkraft</strong><small>Belohnungen vergeben</small></span>${icon('chevron')}</button></div><button class="text-button secondary-demo" data-action="demo-login" data-email="ben@demo.schule">Als Ben anmelden, um ein Schülerduell zu spielen ${icon('arrow', '', 15)}</button></div>` : '';
 }
 
 function navItems() {
@@ -315,7 +349,27 @@ function renderRewardsPage() {
 function renderCharacter() {
   const u = state.user;
   const progress = ((u.totalXp || 0) % 100);
-  return `${heading('DEIN CHARAKTER. DEINE ENTSCHEIDUNG.', 'Hier wächst ein Held<span class="title-dot">.</span>', 'Gib deinem Charakter eine Persönlichkeit und entwickle seine Stärken.')}<div class="character-layout"><section class="panel hero-profile hero-workshop"><span class="pill gold">LEVEL ${u.level}</span><div class="profile-3d">${hero3DMarkup('draft', { ...u, ...profileDraft }, 'Vorschau deines gestalteten Helden')}</div><h2>${e(u.characterName)}</h2><p>${e(u.name)}</p><div class="xp-progress-label"><span>${progress} / 100 XP zum nächsten Level</span><strong>Lvl ${u.level + 1}</strong></div><div class="progress-track"><span style="width:${progress}%"></span></div><form id="character-form"><label for="hero-name">Charaktername</label><input id="hero-name" name="characterName" required minlength="2" maxlength="30" value="${e(profileDraft.characterName)}"><label>Wähle deinen Begleiter</label><div class="avatar-options">${[['fox', 'Fuchs'], ['owl', 'Eule'], ['dragon', 'Drache'], ['cat', 'Katze']].map(([type, name]) => `<button type="button" class="avatar-option ${profileDraft.avatar === type ? 'selected' : ''}" data-action="choose-avatar" data-avatar="${type}" aria-label="${name}" aria-pressed="${profileDraft.avatar === type}" title="${name}">${avatar(type)}</button>`).join('')}</div>${renderAppearanceControls()}<button class="button outline full" type="submit">Charakter speichern ${icon('check', '', 17)}</button></form></section><div class="skills-column"><section class="skill-intro"><span class="stat-icon gold">${icon('spark', '', 25)}</span><div><h2>${u.xp} XP für deinen nächsten Schritt</h2><p>Investiere deine Erfahrung in neue Skillstufen. Dein Charakterlevel bleibt dabei erhalten.</p></div></section>${Object.entries(skillInfo).map(([key, skill]) => { const current = u.skills[key]; const cost = current * 25; return `<section class="panel skill-card"><span class="skill-icon ${skill.color}">${icon(skill.icon, '', 27)}</span><div class="skill-details"><div class="skill-heading"><h3>${skill.name}</h3><span>Stufe <strong>${current}</strong> / 10</span></div><p>${skill.text}</p><div class="skill-levels" aria-label="Stufe ${current} von 10">${Array.from({ length: 10 }, (_, i) => `<i class="${i < current ? skill.color : ''}"></i>`).join('')}</div></div><button class="button ${u.xp >= cost && current < 10 ? 'primary' : 'outline'} skill-upgrade" data-action="upgrade" data-skill="${key}" ${current >= 10 || u.xp < cost ? 'disabled' : ''}>${current >= 10 ? 'Maximum' : `${icon('plus', '', 16)} ${cost} XP`}</button></section>`; }).join('')}${renderCombatStats(u)}<section class="panel"><div class="section-title"><h2>Deine Ausrüstung</h2>${icon('chest')}</div><p class="section-description">Helm, Brustplatte, zwei Hände, Kette und Ring. Stelle deinen Kampfstil im Inventar zusammen.</p><button class="button outline full" data-action="nav" data-tab="inventory">Zum Inventar ${icon('arrow')}</button></section></div></div>`;
+  const chosen = ancestryFor(profileDraft.ancestry);
+  const trained = Object.fromEntries(Object.keys(skillInfo).map(key => [key, u.skillProgress[key].trained]));
+  const preview = skillsFor(chosen.id, trained);
+  return `${heading('DEIN CHARAKTER. DEINE ENTSCHEIDUNG.', 'Hier wächst ein Held<span class="title-dot">.</span>', 'Wähle dein Volk aus Aetheria und entwickle deinen eigenen Kampfstil.')}
+    <div class="character-layout"><section class="panel hero-profile hero-workshop">
+      <span class="pill gold">LEVEL ${u.level} · ${e(chosen.name)}</span>
+      <div class="profile-3d">${hero3DMarkup('draft', { ...u, ...profileDraft }, 'Vorschau deines gestalteten Helden')}</div>
+      <h2>${e(u.characterName)}</h2><p>${e(u.name)}</p>
+      <div class="xp-progress-label"><span>${progress} / 100 XP zum nächsten Level</span><strong>Lvl ${u.level + 1}</strong></div><div class="progress-track"><span style="width:${progress}%"></span></div>
+      <form id="character-form"><label for="hero-name">Charaktername</label><input id="hero-name" name="characterName" required minlength="2" maxlength="30" value="${e(profileDraft.characterName)}">
+        <label>Wähle dein Volk</label><div class="ancestry-options" role="group" aria-label="Spielbare Völker">${ANCESTRIES.map(people => `<button type="button" class="ancestry-option ${chosen.id === people.id ? 'selected' : ''}" data-action="choose-ancestry" data-ancestry="${people.id}" aria-pressed="${chosen.id === people.id}">${avatar(people.id)}<span><strong>${e(people.name)}</strong><small>${e(people.title)}</small></span></button>`).join('')}</div>
+        <div class="ancestry-preview">${ancestrySummary(chosen.id)}<p class="ancestry-effective">Mit deinen Upgrades: ${Object.keys(skillInfo).map(key => `${skillInfo[key].name} ${preview[key]}`).join(' · ')}</p><small>Ein Volkswechsel erhält deine gekauften Skillstufen, XP und Gegenstände. Die neuen Startwerte gelten nach dem Speichern für neue Kämpfe.</small></div>
+        ${renderAppearanceControls()}<button class="button outline full" type="submit">Charakter speichern ${icon('check', '', 17)}</button>
+      </form></section>
+      <div class="skills-column"><section class="skill-intro"><span class="stat-icon gold">${icon('spark', '', 25)}</span><div><h2>${u.xp} XP für deinen nächsten Schritt</h2><p>Jedes Volk bringt sechs Start-Skillstufen mit. Ein Upgrade kostet (gekaufte Stufen + 1) × 25 XP, unabhängig vom Volk.</p></div></section>
+        ${Object.entries(skillInfo).map(([key, skill]) => {
+          const current = u.skills[key];
+          const { cost, base, trained, reserve } = u.skillProgress[key];
+          return `<section class="panel skill-card"><span class="skill-icon ${skill.color}">${icon(skill.icon, '', 27)}</span><div class="skill-details"><div class="skill-heading"><h3>${skill.name}</h3><span>Stufe <strong>${current}</strong> / 10</span></div><p>${skill.text}</p><small class="skill-origin">${base} Startstufen + ${trained} gekaufte Stufen${reserve ? ` · ${reserve} bleiben über dem Maximum für einen Volkswechsel erhalten` : ''}</small><div class="skill-levels" aria-label="Stufe ${current} von 10">${Array.from({ length: 10 }, (_, i) => `<i class="${i < current ? skill.color : ''}"></i>`).join('')}</div></div><button class="button ${u.xp >= cost && current < 10 ? 'primary' : 'outline'} skill-upgrade" data-action="upgrade" data-skill="${key}" ${current >= 10 || u.xp < cost ? 'disabled' : ''}>${current >= 10 ? 'Maximum' : `${icon('plus', '', 16)} ${cost} XP`}</button></section>`;
+        }).join('')}${renderCombatStats(u)}<section class="panel"><div class="section-title"><h2>Deine Ausrüstung</h2>${icon('chest')}</div><p class="section-description">Helm, Brustplatte, zwei Hände, Kette und Ring. Stelle deinen Kampfstil im Inventar zusammen.</p><button class="button outline full" data-action="nav" data-tab="inventory">Zum Inventar ${icon('arrow')}</button></section>
+      </div></div>`;
 }
 
 function renderArena() {
@@ -399,7 +453,7 @@ app.addEventListener('click', async event => {
     catch (error) { toast(error.message, true); }
     return;
   }
-  if (action === 'choose-avatar') { profileDraft.avatar = button.dataset.avatar; render(); return; }
+  if (action === 'choose-ancestry') { profileDraft.ancestry = button.dataset.ancestry; profileDraft.avatar = profileDraft.ancestry; render(); return; }
   if (action === 'reward-student') { rewardDraft.studentId = button.dataset.id; tab = 'overview'; render(); document.querySelector('#reward-reason')?.focus(); return; }
   if (action === 'select-battle') { cancelBattleEffects(); selectedBattleId = button.dataset.id; render(); document.querySelector('.battle-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   if (action === 'dismiss-battle') { cancelBattleEffects(); selectedBattleId = null; render(); document.querySelector('.arena-peers')?.scrollIntoView({ behavior: 'smooth' }); return; }
@@ -454,6 +508,7 @@ app.addEventListener('input', event => {
   if (input.closest('#character-form') && input.name === 'characterName') profileDraft.characterName = input.value;
 });
 app.addEventListener('change', event => {
+  if (event.target.id === 'ancestry') document.querySelector('#ancestry-preview').innerHTML = ancestrySummary(event.target.value);
   if (event.target.closest('#reward-form') && ['studentId', 'item'].includes(event.target.name)) rewardDraft[event.target.name] = event.target.value;
   if (event.target.id === 'inventory-type') { inventoryType = event.target.value; render(); }
   if (event.target.id === 'inventory-rarity') { inventoryRarity = event.target.value; render(); }

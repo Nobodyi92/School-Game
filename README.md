@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Tierhelden, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Seit Version **0.6** ersetzen sechs Völker mit unterschiedlichen Start-Skills die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -39,7 +39,7 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 ## Spielregeln
 
 - Nur Lehrkräfte vergeben Belohnungen: bis zu 100 XP und/oder eine Truhe oder einen Heiltrank je Vergabe. Anlass und Vergabe werden gespeichert.
-- **Verfügbare XP** werden für Fähigkeiten ausgegeben; ein Upgrade kostet `aktuelle Stufe × 25 XP`. Maximalstufe einer Fähigkeit: 10.
+- **Verfügbare XP** werden für Fähigkeiten ausgegeben; ein Upgrade kostet `(bereits gekaufte Stufen dieses Skills + 1) × 25 XP`, unabhängig vom Volk. Maximalstufe einer Fähigkeit: 10.
 - **Gesamt-XP** bleiben bei einem Upgrade erhalten und bestimmen die Heldenstufe: `1 + floor(Gesamt-XP / 100)`.
 - Stärke verbessert Angriff und Fokusstoß, Fokus verbessert den Fokusstoß, Ausdauer erhöht Lebenspunkte und Regeneration in Deckung.
 - Aktionen: Angriff, Fokusstoß, Deckung, Heiltrank. Jede erfolgreiche Aktion beendet den eigenen Zug. Ein Fokusstoß lädt nach zwei anderen eigenen Aktionen wieder auf.
@@ -48,6 +48,25 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
 - Bei 0 LP endet der Kampf. Nach spätestens 30 Runden entscheidet der höhere verbleibende LP-Anteil; bei exaktem Gleichstand gewinnt der Herausforderer.
 - Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm, Insel und Runengolem vergeben ausschließlich kosmetische Begleiter, Outfits und Trophäen. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+
+## Die Völker von Aetheria
+
+Bei der Registrierung und unter **Mein Held** stehen sechs Völker aus dem Aetheria-Konzept zur Wahl. Jedes bringt insgesamt sechs Start-Skillstufen mit:
+
+| Volk | Stärke | Fokus | Ausdauer | Kampfstil |
+| --- | ---: | ---: | ---: | --- |
+| Ätherelfen | 1 | 4 | 1 | Starke Fokus-Attacken |
+| Ätheringenieure | 3 | 1 | 2 | Normale Angriffe und Ausdauer |
+| Wolkenhüter | 1 | 2 | 3 | Viele Lebenspunkte, Schutz und etwas Fokus |
+| Luftnomaden | 2 | 2 | 2 | Ausgeglichen |
+| Ätherdruiden | 1 | 3 | 2 | Fokus-Attacken, Ausdauer und Heilung in Deckung |
+| Ätherdämmerer | 4 | 1 | 1 | Besonders starke normale Angriffe |
+
+Die Figuren unterscheiden sich auch optisch: Elfenohren und Kristallschmuck, Ingenieursbrillen und Werkzeuge, Wolkenhaar, Reiseschals, Blattkronen oder sandfarbene Haut mit schimmerndem dunklem Haar. Farbe, Outfit und Wappen sowie alle sechs Ausrüstungsplätze und kosmetischen Begleiter bleiben verwendbar. Tierische Gegner und Begleiter bleiben erhalten.
+
+Ein Volkswechsel ist jederzeit möglich. Er kostet keine XP und verschiebt nur die Startwerte. Gekaufte Skillstufen werden zusätzlich angerechnet; über Stufe 10 hinausgehende Stufen bleiben gespeichert und werden bei einem passenden Volkswechsel wieder wirksam. Der Preis weiterer Upgrades hängt von den gekauften Stufen ab und lässt sich durch Volkswechsel nicht senken. Laufende Duelle, Turmaufstiege, Inselreisen und gestartete Bosskämpfe behalten ihre Werte und ihr Volk vom Start.
+
+Beim ersten Start des Updates werden bestehende Schülerfiguren automatisch zugeordnet: Fuchs → Luftnomaden, Eule → Ätherelfen, Drache → Ätherdruiden, Katze → Ätherdämmerer. Anschließend lässt sich das Volk frei ändern. Pro bisherigem Skill bleiben alle Stufen über der früheren Startstufe 1 als gekaufte Stufen erhalten. Namen, XP, Inventar, Ausrüstung und Sammlung bleiben bestehen. Bereits gespeicherte Kämpfe erhalten die neue Figur, behalten aber ihre damaligen Kampfwerte. Die Umstellung wird nicht erneut angewendet.
 
 ## Die wandelnde Insel
 
@@ -134,7 +153,7 @@ Angriff und Fokusstoß zeigen Bewegung, Trefferreaktion und Schadenszahlen; Deck
 
 ## 3D-Figuren und Ausrüstungsansicht
 
-Unter **Mein Held** und im **Inventar** wird die vollständige Tierfigur als 3D-Modell angezeigt. Die Vorschau lässt sich mit gedrückter Maustaste oder per Touch ziehen und drehen. Farbe, Outfit, Wappen sowie ausgerüsteter Helm, Brustplatte, Waffen, Schilde, Kette und Ring sind an der Figur sichtbar. Die Kämpfe zeigen beide Helden gemeinsam auf einer 3D-Arenaplattform; Zugfolge, Skills und Belohnungen funktionieren wie zuvor.
+Unter **Mein Held** und im **Inventar** wird die vollständige humanoide Figur des gewählten Volkes als 3D-Modell angezeigt. Die Vorschau lässt sich mit gedrückter Maustaste oder per Touch ziehen und drehen. Farbe, Outfit, Wappen sowie ausgerüsteter Helm, Brustplatte, Waffen, Schilde, Kette und Ring sind an der Figur sichtbar. Die Kämpfe zeigen beide Helden gemeinsam auf einer 3D-Arenaplattform; Zugfolge, Skills und Belohnungen funktionieren wie zuvor.
 
 Für 3D wird ein Browser mit aktiviertem **WebGL 2** benötigt, etwa eine aktuelle Version von Edge, Chrome oder Firefox. Wenn keine geeignete Grafikunterstützung verfügbar ist, zeigt das Spiel automatisch die vorhandenen 2D-Figuren und Effekte. Inventar und Kämpfe bleiben bedienbar. Die Einstellung für reduzierte Bewegung gilt auch für die 3D-Darstellung.
 
@@ -168,6 +187,6 @@ Umgebungsvariablen direkt beim Start übergeben; `.env` wird nicht automatisch g
 
 Node-HTTP-Server, SQLite, Vanilla JavaScript, CSS und die mitgelieferte Three.js-Bibliothek, ohne separat zu installierende Pakete. Rollen, Zugfolge, Inventarverbrauch und XP-Ausgaben werden auf dem Server geprüft. Sitzungen verwenden HttpOnly-/SameSite-Cookies; Passwörter werden mit individuellem Salt und scrypt gehasht. JSON-Mutationen von fremden Origins werden abgewiesen.
 
-`npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf. Die Abenteuerprüfungen decken Turmfortschritt und Belohnungssicherung, Gruppenbildung, Runenaktionen, veraltete oder doppelte Spielzüge, serverseitige Zeitfristen, kosmetische Besitzrechte sowie die Speicherung nach einem Neustart ab.
+`npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Die Völkerprüfungen testen Startwerte und tatsächlichen Schaden, manipulationssichere Registrierung, Volkswechsel, Lernkosten, erhaltene Stufen über dem Maximum und einmalige Spielstandübernahme. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf. Die Abenteuerprüfungen decken Turmfortschritt und Belohnungssicherung, Gruppenbildung, Runenaktionen, veraltete oder doppelte Spielzüge, serverseitige Zeitfristen, kosmetische Besitzrechte sowie die Speicherung nach einem Neustart ab.
 
-Wichtige Dateien: `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).
+Wichtige Dateien: `shared/ancestries.js` (Völker, Startwerte und Skillfortschritt), `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).

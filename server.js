@@ -7,6 +7,7 @@ import { openStore, hashPassword, verifyPassword, userView, battleView, normaliz
 import { createBattleState, applyAction } from './lib/combat.js';
 import { createAdventureApi } from './lib/adventure-api.js';
 import { catalogue, normalizeInventory, normalizeEquipment, resolveItem, compatibleSlot, rollChest, SLOTS, POTIONS } from './lib/items.js';
+import { DEFAULT_ANCESTRY, isAncestry, ancestryFor, legacyTraining, normalizeTraining, skillsFor, progressFor } from './shared/ancestries.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const SESSION_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -142,11 +143,14 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 400, 'Bitte eine gültige E-Mail-Adresse eingeben.');
       const password = text(body.password, 10, 200, 'Passwort');
       const character = text(body.characterName, 2, 30, 'Heldenname');
+      const ancestry = body.ancestry ?? DEFAULT_ANCESTRY;
+      requireThat(isAncestry(ancestry), 400, 'Bitte ein verfügbares Volk wählen.');
       requireThat(!db.prepare('SELECT 1 FROM users WHERE email = ?').get(email), 409, 'Diese E-Mail-Adresse wird bereits verwendet.');
       const id = randomUUID();
       // A submitted role, XP balance or inventory is deliberately never accepted.
-      db.prepare(`INSERT INTO users (id, name, email, password_hash, role, character_name, created_at)
-        VALUES (?, ?, ?, ?, 'student', ?, ?)`).run(id, name, email, hashPassword(password), character, new Date(now()).toISOString());
+      db.prepare(`INSERT INTO users (id, name, email, password_hash, role, character_name, ancestry, avatar, skills, skill_upgrades, created_at)
+        VALUES (?, ?, ?, ?, 'student', ?, ?, ?, ?, '{}', ?)`).run(id, name, email, hashPassword(password), character,
+        ancestry, ancestry, JSON.stringify(skillsFor(ancestry)), new Date(now()).toISOString());
       login(res, id);
       return { user: viewUser(byId(id), { includeEmail: true }) };
     }
@@ -187,7 +191,9 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
     if (path === '/api/character' && method === 'POST') {
       studentOnly(user);
       const character = text(body.characterName, 2, 30, 'Heldenname');
-      requireThat(['fox', 'owl', 'dragon', 'cat'].includes(body.avatar), 400, 'Bitte einen verfügbaren Avatar wählen.');
+      const ancestry = body.ancestry ?? body.avatar ?? ancestryFor(user.ancestry || user.avatar).id;
+      requireThat(isAncestry(ancestry), 400, 'Bitte ein verfügbares Volk wählen.');
+      const trained = user.ancestry ? normalizeTraining(user.skill_upgrades) : legacyTraining(user.skills);
       const appearance = normalizeAppearance(user.appearance);
       if (body.appearance !== undefined) {
         requireThat(body.appearance && typeof body.appearance === 'object' && !Array.isArray(body.appearance), 400, 'Ungültige Charaktergestaltung.');
@@ -198,8 +204,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
           }
         }
       }
-      db.prepare('UPDATE users SET character_name = ?, avatar = ?, appearance = ? WHERE id = ?')
-        .run(character, body.avatar, JSON.stringify(appearance), user.id);
+      db.prepare('UPDATE users SET character_name = ?, ancestry = ?, avatar = ?, appearance = ?, skills = ?, skill_upgrades = ? WHERE id = ?')
+        .run(character, ancestry, ancestry, JSON.stringify(appearance), JSON.stringify(skillsFor(ancestry, trained)), JSON.stringify(trained), user.id);
       return { user: viewUser(byId(user.id), { includeEmail: true }) };
     }
 
@@ -266,12 +272,15 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
     if (path === '/api/skills/upgrade' && method === 'POST') {
       studentOnly(user);
       requireThat(['strength', 'focus', 'endurance'].includes(body.skill), 400, 'Unbekannte Fähigkeit.');
-      const skills = JSON.parse(user.skills);
-      const cost = skills[body.skill] * 25;
+      const ancestry = ancestryFor(user.ancestry || user.avatar).id;
+      const trained = user.ancestry ? normalizeTraining(user.skill_upgrades) : legacyTraining(user.skills);
+      const skills = skillsFor(ancestry, trained);
+      const cost = progressFor(ancestry, trained)[body.skill].cost;
       requireThat(skills[body.skill] < 10, 400, 'Diese Fähigkeit hat bereits Stufe 10 erreicht.');
       requireThat(user.xp >= cost, 400, `Dafür brauchst du ${cost} verfügbare XP.`);
-      skills[body.skill]++;
-      db.prepare('UPDATE users SET skills = ?, xp = xp - ? WHERE id = ?').run(JSON.stringify(skills), cost, user.id);
+      trained[body.skill]++;
+      db.prepare('UPDATE users SET ancestry = ?, avatar = ?, skills = ?, skill_upgrades = ?, xp = xp - ? WHERE id = ?')
+        .run(ancestry, ancestry, JSON.stringify(skillsFor(ancestry, trained)), JSON.stringify(trained), cost, user.id);
       return { user: viewUser(byId(user.id), { includeEmail: true }) };
     }
 
@@ -390,6 +399,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'],
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
+        '/ancestries.js': ['../shared/ancestries.js', 'text/javascript'],
         '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
         '/island.js': ['island.js', 'text/javascript'], '/island.css': ['island.css', 'text/css'],
         '/vendor/three.module.min.js': ['vendor/three.module.min.js', 'text/javascript'],

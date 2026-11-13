@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
+import { isAncestry } from './ancestries.js';
 
 // All models are built locally from geometry. No models, textures or user data
 // leave the browser; appearance and equipment come from the server's snapshots.
@@ -8,6 +9,14 @@ const PALETTES = {
 };
 const RARITY_COLORS = { common: 0xa6ae9c, rare: 0x548fc7, epic: 0x9c65c4, legendary: 0xe4b653 };
 const FUR = { fox: 0xdf8c48, owl: 0x9582b1, dragon: 0x65a88c, cat: 0xb0947a };
+const PEOPLE = {
+  'aether-elf': { skin: 0xe9cbb6, hair: 0xe2e6cf, eyes: 0x69d3b3, scale: [.88, 1.05, .90] },
+  'aether-engineer': { skin: 0xc89570, hair: 0x75503c, eyes: 0x71523c, scale: [1.07, .87, 1.02] },
+  'cloud-warden': { skin: 0xc8deed, hair: 0xf2f7fc, eyes: 0x9bcbea, scale: [.95, 1.02, .95] },
+  'sky-nomad': { skin: 0xb87c59, hair: 0x513d3a, eyes: 0x504c42, scale: [.96, 1, .96] },
+  'aether-druid': { skin: 0xb4ba84, hair: 0x57744d, eyes: 0x9fd885, scale: [.95, 1.03, .96] },
+  'aether-dusk': { skin: 0xc4a078, hair: 0x373343, eyes: 0x78d3c9, scale: [1.07, .98, 1.03] },
+};
 const COSMETIC_OUTFITS = {
   'outfit-starlight': [0x4c568f, 0xb9c7f4],
   'outfit-warden': [0x347e6c, 0xa5d7bf],
@@ -207,15 +216,86 @@ function makeGolem(hero = {}) {
   return rig;
 }
 
+function makePerson(head, body, type, skin, coat, pale, gold) {
+  const look = PEOPLE[type];
+  const hair = material(look.hair);
+  const eyes = material(look.eyes, { emissive: look.eyes, emissiveIntensity: .35 });
+  sphere(head, skin, [0, 0, 0], [.43, .55, .40]);
+  sphere(head, hair, [0, .30, -.06], [.46, .33, .39]);
+  for (const side of [-1, 1]) {
+    sphere(head, skin, [side * .43, .015, 0], [.09, .15, .08]);
+    sphere(head, eyes, [side * .17, .045, .37], [.055, .068, .031]);
+    sphere(head, material(0xffffff), [side * .17 - .015, .066, .394], [.016, .021, .01]);
+    const brow = box(head, hair, [side * .17, .17, .365], [.14, .032, .035]);
+    brow.rotation.z = side * -.10;
+    sphere(head, hair, [side * .36, .10, -.03], [.10, .36, .30]);
+  }
+  sphere(head, skin, [0, -.075, .40], [.065, .095, .08]);
+  const mouth = material(0x8d665f);
+  box(head, mouth, [0, -.28, .355], [.13, .025, .022]);
+  if (type === 'aether-elf') {
+    for (const side of [-1, 1]) {
+      const ear = cone(head, skin, [side * .53, .10, -.015], .115, .43, 3);
+      ear.rotation.z = side * -1.08;
+      sphere(head, hair, [side * .34, -.24, -.16], [.12, .52, .25]);
+    }
+    const circlet = addMesh(head, new THREE.TorusGeometry(.43, .018, 5, 20), gold, [0, .21, 0]);
+    circlet.rotation.x = Math.PI / 2;
+    addMesh(head, new THREE.OctahedronGeometry(.095), eyes, [0, .19, .40]);
+  } else if (type === 'aether-engineer') {
+    for (const side of [-1, 1]) {
+      addMesh(head, new THREE.TorusGeometry(.115, .038, 5, 12), gold, [side * .18, .28, .36]);
+      sphere(head, material(0x91c1ce, { metalness: .4 }), [side * .18, .28, .36], [.09, .09, .025]);
+    }
+    box(head, gold, [0, .28, .38], [.13, .04, .04]);
+    box(body, material(0x71513b), [-.39, 1.0, .31], [.20, .32, .14]);
+    cylinder(body, gold, [-.39, 1.20, .32], .035, .035, .28, 6);
+    addMesh(body, new THREE.TorusGeometry(.12, .04, 5, 8), gold, [.35, 1.10, .40]);
+  } else if (type === 'cloud-warden') {
+    for (let i = 0; i < 7; i++) {
+      const angle = i / 7 * TAU;
+      sphere(head, hair, [Math.cos(angle) * .34, .41 + (i % 2) * .09, Math.sin(angle) * .24], [.24, .20, .22]);
+    }
+    for (const side of [-1, 1]) {
+      sphere(body, material(0xe3f3fc, { transparent: true, opacity: .42 }), [side * .53, .72, -.10], [.27, .13, .26]);
+      addMesh(body, new THREE.OctahedronGeometry(.10), eyes, [side * .42, 1.71, .22]);
+    }
+  } else if (type === 'aether-druid') {
+    for (let i = -2; i <= 2; i++) {
+      const leaf = sphere(head, material(i % 2 ? 0x78a363 : 0x3f7a52), [i * .17, .43 - Math.abs(i) * .05, .18], [.07, .22, .035]);
+      leaf.rotation.z = -i * .38;
+    }
+    for (const side of [-1, 1]) {
+      sphere(head, material(0x6c9454), [side * .26, -.10, .33], [.065, .11, .025]);
+      const leaf = sphere(body, material(0x6c9454), [side * .35, 1.64, .30], [.11, .25, .04]);
+      leaf.rotation.z = side * .6;
+    }
+    sphere(head, hair, [0, -.35, .17], [.22, .25, .22]);
+  } else {
+    const scarf = cylinder(body, pale, [0, 1.89, .03], .29, .35, .23, 8);
+    scarf.rotation.z = -.08;
+    const flap = box(body, coat, [.30, 1.55, .43], [.18, .72, .08]);
+    flap.rotation.z = -.25;
+    const headband = cylinder(head, coat, [0, .25, 0], .46, .46, .12, 10);
+    headband.scale.z = .87;
+    if (type === 'aether-dusk') {
+      for (const side of [-1, 1]) addMesh(head, new THREE.OctahedronGeometry(.06), eyes, [side * .37, .32, .12]);
+    } else addMesh(body, new THREE.TorusGeometry(.09, .023, 5, 12), gold, [.25, 1.20, .43]);
+  }
+}
+
 function makeHero(hero = {}) {
   if (hero.avatar === 'golem' || hero.kind === 'golem' || hero.id === 'rune-golem') return makeGolem(hero);
   const root = new THREE.Group();
   root.userData.heroId = String(hero.id || 'hero');
   const cosmeticOutfit = selectedCosmetic(hero, 'outfit');
   const palette = COSMETIC_OUTFITS[cosmeticOutfit] || PALETTES[hero.appearance?.color] || PALETTES.amber;
-  const type = Object.hasOwn(FUR, hero.avatar) ? hero.avatar : 'fox';
-  const fur = material(FUR[type]);
-  const cream = material(type === 'dragon' ? 0xc4dbb1 : 0xffedce);
+  const ancestry = hero.ancestry || hero.avatar;
+  const person = isAncestry(ancestry);
+  const type = person ? ancestry : Object.hasOwn(FUR, hero.avatar) ? hero.avatar : 'fox';
+  root.userData.ancestry = person ? type : null;
+  const fur = material(person ? PEOPLE[type].skin : FUR[type], type === 'cloud-warden' ? { transparent: true, opacity: .82 } : {});
+  const cream = person ? fur : material(type === 'dragon' ? 0xc4dbb1 : 0xffedce);
   const dark = material(0x332c34, { roughness: .6 });
   const coat = material(palette[0]);
   const pale = material(palette[1]);
@@ -270,8 +350,13 @@ function makeHero(hero = {}) {
   head.position.y = 2.26;
   root.add(head);
   rig.head = head;
-  sphere(head, fur, [0, 0, 0], [.68, .60, .56]);
-  if (type === 'owl') {
+  if (person) {
+    makePerson(head, root, type, fur, coat, pale, gold);
+  } else {
+    sphere(head, fur, [0, 0, 0], [.68, .60, .56]);
+  }
+  if (person) { /* Humanoid faces are built above; animal enemies keep their models. */
+  } else if (type === 'owl') {
     for (const side of [-1, 1]) {
       sphere(head, cream, [side * .255, .065, .44], [.28, .31, .09]);
       sphere(head, dark, [side * .255, .065, .525], [.09, .11, .042]);
@@ -328,9 +413,9 @@ function makeHero(hero = {}) {
   const worn = equipmentFor(hero);
   if (worn.helmet) {
     const cap = material(RARITY_COLORS[worn.helmet.rarity] || 0xa6ae9c, { metalness: .35, roughness: .5 });
-    const helmet = addMesh(head, new THREE.SphereGeometry(.72, 8, 5, 0, TAU, 0, Math.PI / 2), cap, [0, .28, 0], [1, .66, .87]);
+    const helmet = addMesh(head, new THREE.SphereGeometry(person ? .51 : .72, 8, 5, 0, TAU, 0, Math.PI / 2), cap, [0, .28, 0], [1, .66, .87]);
     helmet.userData.slot = 'helmet';
-    cylinder(head, cap, [0, .29, 0], .71, .71, .11, 8).scale.z = .87;
+    cylinder(head, cap, [0, .29, 0], person ? .50 : .71, person ? .50 : .71, .11, 8).scale.z = .87;
     if (worn.helmet.templateId?.includes('guardian')) {
       box(head, gold, [0, .40, .61], [.10, .35, .055]);
     }
@@ -355,6 +440,13 @@ function makeHero(hero = {}) {
     addMesh(rig.arms[1], new THREE.OctahedronGeometry(.055), ring, [0, -.57, .19]);
   }
   rig.companion = makeCompanion(root, selectedCosmetic(hero, 'companion'));
+  if (person) {
+    const placement = new THREE.Group();
+    placement.userData = { ...root.userData };
+    placement.add(root);
+    root.scale.set(...PEOPLE[type].scale);
+    rig.root = placement;
+  }
   const seenMaterials = new Set();
   root.traverse(node => {
     if (node.isMesh && node.material?.color && !seenMaterials.has(node.material)) {

@@ -192,7 +192,7 @@ test('appearance is persisted and validated without granting client-submitted co
   const before = (await student.state()).user;
   const appearance = { color: 'mint', outfit: 'knight', emblem: 'moon' };
   const result = await student.request('/api/character', {
-    characterName: 'Runenfuchs', avatar: 'dragon', appearance, stats: { maxHp: 99999 }, xp: 99999,
+    characterName: 'Runenfuchs', ancestry: 'aether-elf', appearance, stats: { maxHp: 99999 }, xp: 99999,
   });
   assert.equal(result.status, 200, JSON.stringify(result.body));
   const after = (await student.state()).user;
@@ -201,7 +201,7 @@ test('appearance is persisted and validated without granting client-submitted co
   assert.deepEqual(after.stats, before.stats);
   assert.equal(after.xp, before.xp);
   for (const invalid of [{ ...appearance, color: '<script>' }, { ...appearance, outfit: 'admin' }, { ...appearance, emblem: 'unknown' }, []]) {
-    rejected(await student.request('/api/character', { characterName: 'Runenfuchs', avatar: 'dragon', appearance: invalid }));
+    rejected(await student.request('/api/character', { characterName: 'Runenfuchs', ancestry: 'aether-elf', appearance: invalid }));
   }
   assert.deepEqual((await student.state()).user.appearance, appearance);
 });
@@ -222,7 +222,7 @@ test('battle snapshots retain equipped bonuses and appearance after later charac
   assert.equal(fighter.maxHp, before.stats.maxHp);
   await student.request('/api/equipment', { slot: 'hand1', itemId: null });
   await student.request('/api/equipment', { slot: 'helmet', itemId: null });
-  await student.request('/api/character', { characterName: 'Anderer Held', avatar: 'cat', appearance: { color: 'rose', outfit: 'scholar', emblem: 'leaf' } });
+  await student.request('/api/character', { characterName: 'Anderer Held', ancestry: 'aether-dusk', appearance: { color: 'rose', outfit: 'scholar', emblem: 'leaf' } });
   const next = await student.request(`/api/battles/${battle.id}/actions`, { action: 'attack' });
   assert.equal(next.status, 200, JSON.stringify(next.body));
   const current = next.body.battle.state;
@@ -288,9 +288,11 @@ test('existing databases migrate without losing progress or fights and demo loot
     assert.equal(user.xp, 137);
     assert.equal(user.totalXp, 237);
     assert.equal(user.inventory.potion, 4);
-    assert.deepEqual(user.skills, { strength: 2, focus: 3, endurance: 1 });
+    assert.deepEqual(user.skills, { strength: 3, focus: 4, endurance: 2 });
+    assert.equal(user.ancestry, 'sky-nomad');
+    assert.deepEqual(Object.fromEntries(Object.entries(user.skillProgress).map(([key, value]) => [key, value.trained])), { strength: 1, focus: 2, endurance: 0 });
     assert.equal(Object.keys(user.equipment).length, 6);
-    assert.deepEqual(JSON.parse(db.prepare('SELECT state FROM battles WHERE id = ?').get('old-fight').state), oldBattle);
+    assert.deepEqual(JSON.parse(db.prepare('SELECT state FROM battles WHERE id = ?').get('old-fight').state), { ...oldBattle, fighters: [{ ...oldBattle.fighters[0], ancestry: 'sky-nomad', avatar: 'sky-nomad' }, oldBattle.fighters[1]] });
     const demo = JSON.parse(db.prepare('SELECT inventory FROM users WHERE id = ?').get('demo-lina').inventory);
     assert.equal(demo.chests, 2);
     assert.ok(demo.items.length >= 4);

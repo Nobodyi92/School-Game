@@ -81,7 +81,7 @@ test('teacher rewards persist XP, inventory and a reason; skills spend available
   const upgraded = await student.request('/api/skills/upgrade', { skill: 'strength' });
   assert.equal(upgraded.status, 200);
   assert.equal(upgraded.body.user.skills.strength, before.skills.strength + 1);
-  assert.equal(upgraded.body.user.xp, before.xp - before.skills.strength * 25);
+  assert.equal(upgraded.body.user.xp, before.xp - before.skillProgress.strength.cost);
   assert.equal(upgraded.body.user.totalXp, before.totalXp);
   assert.equal((await teacher.request('/api/rewards', {
     studentId: 'demo-lina', xp: 60, item: 'potion', reason: 'Hilfreiche Mitarbeit im Unterricht',
@@ -324,11 +324,11 @@ test('character edits are validated and peer data excludes credentials and email
   const teacher = client();
   await lina.login('lina@demo.schule');
   await teacher.login('lehrer@demo.schule');
-  const changed = await lina.request('/api/character', { characterName: 'Sternenfeder', avatar: 'owl' });
+  const changed = await lina.request('/api/character', { characterName: 'Sternenfeder', ancestry: 'aether-elf' });
   assert.equal(changed.status, 200);
   assert.equal(changed.body.user.characterName, 'Sternenfeder');
-  assert.equal(changed.body.user.avatar, 'owl');
-  assert.equal((await lina.request('/api/character', { characterName: 'X', avatar: 'owl' })).status, 400);
+  assert.equal(changed.body.user.avatar, 'aether-elf');
+  assert.equal((await lina.request('/api/character', { characterName: 'X', ancestry: 'aether-elf' })).status, 400);
   assert.equal((await lina.request('/api/character', { characterName: 'Name', avatar: 'unknown' })).status, 400);
   const state = (await lina.request('/api/state')).body;
   assert.equal(state.students.find(s => s.id === 'demo-ben').email, undefined);
@@ -342,7 +342,7 @@ test('requests reject cross-site mutations, malformed JSON and unsupported conte
   const { origin, client } = await fixture(t);
   const student = client();
   await student.login('lina@demo.schule');
-  const body = { characterName: 'Fremde Änderung', avatar: 'owl' };
+  const body = { characterName: 'Fremde Änderung', ancestry: 'aether-elf' };
   assert.equal((await student.request('/api/character', body, { Origin: 'https://evil.example' })).status, 403);
   assert.equal((await student.request('/api/character', body, { 'Sec-Fetch-Site': 'cross-site' })).status, 403);
   assert.equal((await student.request('/api/character', body, { Origin: origin })).status, 200);
@@ -397,7 +397,7 @@ test('SQLite retains earned progress, character changes and battles after restar
     const reward = await fetch(origin + '/api/rewards', { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: teacherCookie }, body: JSON.stringify({ studentId: 'demo-lina', xp: 40, item: 'potion', reason: 'Fortschritt bleibt nach dem Neustart erhalten' }) });
     assert.equal(reward.status, 200);
     await reward.json();
-    const changed = await fetch(origin + '/api/character', { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: cookie }, body: JSON.stringify({ characterName: 'Bleibender Held', avatar: 'dragon' }) });
+    const changed = await fetch(origin + '/api/character', { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: cookie }, body: JSON.stringify({ characterName: 'Bleibender Held', ancestry: 'aether-druid' }) });
     assert.equal(changed.status, 200);
     await changed.json();
     const battle = await fetch(origin + '/api/battles', { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: cookie }, body: JSON.stringify({ opponentId: 'training-bot' }) });
@@ -409,7 +409,7 @@ test('SQLite retains earned progress, character changes and battles after restar
   const state = await response.json();
   assert.equal(response.status, 200);
   assert.equal(state.user.characterName, 'Bleibender Held');
-  assert.equal(state.user.avatar, 'dragon');
+  assert.equal(state.user.avatar, 'aether-druid');
   assert.equal(state.battles.length, 1);
   assert.equal(state.battles[0].status, 'active');
   assert.equal(state.user.xp, 165);

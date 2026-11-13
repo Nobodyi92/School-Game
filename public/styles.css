@@ -62,3 +62,21 @@
 
 @media(min-width:541px) and (max-width:760px){.sidebar nav.student-navigation{display:flex;flex-direction:column;height:auto;padding:0}.sidebar nav.student-navigation .nav-item{min-height:44px}}
 @media(max-width:540px){.sidebar nav.student-navigation .nav-item{height:48px;min-height:48px}}
+/* Aetheria peoples: readable choices on desktop, touch and narrow screens. */
+.ancestry-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 8px; margin: 10px 0 14px; }
+.ancestry-option { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px; text-align: left; border: 1px solid #e1d9cc; border-radius: 12px; background: #fffdf8; color: #433d4b; cursor: pointer; }
+.ancestry-option.selected { border-color: #9b7b44; background: #f6eedc; box-shadow: inset 0 0 0 1px #9b7b44; }
+.ancestry-option .avatar { width: 42px; height: 42px; flex: 0 0 42px; }
+.ancestry-option > span { min-width: 0; }
+.ancestry-option strong { display: block; font-size: 12px; overflow-wrap: anywhere; }
+.ancestry-option small { display: block; font-size: 10px; margin-top: 3px; line-height: 1.4; color: #786e72; }
+.ancestry-preview { padding: 14px; margin: 8px 0 18px; border: 1px solid #e8dfce; border-radius: 12px; background: #f9f5eb; font-size: 12px; line-height: 1.6; text-align: left; }
+.ancestry-preview p { margin: 5px 0 10px; font-size: 12px; }
+.ancestry-preview small { display: block; color: #786e72; }
+.ancestry-levels { display: flex; flex-wrap: wrap; gap: 6px; }
+.ancestry-levels span { padding: 3px 8px; background: #fffdf8; border-radius: 6px; }
+.ancestry-effective { font-weight: 600; padding-top: 8px; }
+.skill-origin { display: block; color: #817572; font-size: 11px; line-height: 1.5; }
+#auth-form select { width: 100%; min-height: 46px; border: 1px solid #d9d3c9; border-radius: 9px; padding: 10px; background: #fffdf8; color: #433d4b; font: inherit; }
+@media (max-width: 390px) { .ancestry-options { grid-template-columns: 1fr; } }
+@media (min-width: 761px) and (max-width: 1000px) { .character-layout { grid-template-columns: minmax(0, 1fr); } }
