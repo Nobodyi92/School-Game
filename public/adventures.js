@@ -1,6 +1,7 @@
 import { renderIsland, mountIsland3D, handleIslandAction } from './island.js';
+import { renderWorldMap, handleWorldMapAction, resetWorldMapState } from './world-map.js';
 
-let mode = 'tower';
+let mode = 'map';
 let selectedRaidId = null;
 const seenEvents = new Map();
 let animationGeneration = 0;
@@ -48,7 +49,21 @@ function button(action, title, description, symbol, attributes = '', disabled = 
 
 export function renderAdventures({ state, e, icon, heroAvatar }) {
   const data = adventureData(state);
-  return `<div class="adventure-heading"><span class="eyebrow">ALLEIN LOSZIEHEN. GEMEINSAM GROSSES SCHAFFEN.</span><h1>Dein nächstes Abenteuer<span class="title-dot">.</span></h1><p>Entdecke die wandelnde Insel, erklimme den Turm oder bezwinge gemeinsam den Runengolem.</p></div><div class="adventure-mode-tabs" role="tablist" aria-label="Abenteuermodus"><button role="tab" aria-selected="${mode === 'tower'}" data-action="adventure-mode" data-mode="tower">${icon('trophy')} Turm der Prüfungen <small>SOLO</small></button><button role="tab" aria-selected="${mode === 'island'}" data-action="adventure-mode" data-mode="island">${icon('spark')} Die wandelnde Insel <small>SOLO</small></button><button role="tab" aria-selected="${mode === 'golem'}" data-action="adventure-mode" data-mode="golem">${icon('users')} Runengolem <small>3–5 SPIELER</small></button></div>${mode === 'tower' ? renderTower(state, data.tower, e, icon, heroAvatar) : mode === 'island' ? renderIsland({ state, e, icon, heroAvatar }) : renderGolem(state, e, icon, heroAvatar)}<div class="adventure-note">${icon('gift', '', 23)}<p>Hier erspielst du Begleiter, Outfits und Trophäen. Deine schulischen XP, Ausrüstung und Tränke bleiben erhalten. Neue XP und Truhen vergibt weiterhin deine Lehrkraft.</p><button class="text-button" data-action="nav" data-tab="collection">Zur Sammlung ${icon('arrow', '', 16)}</button></div>`;
+  const tabs = [
+    { id: 'map', label: 'Weltkarte', icon: 'grid', detail: 'AETHERIA' },
+    { id: 'tower', label: 'Turm der Prüfungen', icon: 'trophy', detail: 'SOLO' },
+    { id: 'island', label: 'Die wandelnde Insel', icon: 'spark', detail: 'SOLO' },
+    { id: 'golem', label: 'Runengolem', icon: 'users', detail: '3–5 SPIELER' },
+  ];
+  const content = mode === 'map' ? renderWorldMap({ state, e, icon })
+    : mode === 'tower' ? renderTower(state, data.tower, e, icon, heroAvatar)
+    : mode === 'island' ? renderIsland({ state, e, icon, heroAvatar })
+    : renderGolem(state, e, icon, heroAvatar);
+  return `<div class="adventure-heading"><span class="eyebrow">ALLEIN LOSZIEHEN. GEMEINSAM GROSSES SCHAFFEN.</span><h1>${mode === 'map' ? 'Aetheria wartet auf dich' : 'Dein nächstes Abenteuer'}<span class="title-dot">.</span></h1><p>${mode === 'map' ? 'Folge dem Ätherstrom, entdecke die Orte von Aetheria und wähle dein nächstes Abenteuer.' : 'Entdecke die wandelnde Insel, erklimme den Turm oder bezwinge gemeinsam den Runengolem.'}</p></div>
+    <div class="adventure-mode-tabs" role="tablist" aria-label="Abenteuermodus">${tabs.map(tab => `<button id="adventure-tab-${tab.id}" role="tab" aria-selected="${mode === tab.id}" aria-controls="adventure-content" data-action="adventure-mode" data-mode="${tab.id}">${icon(tab.icon)} ${tab.label} <small>${tab.detail}</small></button>`).join('')}</div>
+    ${mode !== 'map' ? `<div class="adventure-backlink"><button class="button outline small" data-action="adventure-mode" data-mode="map">${icon('grid', '', 17)} Zur Weltkarte</button></div>` : ''}
+    <section id="adventure-content" data-adventure-content role="tabpanel" tabindex="-1" aria-labelledby="adventure-tab-${mode}">${content}</section>
+    <div class="adventure-note">${icon('gift', '', 23)}<p>Hier erspielst du Begleiter, Outfits und Trophäen. Deine schulischen XP, Ausrüstung und Tränke bleiben erhalten. Neue XP und Truhen vergibt weiterhin deine Lehrkraft.</p><button class="text-button" data-action="nav" data-tab="collection">Zur Sammlung ${icon('arrow', '', 16)}</button></div>`;
 }
 
 function renderTower(state, tower, e, icon, heroAvatar) {
@@ -139,7 +154,7 @@ export function cancelAdventureAnimations() {
   document.body.classList.remove('is-adventure-animating');
   animating = false;
 }
-export function resetAdventureState() { cancelAdventureAnimations(); seenEvents.clear(); selectedRaidId = null; mode = 'tower'; }
+export function resetAdventureState() { cancelAdventureAnimations(); seenEvents.clear(); selectedRaidId = null; mode = 'map'; resetWorldMapState(); }
 export async function animateAdventures(candidates) {
   const host = document.querySelector('.adventure-arena');
   if (!host) return;
@@ -178,7 +193,18 @@ export function updateAdventureClocks() {
 export async function handleAdventureAction(button, { api, mutate, render, toast, confirmDialog }) {
   const action = button.dataset.action;
   if (await handleIslandAction(button, { api, mutate, toast, confirmDialog })) return true;
-  if (action === 'adventure-mode') { cancelAdventureAnimations(); mode = button.dataset.mode; render(); return true; }
+  if (handleWorldMapAction(button, { render })) return true;
+  if (action === 'adventure-mode') {
+    if (!['map', 'tower', 'island', 'golem'].includes(button.dataset.mode)) return false;
+    cancelAdventureAnimations();
+    mode = button.dataset.mode;
+    render();
+    if (typeof document !== 'undefined') {
+      document.querySelector?.('[data-adventure-content]')?.focus?.({ preventScroll: true });
+      document.querySelector?.('.adventure-heading')?.scrollIntoView?.({ block: 'start', behavior: 'auto' });
+    }
+    return true;
+  }
   if (action === 'raid-select') { cancelAdventureAnimations(); selectedRaidId = button.dataset.id; render(); return true; }
   if (action === 'tower-start') { await mutate(async () => { await api('/tower/start', {}); mode = 'tower'; toast('Der Turm öffnet seine Tore. Viel Erfolg!'); }); return true; }
   if (action === 'tower-action') { await mutate(() => api('/tower/action', { action: button.dataset.move, turn: Number(button.dataset.turn), runId: button.dataset.runId })); return true; }

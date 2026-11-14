@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Seit Version **0.6** ersetzen sechs Völker mit unterschiedlichen Start-Skills die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Seit Version **0.7** führt eine interaktive **Weltkarte von Aetheria** zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -29,10 +29,10 @@ Im standardmäßig aktiven Demomodus stehen diese Konten bereit. Alle verwenden 
 3. Unter **Inventar** eine Truhe öffnen, Gegenstände vergleichen und ausrüsten. Die Demokonten Lina und Ben erhalten einmalig zwei Truhen, eine kleine Trankflasche und vier Beispielgegenstände, darunter einen doppelten Helm zum Ausprobieren des XP-Tauschs.
 4. Als Lehrkraft anmelden und einem Schülerkonto XP und/oder eine Truhe oder einen der drei Heiltränke mit Begründung vergeben.
 5. Für ein echtes Schülerduell Lina und Ben in **zwei getrennten Browserprofilen** (z. B. normal und privat) anmelden. Eine Herausforderung senden, auf dem anderen Konto annehmen und abwechselnd Aktionen wählen. Ein zweiter Tab desselben Browserprofils teilt denselben Login.
-6. Unter **Abenteuer → Turm der Prüfungen** allein einen Aufstieg beginnen. Nach einer gewonnenen Etage die Funde sichern oder mit einem Turmsegen weiterspielen. Den ersten Begleiter gibt es nach abgeschlossener Etage 2, sobald die Funde gesichert werden.
-7. Für **Abenteuer → Runengolem** drei getrennte Schülerkonten verwenden: Lina, Ben und ein über **Schüleraccount erstellen** neu registriertes Demokonto. Es wird kein drittes Schülerkonto automatisch angelegt. Drei unabhängige Browserprofile oder Geräte verwenden, etwa Edge, Chrome und ein Edge-InPrivate-Fenster. In einem Konto eine Gruppe eröffnen, in den anderen beiden beitreten und als Gruppenleitung starten.
-8. Unter **Abenteuer → Die wandelnde Insel** eine Solo-Reise beginnen. Wähle an den Weggabelungen zwischen verschiedenen Begegnungen. Nach drei bzw. fünf abgeschlossenen Stationen lassen sich neue kosmetische Funde sichern; die siebte Station führt zum Gezeitenwächter.
-8. Unter **Sammlung** freigeschaltete Begleiter und Outfits auswählen sowie die verdienten Trophäen ansehen.
+6. Unter **Abenteuer** öffnet sich die Weltkarte. **Zephyrath** auf der Karte oder in der Ortsliste wählen und über **Turm der Prüfungen** allein einen Aufstieg beginnen. Nach einer gewonnenen Etage die Funde sichern oder mit einem Turmsegen weiterspielen. Den ersten Begleiter gibt es nach abgeschlossener Etage 2, sobald die Funde gesichert werden.
+7. Für **Abenteuer → Kristallminen → Runengolem** drei getrennte Schülerkonten verwenden: Lina, Ben und ein über **Schüleraccount erstellen** neu registriertes Demokonto. Es wird kein drittes Schülerkonto automatisch angelegt. Drei unabhängige Browserprofile oder Geräte verwenden, etwa Edge, Chrome und ein Edge-InPrivate-Fenster. In einem Konto eine Gruppe eröffnen, in den anderen beiden beitreten und als Gruppenleitung starten.
+8. Unter **Abenteuer → Wandelnde Insel** den Ort auf der Karte oder in der Liste wählen und eine Solo-Reise beginnen. Wähle an den Weggabelungen zwischen verschiedenen Begegnungen. Nach drei bzw. fünf abgeschlossenen Stationen lassen sich neue kosmetische Funde sichern; die siebte Station führt zum Gezeitenwächter.
+9. Unter **Sammlung** freigeschaltete Begleiter und Outfits auswählen sowie die verdienten Trophäen ansehen.
 
 Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Registrierungen erhalten ausschließlich die Schülerrolle, keine Lehrerrechte und keine selbst gewählten XP. Alle Konten gehören in dieser Version zur gemeinsamen Demoklasse „Campus Nord“.
 
@@ -48,6 +48,32 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
 - Bei 0 LP endet der Kampf. Nach spätestens 30 Runden entscheidet der höhere verbleibende LP-Anteil; bei exaktem Gleichstand gewinnt der Herausforderer.
 - Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm, Insel und Runengolem vergeben ausschließlich kosmetische Begleiter, Outfits und Trophäen. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+
+## Die Weltkarte von Aetheria
+
+Unter **Abenteuer** ist die Weltkarte der Einstieg. Das Kartenbild übernimmt den freigegebenen Entwurf mit seinen Städten und Landschaften; die kleinen weißen Richtungspfeile im Ätherstrom wurden entfernt. Alle elf benannten Orte sind per Kartenmarkierung oder Ortsliste auswählbar. Die Liste bleibt auch dann verwendbar, wenn ein Browser das Bild nicht laden kann.
+
+Der **Ätherstrom** entspringt am höchsten Berg im Norden bei Nebelheim und zieht als langes, polarlichtartiges Lichtband **durch die Luft über dem Festland** bis in die Wüste im Süden. Luftschiffe können nur innerhalb dieses Stroms fliegen. Himmelsruhe ist eine bewegliche Luftschiffflotte; die wandelnde Insel und kleinere schwebende Felsen treiben ebenfalls im Strom. Die festen Städte stehen auf dem Land.
+
+| Ort | Auf der Karte |
+| --- | --- |
+| Zephyria | Stadt der Ätheringenieure in den nördlichen Bergen |
+| Nebelheim | Stadt der Wolkenhüter am höchsten Berg |
+| Kristallminen | Alter Mineneingang am Berg; Zugang zum Gruppenabenteuer **Runengolem** |
+| Himmelsruhe | Luftschiffflotte der Luftnomaden im Ätherstrom |
+| Silberwind | Stadt der Ätherelfen in den Baumkronen |
+| Lysara | Handelsstadt der grünen Ebene |
+| Ätherhain | Druidenstadt in den südlichen Nebelwäldern |
+| Äthkern | Hauptstadt der Ätherdämmerer in der Wüste |
+| Zephyrath | Alter Turm an der östlichen Steilküste; Zugang zum **Turm der Prüfungen** |
+| Lyrianas Licht | Verfallener Leuchtturm an der Westküste |
+| Wandelnde Insel | Im Ätherstrom treibender Ort; Zugang zur **Solo-Inselreise** |
+
+Beim Auswählen erscheint eine Ortsbeschreibung. Die drei Abenteuerorte zeigen außerdem den bisherigen Fortschritt oder den Gruppenstatus und führen zum jeweiligen Abenteuer. Erst die dortigen Startschaltflächen beginnen einen neuen Versuch oder eröffnen eine Gruppe. Laufende Abenteuer lassen sich von der Karte aus wieder aufrufen. Die anderen acht Orte stellen die Welt vor und starten keine zusätzlichen Kämpfe.
+
+Mit **Vergrößern**, **Verkleinern** und **Zurücksetzen** lässt sich die Karte erkunden. Vergrößerte Karten können per Touch oder Maus verschoben werden; die Ortsliste bietet eine Alternative für kleine Displays und die Tastatur. **Zur Weltkarte** führt aus jedem Abenteuer zurück. Die bisherigen drei Abenteuer-Reiter bleiben als direkter Zugang erhalten. Eine aktivierte Einstellung für reduzierte Bewegung wird berücksichtigt.
+
+Das Öffnen und Erkunden der Karte verändert keine XP, Gegenstände, Freischaltungen oder Kampfwerte. Die bisherigen Spielstände und Abenteuerregeln bleiben erhalten; zusätzliche Pakete werden für das Update nicht benötigt. Die Karte und ihre Module werden vom Spielserver lokal ausgeliefert.
 
 ## Die Völker von Aetheria
 
@@ -189,4 +215,6 @@ Node-HTTP-Server, SQLite, Vanilla JavaScript, CSS und die mitgelieferte Three.js
 
 `npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Die Völkerprüfungen testen Startwerte und tatsächlichen Schaden, manipulationssichere Registrierung, Volkswechsel, Lernkosten, erhaltene Stufen über dem Maximum und einmalige Spielstandübernahme. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf. Die Abenteuerprüfungen decken Turmfortschritt und Belohnungssicherung, Gruppenbildung, Runenaktionen, veraltete oder doppelte Spielzüge, serverseitige Zeitfristen, kosmetische Besitzrechte sowie die Speicherung nach einem Neustart ab.
 
-Wichtige Dateien: `shared/ancestries.js` (Völker, Startwerte und Skillfortschritt), `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).
+Die Kartenprüfungen kontrollieren die lokal ausgelieferte Bilddatei, die Auswahl aller elf Orte und den Zugang zu den drei spielbaren Abenteuern. Sie prüfen außerdem, dass reine Navigation keine neuen Versuche startet und laufende Turm-, Insel- und Gruppenabenteuer samt Ressourcen erhalten bleiben.
+
+Wichtige Dateien: `public/world-map.js` und `public/world-map.css` (Weltkarte und Ortsauswahl), `shared/ancestries.js` (Völker, Startwerte und Skillfortschritt), `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).

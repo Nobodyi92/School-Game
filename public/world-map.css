@@ -1,0 +1,67 @@
+/* Aetheria's painted geography, accessible place selection and touch controls. */
+.world-map{min-width:0;margin-bottom:24px}
+.world-map-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:0 0 11px}
+.world-map-heading h2{font-size:25px;margin-top:5px}
+.world-map-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:5px;border:1px solid #ded6c7;border-radius:12px;background:#fffdf7}
+.world-map-controls button{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:1px solid transparent;border-radius:8px;background:#f3ecde;color:#574c3b;font-size:22px;line-height:1}
+.world-map-controls button:hover:not(:disabled){background:#e9dcc1;border-color:#d6bd88}
+.world-map-controls button:disabled{opacity:.4}
+.world-map-controls output{min-width:44px;text-align:center;font-size:11px;color:#6f6452;font-variant-numeric:tabular-nums}
+.world-map-controls .world-map-reset{font-size:11px;padding:0 11px;background:none}
+.world-map-lore{font-size:12px;line-height:1.8;color:#82786b;max-width:870px;margin:0 0 12px}
+.world-map-help{display:flex;align-items:center;gap:6px;color:#82786b;font-size:11px;line-height:1.6;margin:0 0 10px}
+.world-map-help .icon{flex:none;color:#a17d40}
+.world-map-viewport{width:100%;height:clamp(440px,53vw,750px);max-width:100%;overflow:auto;overscroll-behavior:contain;border:1px solid #d3b98b;border-radius:17px;background:#d7c4a1;scrollbar-color:#a88a57 #e9ddc7;scrollbar-width:thin;cursor:grab;touch-action:pan-x pan-y;box-shadow:0 9px 25px #6e54251a;isolation:isolate}
+.world-map-viewport:focus-visible{outline:3px solid #a688c1;outline-offset:4px}
+.world-map-viewport.is-dragging{cursor:grabbing}
+.world-map-stage{position:relative;aspect-ratio:3/2;min-height:1px;user-select:none}
+.world-map-image{display:block;width:100%;height:100%;object-fit:fill;pointer-events:none;-webkit-user-drag:none}
+.world-map-image-error{position:absolute;left:20px;top:20px;right:20px;margin:0;padding:18px;border-radius:12px;background:#fffaf0;color:#685336;font-size:14px;line-height:1.7;box-shadow:0 3px 12px #0001}
+.world-map-image-error[hidden]{display:none}
+.has-image-error .world-map-pin{visibility:hidden}
+.world-map-pin{position:absolute;display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;transform:translate(-50%,-50%);border:0;border-radius:50%;background:transparent;z-index:2;touch-action:manipulation;cursor:pointer}
+.world-map-pin-core{display:flex;align-items:center;justify-content:center;width:29px;height:29px;border:2px solid #fff4d8;border-radius:50%;background:#fbf4e8;color:#665442;font-size:18px;line-height:1;box-shadow:0 2px 8px #2f211b66;transition:box-shadow .15s,transform .15s}
+.world-map-pin.is-adventure .world-map-pin-core{background:#483b56;border-color:#ffe2a0;color:#ffe2a0;box-shadow:0 0 0 4px #f5d48038,0 3px 10px #2f211b88}
+.world-map-pin.is-active .world-map-pin-core{background:#355d4a;color:#f5eac5;border-color:#dcf2c5;box-shadow:0 0 0 5px #d4f1b54d,0 2px 10px #24433399}
+.world-map-pin:hover,.world-map-pin:focus-visible,.world-map-pin.is-selected{z-index:4;outline:none}
+.world-map-pin:hover .world-map-pin-core,.world-map-pin:focus-visible .world-map-pin-core,.world-map-pin.is-selected .world-map-pin-core{transform:scale(1.14);box-shadow:0 0 0 4px #fff8e5,0 0 0 7px #765784,0 4px 10px #2f211b88}
+.world-map-pin-label{position:absolute;bottom:47px;left:50%;transform:translateX(-50%);padding:5px 9px;border:1px solid #d8c19b;border-radius:7px;white-space:nowrap;background:#fff5e3;color:#493c2f;font-size:12px;line-height:1.4;font-weight:650;box-shadow:0 2px 8px #2f211b22;opacity:0;visibility:hidden;pointer-events:none}
+.world-map-pin:hover .world-map-pin-label,.world-map-pin:focus-visible .world-map-pin-label{opacity:1;visibility:visible}
+.world-map-running{position:absolute;right:3px;top:2px;width:9px;height:9px;border:2px solid #fff9e8;border-radius:50%;background:#83ac66}
+.world-map-pin.is-travelling .world-map-pin-core{animation:map-floating-light 5s ease-in-out infinite}
+@keyframes map-floating-light{0%,100%{filter:drop-shadow(0 0 0 #f4d38600)}50%{filter:drop-shadow(0 0 6px #fff4be)}}
+.world-map-legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:12px 0 17px;color:#82786b;font-size:11px}
+.world-map-legend>span{display:inline-flex;align-items:center;gap:6px}
+.world-map-legend i{width:10px;height:10px;border-radius:50%;border:1px solid #beab8a;background:#f6ebd5}
+.world-map-legend .legend-adventure{background:#635171;border-color:#e3bd68}
+.world-map-legend .legend-running{background:#67905b;border-color:#b0cb9c}
+.world-map-detail{display:flex;align-items:center;gap:17px;flex-wrap:wrap;min-width:0;padding:24px;border:1px solid #e1d8c8;border-radius:16px;background:#fffdf7;margin-bottom:20px;box-shadow:0 4px 18px #57452905}
+.world-map-detail.is-adventure{border-color:#d8c49f;background:linear-gradient(120deg,#fffaf0,#fffcf8)}
+.world-map-detail-intro{background:#f1ede3}
+.world-map-place-art{display:flex;align-items:center;justify-content:center;flex:none;width:55px;height:55px;border:1px solid #dfcba5;border-radius:14px;background:#f6ecd6;color:#967646;font-size:30px;line-height:1}
+.world-map-detail-copy,.world-map-detail-intro>div{flex:1 1 320px;min-width:0}
+.world-map-detail h3{font-size:23px;line-height:1.4;margin:5px 0 7px}
+.world-map-detail h3:focus{outline:none}
+.world-map-detail p{color:#7b7367;font-size:12px;line-height:1.8;max-width:900px}
+.world-map-detail-meta{display:flex;align-items:center;gap:7px 13px;flex-wrap:wrap;margin-top:12px;color:#8c806e;font-size:11px}
+.world-map-status{display:inline-flex;padding:4px 8px;border-radius:6px;background:#eee7d8;color:#79664b;font-weight:600}
+.world-map-status.is-active{background:#e6eddf;color:#4c7143}
+.world-map-open{max-width:100%;white-space:normal;flex:0 1 auto}
+.world-map-directory{min-width:0;padding:18px 20px;border:1px solid #e3dccc;border-radius:15px;background:#fbf8f1}
+.world-map-directory>summary{min-height:34px;color:#5e5547;font-size:13px;font-weight:650;cursor:pointer}
+.world-map-directory>summary>span{display:inline-block;margin-left:7px;color:#9a8a71;font-size:10px;font-weight:500}
+.world-map-place-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:9px;margin-top:12px}
+.world-map-place{display:flex;align-items:center;gap:10px;min-width:0;min-height:66px;padding:11px 12px;border:1px solid #e4dccc;border-radius:10px;background:#fffef9;text-align:left;transition:border-color .15s,background .15s}
+.world-map-place:hover{background:#f8f0df;border-color:#c9b48c}
+.world-map-place.is-adventure{background:#f5efdf;border-color:#ddcba6}
+.world-map-place.is-selected{border-color:#9b7b44;background:#f5e8cd;box-shadow:inset 0 0 0 1px #9b7b44}
+.world-map-list-symbol{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:none;border-radius:9px;background:#eee5d3;color:#92774c;font-size:22px;line-height:1}
+.world-map-place.is-adventure .world-map-list-symbol{background:#e7dded;color:#756181}
+.world-map-list-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.world-map-list-copy strong{font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.world-map-list-copy small{font-size:10px;line-height:1.5;color:#8a7f6f;overflow-wrap:anywhere}
+.world-map-list-active{color:#789864;font-size:12px}
+.adventure-backlink{margin-bottom:18px}
+@media(max-width:760px){.world-map-heading{align-items:flex-start}.world-map-heading h2{font-size:23px}.world-map-controls{width:100%;justify-content:center}.world-map-controls .world-map-reset{margin-left:auto}.world-map-viewport{height:470px;border-radius:12px}.world-map-help{align-items:flex-start;font-size:10px}.world-map-lore{font-size:12px}.world-map-detail{padding:20px;gap:13px}.world-map-detail-copy,.world-map-detail-intro>div{flex-basis:210px}.world-map-open{width:100%}.world-map-directory{padding:16px}.adventure-mode-tabs{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.adventure-mode-tabs button{padding:9px 8px;font-size:11px;gap:6px;min-width:0}.adventure-mode-tabs button small{font-size:8px}}
+@media(max-width:430px){.world-map-controls{gap:3px}.world-map-controls .world-map-reset{font-size:10px;padding:0 7px}.world-map-controls button{min-width:40px}.world-map-controls output{min-width:38px}.world-map-viewport{height:420px}.world-map-place-list{grid-template-columns:minmax(0,1fr)}.world-map-detail h3{font-size:21px}.world-map-place-art{width:46px;height:46px;font-size:25px}.world-map-legend{gap:7px 12px;font-size:10px}.world-map-detail{padding:18px}}
+@media(prefers-reduced-motion:reduce){.world-map-pin-core,.world-map-place{transition:none}.world-map-pin.is-travelling .world-map-pin-core{animation:none}}

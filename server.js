@@ -401,6 +401,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
         '/ancestries.js': ['../shared/ancestries.js', 'text/javascript'],
         '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
+        '/world-map.js': ['world-map.js', 'text/javascript'], '/world-map.css': ['world-map.css', 'text/css'],
+        '/assets/aetheria-map.png': ['assets/aetheria-map.png', 'image/png'],
         '/island.js': ['island.js', 'text/javascript'], '/island.css': ['island.css', 'text/css'],
         '/vendor/three.module.min.js': ['vendor/three.module.min.js', 'text/javascript'],
         '/vendor/three.core.min.js': ['vendor/three.core.min.js', 'text/javascript'],
@@ -409,7 +411,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(Object.hasOwn(assets, path), 404, 'Seite nicht gefunden.');
       const [filename, mime] = assets[path];
       const content = await readFile(join(root, 'public', filename));
-      res.setHeader('Content-Type', `${mime}; charset=utf-8`);
+      res.setHeader('Content-Type', mime.startsWith('text/') ? `${mime}; charset=utf-8` : mime);
       res.setHeader('Cache-Control', 'no-cache');
       res.end(req.method === 'HEAD' ? undefined : content);
     } catch (error) {

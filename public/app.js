@@ -1,6 +1,7 @@
 import { playBattleEvents, isAnimating, cancelBattleEffects } from './battle-effects.js';
 import { mountHero3D, mountArena3D, mountRaid3D } from './hero3d.js';
 import { ANCESTRIES, DEFAULT_ANCESTRY, ancestryFor, isAncestry, skillsFor } from './ancestries.js';
+import { mountWorldMap, disposeWorldMap } from './world-map.js';
 import { renderAdventures, renderCollection, mountAdventure3D, handleAdventureAction, adventureEventCandidates, animateAdventures, adventureIsAnimating, cancelAdventureAnimations, resetAdventureState, updateAdventureClocks } from './adventures.js';
 
 const app = document.querySelector('#app');
@@ -116,6 +117,7 @@ function ancestrySummary(id) {
 }
 
 function dispose3DViews() {
+  disposeWorldMap();
   cancelAdventureAnimations();
   for (const entry of mounted3DViews) {
     try { entry.controller?.dispose(); } catch { /* A lost graphics context must not block navigation. */ }
@@ -130,6 +132,7 @@ function hero3DMarkup(source, user, label = 'Dein Held in 3D') {
 
 function mount3DViews() {
   if (!state || state.user.role !== 'student') return;
+  mountWorldMap();
   const register = (host, create) => {
     try {
       const controller = create();
@@ -226,7 +229,11 @@ async function api(path, body) {
   const response = await fetch(`/api${path}`, options);
   const data = await response.json();
   if (!response.ok) {
-    if (response.status === 401 && state) { state = null; lastStateJSON = ''; renderAuth(); }
+    if (response.status === 401 && state) {
+      resetAdventureState();
+      state = null; profileDraft = null; lastStateJSON = '';
+      renderAuth();
+    }
     throw new Error(data.error || 'Das hat leider nicht geklappt. Bitte versuche es erneut.');
   }
   return data;
