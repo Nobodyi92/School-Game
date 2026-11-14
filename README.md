@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.9** ergänzt sechs Ausrüstungskollektionen und sechs Begleiter aus Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -80,6 +80,12 @@ Der **Ätherstrom** entspringt am höchsten Berg im Norden bei Nebelheim und zie
 Beim Auswählen erscheint eine Ortsbeschreibung. Die drei Abenteuerorte zeigen außerdem den bisherigen Fortschritt oder den Gruppenstatus und führen zum jeweiligen Abenteuer. Erst die dortigen Startschaltflächen beginnen einen neuen Versuch oder eröffnen eine Gruppe. Laufende Abenteuer lassen sich von der Karte aus wieder aufrufen. Die anderen acht Orte stellen die Welt vor und starten keine zusätzlichen Kämpfe.
 
 Mit **Vergrößern**, **Verkleinern** und **Zurücksetzen** lässt sich die Karte erkunden. Vergrößerte Karten können per Touch oder Maus verschoben werden; die Ortsliste bietet eine Alternative für kleine Displays und die Tastatur. **Zur Weltkarte** führt aus jedem Abenteuer zurück. Die bisherigen drei Abenteuer-Reiter bleiben als direkter Zugang erhalten. Eine aktivierte Einstellung für reduzierte Bewegung wird berücksichtigt.
+
+[Kurze Animationsvorschau ansehen](docs/aetheria-karte-animation.mp4)
+
+Die Karte wird durch langsam fließendes Ätherlicht, sanfte Lichtpartikel, kleine Luftschiffe innerhalb des Stroms, schwebende Felsen und leichte Nebelschleier belebt. Aus den Kaminen von Zephyria, Lysara und Äthkern steigt Rauch auf. Die Beschriftungen und auswählbaren Orte bleiben gut erreichbar; die Animationsebene nimmt keine Eingaben entgegen.
+
+Mit **Animation pausieren** lassen sich die Effekte anhalten und wieder fortsetzen. Die Pause bleibt beim Zoomen und bei der Ortsauswahl erhalten. Außerhalb des sichtbaren Kartenbereichs und bei verdecktem Browser-Tab ruhen die Effekte automatisch. Eine aktivierte Einstellung für reduzierte Bewegung zeigt die ursprüngliche statische Karte. Für dieses Update sind keine zusätzlichen Pakete erforderlich.
 
 Das Öffnen und Erkunden der Karte verändert keine XP, Gegenstände, Freischaltungen oder Kampfwerte. Die bisherigen Spielstände und Abenteuerregeln bleiben erhalten; zusätzliche Pakete werden für das Update nicht benötigt. Die Karte und ihre Module werden vom Spielserver lokal ausgeliefert.
 

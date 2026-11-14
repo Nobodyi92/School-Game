@@ -1,3 +1,5 @@
+import { renderMapAtmosphere, renderMapMotionControl, toggleMapAtmosphere, resetMapAtmosphere, mountMapAtmosphere } from './map-atmosphere.js';
+
 // The painted map stays the source of geography. Markers only select a place;
 // starting or continuing an adventure still uses the existing adventure screens.
 export const WORLD_MAP_LOCATIONS = Object.freeze([
@@ -73,7 +75,7 @@ export function renderWorldMap({ state = {}, e = escapeHTML, icon = () => '' } =
     const label = `${place.name}: ${place.subtitle}${info.active ? `, ${info.label}` : ''}`;
     return `<button type="button" class="world-map-pin ${place.mode ? 'is-adventure' : 'is-place'} ${info.active ? 'is-active' : ''} ${selected ? 'is-selected' : ''} ${['wandering-island', 'sky-rest'].includes(place.id) ? 'is-travelling' : ''}" style="left:${place.x}%;top:${place.y}%" data-action="adventure-map-select" data-location="${place.id}" aria-label="${e(label)}" aria-pressed="${selected}" aria-controls="world-map-detail-title"><span class="world-map-pin-core" aria-hidden="true">${place.symbol}</span><span class="world-map-pin-label" aria-hidden="true">${e(place.name)}</span>${info.active ? '<span class="world-map-running" aria-hidden="true"></span>' : ''}</button>`;
   }).join('');
-  return `<section class="world-map" aria-labelledby="world-map-title"><div class="world-map-heading"><div><span class="eyebrow">VOM HÖCHSTEN GIPFEL BIS ZUR WÜSTE</span><h2 id="world-map-title">Entdecke Aetheria</h2></div><div class="world-map-controls" role="group" aria-label="Karte vergrößern und verkleinern"><button type="button" data-action="adventure-map-zoom-out" aria-label="Karte verkleinern" ${zoom === MIN_ZOOM ? 'disabled' : ''}>−</button><output aria-label="Vergrößerung">${zoom}%</output><button type="button" data-action="adventure-map-zoom-in" aria-label="Karte vergrößern" ${zoom === MAX_ZOOM ? 'disabled' : ''}>+</button><button type="button" class="world-map-reset" data-action="adventure-map-reset">Ansicht zurücksetzen</button></div></div><p class="world-map-lore">Der Ätherstrom schimmert wie ein langes Polarlicht über dem Land. Nur in seinem Lichtband fliegen Luftschiffe und treiben die schwebenden Inseln.</p><p class="world-map-help" id="world-map-help">${icon('hero', '', 15)} Einen Ort antippen · Zum Verschieben wischen oder ziehen · Mit + und − vergrößern</p><div class="world-map-viewport" tabindex="0" role="region" aria-label="Verschiebbare Weltkarte von Aetheria" aria-describedby="world-map-help"><div class="world-map-stage" style="width:max(${zoom}%,${Math.round(880 * zoom / 100)}px)"><img class="world-map-image" src="/assets/aetheria-map.png" width="1536" height="1024" alt="Aetheria: nördliche Berge, Wälder und Ebenen, südliche Nebelwälder und Wüste. Der schwebende Ätherstrom verbindet den höchsten Gipfel mit der Wüste. Alle Orte sind zusätzlich in der Ortsliste erreichbar." draggable="false" decoding="async"><p class="world-map-image-error" hidden>Das Kartenbild konnte nicht geladen werden. Wähle dein Ziel über die Ortsliste darunter.</p>${placeButtons}</div></div><div class="world-map-legend" aria-label="Kartenlegende"><span><i class="legend-adventure"></i> Abenteuer</span><span><i class="legend-place"></i> Orte und Städte</span><span><i class="legend-running"></i> Dein Abenteuer läuft</span></div>${detailPanel(state, e, icon)}<details class="world-map-directory" open><summary>Alle Orte und Abenteuer <span>${WORLD_MAP_LOCATIONS.length} Ziele</span></summary><div class="world-map-place-list">${WORLD_MAP_LOCATIONS.map(place => {
+  return `<section class="world-map" aria-labelledby="world-map-title"><div class="world-map-heading"><div><span class="eyebrow">VOM HÖCHSTEN GIPFEL BIS ZUR WÜSTE</span><h2 id="world-map-title">Entdecke Aetheria</h2></div><div class="world-map-controls" role="group" aria-label="Karte vergrößern und verkleinern"><button type="button" data-action="adventure-map-zoom-out" aria-label="Karte verkleinern" ${zoom === MIN_ZOOM ? 'disabled' : ''}>−</button><output aria-label="Vergrößerung">${zoom}%</output><button type="button" data-action="adventure-map-zoom-in" aria-label="Karte vergrößern" ${zoom === MAX_ZOOM ? 'disabled' : ''}>+</button><button type="button" class="world-map-reset" data-action="adventure-map-reset">Ansicht zurücksetzen</button>${renderMapMotionControl()}</div></div><p class="world-map-lore">Der Ätherstrom schimmert wie ein langes Polarlicht über dem Land. Nur in seinem Lichtband fliegen Luftschiffe und treiben die schwebenden Inseln.</p><p class="world-map-help" id="world-map-help">${icon('hero', '', 15)} Einen Ort antippen · Zum Verschieben wischen oder ziehen · Mit + und − vergrößern</p><div class="world-map-viewport" tabindex="0" role="region" aria-label="Verschiebbare Weltkarte von Aetheria" aria-describedby="world-map-help"><div class="world-map-stage" data-motion="paused" style="width:max(${zoom}%,${Math.round(880 * zoom / 100)}px)"><img class="world-map-image" src="/assets/aetheria-map.png" width="1536" height="1024" alt="Aetheria: nördliche Berge, Wälder und Ebenen, südliche Nebelwälder und Wüste. Der schwebende Ätherstrom verbindet den höchsten Gipfel mit der Wüste. Alle Orte sind zusätzlich in der Ortsliste erreichbar." draggable="false" decoding="async"><p class="world-map-image-error" hidden>Das Kartenbild konnte nicht geladen werden. Wähle dein Ziel über die Ortsliste darunter.</p>${renderMapAtmosphere()}${placeButtons}</div></div><div class="world-map-legend" aria-label="Kartenlegende"><span><i class="legend-adventure"></i> Abenteuer</span><span><i class="legend-place"></i> Orte und Städte</span><span><i class="legend-running"></i> Dein Abenteuer läuft</span></div>${detailPanel(state, e, icon)}<details class="world-map-directory" open><summary>Alle Orte und Abenteuer <span>${WORLD_MAP_LOCATIONS.length} Ziele</span></summary><div class="world-map-place-list">${WORLD_MAP_LOCATIONS.map(place => {
     const info = progress(place, state);
     return `<button type="button" class="world-map-place ${place.mode ? 'is-adventure' : ''} ${place.id === selectedLocation ? 'is-selected' : ''}" data-action="adventure-map-select" data-location="${place.id}" aria-pressed="${place.id === selectedLocation}" aria-controls="world-map-detail-title"><span class="world-map-list-symbol" aria-hidden="true">${place.symbol}</span><span class="world-map-list-copy"><strong>${e(place.name)}</strong><small>${e(place.mode ? info.label : place.subtitle)}</small></span>${info.active ? '<span class="world-map-list-active" aria-label="Dein Abenteuer läuft">●</span>' : ''}</button>`;
   }).join('')}</div></details></section>`;
@@ -81,7 +83,10 @@ export function renderWorldMap({ state = {}, e = escapeHTML, icon = () => '' } =
 
 export function handleWorldMapAction(button, { render } = {}) {
   const action = button?.dataset?.action;
-  if (action === 'adventure-map-select') {
+  if (action === 'adventure-map-motion') {
+    toggleMapAtmosphere();
+    pendingFocus = action;
+  } else if (action === 'adventure-map-select') {
     const id = button.dataset.location;
     if (!WORLD_MAP_LOCATIONS.some(place => place.id === id)) return false;
     selectedLocation = id;
@@ -109,6 +114,7 @@ export function disposeWorldMap() {
 
 export function resetWorldMapState() {
   disposeWorldMap();
+  resetMapAtmosphere();
   selectedLocation = null;
   zoom = MIN_ZOOM;
   position = { left: null, top: 0 };
@@ -138,6 +144,7 @@ export function mountWorldMap() {
   };
   image?.addEventListener('error', imageError);
   if (image?.complete && !image.naturalWidth) imageError();
+  const disposeAtmosphere = mountMapAtmosphere(viewport);
   let drag = null;
   const down = event => {
     if (event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('button')) return;
@@ -177,6 +184,7 @@ export function mountWorldMap() {
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
+    disposeAtmosphere();
     savePosition();
     viewport.removeEventListener('scroll', savePosition);
     viewport.removeEventListener('pointerdown', down);

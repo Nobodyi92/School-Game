@@ -153,3 +153,30 @@ test('opening adventures through the map uses their existing APIs and leaves all
   }
   assert.deepEqual((await readState()).adventure, snapshots);
 });
+
+test('pausing map animations survives zoom and place selection without changing adventure state', async t => {
+  documentStub(t);
+  const { state: readState } = await fixture(t);
+  const state = await readState();
+  const before = structuredClone(state);
+  let requests = 0;
+  const context = { api: async () => { requests++; }, mutate: async fn => fn(), render() {}, toast() {}, confirmDialog: async () => true };
+  resetAdventureState();
+  const pauseButton = () => renderWorldMap({ state, e, icon }).match(/<button[^>]*data-action="adventure-map-motion"[^>]*>/)?.[0];
+  assert.match(pauseButton(), /aria-pressed="false"/);
+  await handleAdventureAction({ dataset: { action: 'adventure-map-motion' } }, context);
+  assert.match(pauseButton(), /aria-pressed="true"/);
+  await handleAdventureAction({ dataset: { action: 'adventure-map-zoom-in' } }, context);
+  await handleAdventureAction({ dataset: { action: 'adventure-map-select', location: 'zephyrath' } }, context);
+  const rendered = renderWorldMap({ state, e, icon });
+  assert.match(rendered, /125%/);
+  assert.match(rendered, /data-map-detail="zephyrath"/);
+  assert.match(pauseButton(), /aria-pressed="true"/);
+  assert.deepEqual(await readState(), before);
+  assert.equal(requests, 0);
+  await handleAdventureAction({ dataset: { action: 'adventure-map-motion' } }, context);
+  assert.match(pauseButton(), /aria-pressed="false"/);
+  await handleAdventureAction({ dataset: { action: 'adventure-map-motion' } }, context);
+  resetAdventureState();
+  assert.match(pauseButton(), /aria-pressed="false"/);
+});

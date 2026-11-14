@@ -402,6 +402,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         '/ancestries.js': ['../shared/ancestries.js', 'text/javascript'],
         '/lib/cosmetics.js': ['../lib/cosmetics.js', 'text/javascript'],
         '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
+        '/map-atmosphere.js': ['map-atmosphere.js', 'text/javascript'],
         '/world-map.js': ['world-map.js', 'text/javascript'], '/world-map.css': ['world-map.css', 'text/css'],
         '/aetheria-theme.css': ['aetheria-theme.css', 'text/css'], '/aetheria-adventures.css': ['aetheria-adventures.css', 'text/css'],
         '/assets/aetheria-map.png': ['assets/aetheria-map.png', 'image/png'],

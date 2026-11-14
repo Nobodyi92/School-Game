@@ -65,3 +65,35 @@
 @media(max-width:760px){.world-map-heading{align-items:flex-start}.world-map-heading h2{font-size:23px}.world-map-controls{width:100%;justify-content:center}.world-map-controls .world-map-reset{margin-left:auto}.world-map-viewport{height:470px;border-radius:12px}.world-map-help{align-items:flex-start;font-size:10px}.world-map-lore{font-size:12px}.world-map-detail{padding:20px;gap:13px}.world-map-detail-copy,.world-map-detail-intro>div{flex-basis:210px}.world-map-open{width:100%}.world-map-directory{padding:16px}.adventure-mode-tabs{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.adventure-mode-tabs button{padding:9px 8px;font-size:11px;gap:6px;min-width:0}.adventure-mode-tabs button small{font-size:8px}}
 @media(max-width:430px){.world-map-controls{gap:3px}.world-map-controls .world-map-reset{font-size:10px;padding:0 7px}.world-map-controls button{min-width:40px}.world-map-controls output{min-width:38px}.world-map-viewport{height:420px}.world-map-place-list{grid-template-columns:minmax(0,1fr)}.world-map-detail h3{font-size:21px}.world-map-place-art{width:46px;height:46px;font-size:25px}.world-map-legend{gap:7px 12px;font-size:10px}.world-map-detail{padding:18px}}
 @media(prefers-reduced-motion:reduce){.world-map-pin-core,.world-map-place{transition:none}.world-map-pin.is-travelling .world-map-pin-core{animation:none}}
+
+/* A quiet living layer, anchored to the painted landmarks at every zoom level. */
+.world-map-atmosphere { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.world-map-atmosphere * { pointer-events: none; }
+.map-atmosphere-scene { display: block; width: 100%; height: 100%; }
+.world-map-atmosphere [class] { animation-play-state: paused; }
+.world-map-stage[data-motion=running] .world-map-atmosphere [class] { animation-play-state: running; }
+.map-aurora-veil { opacity: .10; animation: map-aurora-breathe 11s ease-in-out infinite; animation-delay: calc(-3s - var(--map-elapsed)); }
+.map-aurora-flow { opacity: .42; stroke-dasharray: 11 55 3 80; animation: map-current-flow 40s linear infinite; animation-delay: calc(0s - var(--map-elapsed)); }
+.map-aurora-rose { opacity: .29; stroke-dasharray: 5 88 16 57; animation-duration: 52s; animation-delay: calc(-14s - var(--map-elapsed)); }
+.map-aether-spark { animation: map-aether-twinkle 7s ease-in-out infinite; animation-delay: calc(var(--phase) - var(--map-elapsed)); }
+.map-mist-bank { opacity: .06; animation: map-mist-drift 27s ease-in-out infinite; animation-delay: calc(-7s - var(--map-elapsed)); }
+.map-mist-late { animation-duration: 34s; animation-delay: calc(-19s - var(--map-elapsed)); }
+.map-smoke-puff { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; animation: map-smoke-rise 9s linear infinite; animation-delay: calc(var(--phase) - var(--map-elapsed)); }
+.map-drifting-rock { animation: map-rock-drift 9s ease-in-out infinite; animation-delay: calc(var(--phase) - var(--map-elapsed)); }
+.world-map-pin.is-travelling .world-map-pin-core { animation: map-floating-light 5s ease-in-out infinite, map-pin-bob 8s ease-in-out infinite; }
+.world-map-pin.is-travelling:hover,.world-map-pin.is-travelling:focus-visible,.world-map-pin.is-travelling.is-selected { --float-scale: 1.14; }
+.world-map-stage[data-motion=paused] .world-map-pin.is-travelling .world-map-pin-core { animation-play-state: paused; }
+.world-map-controls .world-map-motion { gap: 7px; padding: 0 12px; min-height: 44px; font-size: 12px; color: var(--ae-muted,#786e72); }
+.world-map-motion>span:first-child { font-size: 15px; }
+.has-image-error .world-map-atmosphere { display: none; }
+@keyframes map-aurora-breathe { 0%,100% { opacity:.05; } 50% { opacity:.17; } }
+@keyframes map-current-flow { to { stroke-dashoffset:-1000; } }
+@keyframes map-aether-twinkle { 0%,100% { opacity:.15; transform:translate(0,0); } 50% { opacity:.85; transform:translate(1px,-4px); } }
+@keyframes map-mist-drift { 0%,100% { transform:translateX(-9px); opacity:.035; } 50% { transform:translateX(12px); opacity:.11; } }
+@keyframes map-smoke-rise { 0% { transform:translate(0,0) scale(.45); opacity:0; } 16% { opacity:.32; } 65% { opacity:.15; } 100% { transform:translate(var(--smoke-wind),var(--smoke-lift)) scale(1.7); opacity:0; } }
+@keyframes map-rock-drift { 0%,100% { transform:translate(0,0); } 50% { transform:translate(3px,-5px); } }
+@keyframes map-pin-bob { 0%,100% { transform:translateY(0) scale(var(--float-scale,1)); } 50% { transform:translateY(-3px) scale(var(--float-scale,1)); } }
+@media(prefers-reduced-motion:reduce) {
+ .world-map-atmosphere { display:none; }
+ .world-map-atmosphere [class],.world-map-pin.is-travelling .world-map-pin-core { animation:none; }
+}
