@@ -171,7 +171,7 @@ test('a basic unequipped hero can finish varied seven-station expeditions and de
     assert.equal(run.cleared, 7);
     assert.equal(run.history.length, 7);
     assert.equal(run.history.at(-1).kind, 'guardian');
-    assert.deepEqual(run.pendingRewards, ['pet-tide', 'outfit-pathfinder', 'trophy-island']);
+    assert.deepEqual(run.pendingRewards, ['pet-tide', 'pet-mist-cat', 'outfit-pathfinder', 'pet-blossom-moth', 'trophy-island']);
     assert.equal(run.events.at(-1).winnerId, 'hero');
     assert.deepEqual(player, before);
     assert.throws(() => actOnIsland(run, 'attack', rng), /beendet/);
@@ -185,7 +185,7 @@ test('banking after three stations saves the first companion while losses clear 
   assert.equal(run.status, 'active');
   const banked = endIsland(run);
   assert.equal(banked.status, 'banked');
-  assert.deepEqual(banked.pendingRewards, ['pet-tide']);
+  assert.deepEqual(banked.pendingRewards, ['pet-tide', 'pet-mist-cat']);
   assert.equal(banked.version, run.version + 1);
   const lost = endIsland(run, true);
   assert.equal(lost.status, 'lost'); assert.deepEqual(lost.pendingRewards, []);

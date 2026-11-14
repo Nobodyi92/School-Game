@@ -24,10 +24,10 @@ test('catalogue supplies all six categories at every agreed rarity and three pot
   assert.deepEqual(RARITIES.map(r => r.recycleXp), [2, 4, 7, 10]);
   assert.equal(RARITIES.reduce((sum, rarity) => sum + rarity.weight, 0), 100);
   assert.equal(SLOTS.length, 6);
-  assert.equal(ITEMS.length, 48);
+  assert.equal(ITEMS.length, 192);
   assert.equal(new Set(ITEMS.map(item => item.id)).size, ITEMS.length);
   for (const rarity of RARITIES) for (const type of ['helmet', 'chest', 'weapon', 'shield', 'necklace', 'ring']) {
-    assert.equal(ITEMS.filter(item => item.rarity === rarity.id && item.type === type).length, 2);
+    assert.equal(ITEMS.filter(item => item.rarity === rarity.id && item.type === type).length, 8);
   }
   assert.deepEqual(POTIONS.map(p => p.healing), [20, 35, 60]);
 });

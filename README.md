@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.8** bringt eine durchgängige, moderne Oberfläche im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.9** ergänzt sechs Ausrüstungskollektionen und sechs Begleiter aus Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -113,7 +113,7 @@ Die Insel ist eine allein spielbare Expedition über **sieben Stationen**. Bei j
 
 Reisefähigkeiten verändern nur den laufenden Versuch: **Doppelblitz** löst bei jedem zweiten normalen Angriff einen zusätzlichen Treffer aus; **Spiegelschild** wirft bei einem abgewehrten Treffer Schaden zurück. **Wurzelkraft**, **Windklinge** und **Gezeitenquelle** verstärken oder heilen den Helden. LP bleiben zwischen den Stationen erhalten. Sternsplitter dienen nur als Vorräte für diese Reise; sie lassen sich nicht gegen Konto-XP, Truhen oder Ausrüstung tauschen.
 
-Nach abgeschlossenen Stationen kannst du außerhalb eines Kampfes oder einer offenen Begegnung **Funde sichern und zurückkehren**. Das ist auch während der Wahl eines Windsegens möglich. Nach Station 3 wartet der Begleiter **Gezeitengeist**, nach Station 5 das Outfit **Inselwanderer**. Beim Sieg über den Wächter auf Station 7 werden sämtliche Funde und die Trophäe **Kompass der Insel** automatisch gesichert. Eine Niederlage oder Aufgabe verliert nur noch ungesicherte Funde dieses Versuchs. Bereits freigeschaltete Kosmetik, Konto-XP, Ausrüstung und Tränke bleiben erhalten.
+Nach abgeschlossenen Stationen kannst du außerhalb eines Kampfes oder einer offenen Begegnung **Funde sichern und zurückkehren**. Das ist auch während der Wahl eines Windsegens möglich. Nach Station 3 warten die Begleiter **Gezeitengeist** und **Äthertauflinker**, nach Station 5 das Outfit **Inselwanderer** und der **Ätherblütenfalter**. Beim Sieg über den Wächter auf Station 7 werden sämtliche Funde und die Trophäe **Kompass der Insel** automatisch gesichert. Eine Niederlage oder Aufgabe verliert nur noch ungesicherte Funde dieses Versuchs. Bereits freigeschaltete Kosmetik, Konto-XP, Ausrüstung und Tränke bleiben erhalten.
 
 Die Reise einschließlich unbeantworteter Rätsel bleibt bei Schließen der Seite oder Neustart gespeichert. Pro Konto kann eine Inselreise gleichzeitig laufen. Entscheidungen werden mit Reisekennung und fortlaufender Version geprüft; wiederholte oder verspätete Anfragen geben keine zusätzlichen Funde. Zukünftige Wege und noch unbeantwortete Rätsellösungen verbleiben auf dem Server.
 
@@ -147,7 +147,7 @@ Die Gruppe, gewählte Aktionen und aktuelle Runde bleiben bei einem Serverneusta
 
 ## Begleiter, Outfits und Trophäen
 
-Alle zwölf Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegenstände oder Kampfboni. Ein bereits freigeschalteter Fund wird nicht doppelt vergeben. In **Sammlung** kann jeweils ein Begleiter und ein Outfit ausgewählt oder wieder abgelegt werden; beide sind in der 3D-Charakterdarstellung sichtbar. Trophäen bleiben als Sammlungseinträge erhalten und benötigen keinen Ausrüstungsplatz.
+Alle 18 Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegenstände oder Kampfboni. Ein bereits freigeschalteter Fund wird nicht doppelt vergeben. In **Sammlung** kann jeweils ein Begleiter und ein Outfit ausgewählt oder wieder abgelegt werden; beide sind in der 3D-Charakterdarstellung sichtbar. Trophäen bleiben als Sammlungseinträge erhalten und benötigen keinen Ausrüstungsplatz.
 
 | Fund | Art | Freischaltung | ID |
 | --- | --- | --- | --- |
@@ -161,8 +161,16 @@ Alle zwölf Abenteuerbelohnungen sind **rein optisch** und geben keine XP, Gegen
 | Runenhüter | Outfit | Runengolem als aktives Gruppenmitglied besiegen | `outfit-runekeeper` |
 | Runengolembezwinger | Trophäe | Runengolem als aktives Gruppenmitglied besiegen | `trophy-golem` |
 | Gezeitengeist | Begleiter | 3 Inselstationen abschließen und Funde sichern | `pet-tide` |
+| Ätherfalke | Begleiter | Etage 4 abschließen und Funde sichern | `pet-aether-falcon` |
+| Zahnradkäfer | Begleiter | Etage 6 abschließen und Funde sichern | `pet-clockwork-beetle` |
+| Äthertauflinker | Begleiter | 3 Inselstationen abschließen und Funde sichern | `pet-mist-cat` |
+| Ätherblütenfalter | Begleiter | 5 Inselstationen abschließen und Funde sichern | `pet-blossom-moth` |
+| Kristallgolem | Begleiter | Runengolem als aktives Gruppenmitglied besiegen | `pet-crystal-golem` |
+| Junger Ätherphönix | Begleiter | Alle zehn Turmetagen bezwingen | `pet-aether-phoenix` |
 | Inselwanderer | Outfit | 5 Inselstationen abschließen und Funde sichern | `outfit-pathfinder` |
 | Kompass der Insel | Trophäe | Alle 7 Inselstationen und den Wächter bezwingen | `trophy-island` |
+
+Bereits gesicherte Erfolge schalten die passenden neuen Begleiter beim Update automatisch frei. Beispielsweise erhält der Besitzer des Sternenmantels den Ätherfalken. Vorhandene Konten, ausgewählte Begleiter, XP und Ausrüstung bleiben erhalten; doppelte Freischaltungen vergeben keine XP. Auch vor dem Update begonnene Abenteuer können die neuen Begleiter beim Sichern der zugehörigen alten Belohnungen freischalten. Ungesicherte und verlorene Funde zählen nicht als Freischaltung.
 
 ## Truhen, Inventar und Ausrüstung
 
@@ -175,7 +183,22 @@ Es gibt einen Truhentyp. Jede Truhe enthält mit gleicher Wahrscheinlichkeit **e
 | Episch | 10 % | 7 XP |
 | Legendär | 2 % | 10 XP |
 
-Der Katalog enthält 48 Ausrüstungsvarianten mit festen, nachvollziehbaren Boni. Sechs Plätze stehen zur Verfügung: **Helm, Brustplatte, Hand 1, Hand 2, Kette und Ring**. Die Plätze sind im Inventar um den 3D-Avatar an den passenden Körperstellen angeordnet. Beide Hände können jeweils eine Waffe oder einen Schild tragen. Zwei gleiche Designs sind möglich, benötigen aber zwei tatsächlich vorhandene Exemplare. Dieselbe Instanz kann niemals beide Plätze gleichzeitig belegen.
+Der Katalog enthält 192 Ausrüstungsvarianten (48 bisherige und 144 neue) mit festen, nachvollziehbaren Boni. Sechs Plätze stehen zur Verfügung: **Helm, Brustplatte, Hand 1, Hand 2, Kette und Ring**. Die Plätze sind im Inventar um den 3D-Avatar an den passenden Körperstellen angeordnet. Beide Hände können jeweils eine Waffe oder einen Schild tragen. Zwei gleiche Designs sind möglich, benötigen aber zwei tatsächlich vorhandene Exemplare. Dieselbe Instanz kann niemals beide Plätze gleichzeitig belegen.
+
+[3D-Beispiele der neuen Ausrüstung und Begleiter](docs/aetheria-ausruestung.md)
+
+Seit Version 0.9 enthält jede Herkunftskollektion einen Helm, eine Brustplatte, eine Waffe, einen Schild, eine Kette und einen Ring in allen vier Seltenheiten. **Alle Völker können alle Gegenstände tragen.** Die Kollektion ist ein gemeinsames Motiv, kein zusätzlicher Setbonus.
+
+| Kollektion | Herkunft | Stil und Kampfschwerpunkt |
+| --- | --- | --- |
+| Silberlaub | Silberwind | Blätter, Kristalle und Licht; Fokus und leichte Schutzwerte |
+| Zahnrad | Zephyria | Messing, Mechanik und Hämmer; normale Angriffe und Schutz |
+| Nebelwacht | Nebelheim | Nebel, Silber und Speere; Ausdauer und Schutz |
+| Windfahrt | Himmelsruhe | Segeltuch, Kompasse und Klingen; vielseitige Reiseausrüstung |
+| Wurzelbund | Ätherhain | Ranken, Holz und Naturstäbe; Fokus und Lebenspunkte |
+| Sonnenglas | Äthkern | Sandfarben, Sonnensteine und Klingen; normale Angriffe |
+
+Im Inventar lässt sich nach **Herkunft** filtern. Neue Gegenstände zeigen ihren Herkunftsort und Kollektionsnamen; die Motive sind an der 3D-Ausrüstung sichtbar. Die alten 48 Gegenstände behalten ihre Kennungen und Bonuswerte. Die größere Auswahl verändert weder Truhenmenge noch Seltenheitsverteilung oder Eintauschwerte.
 
 Ausrüstung verbessert Angriff, Fokus, maximale LP oder Rüstung. Rüstung reduziert Trefferschaden vor der Deckung um höchstens 12 Punkte; jeder Treffer verursacht mindestens einen Schadenspunkt. Farben, Kleidung und Emblem sind rein optisch.
 

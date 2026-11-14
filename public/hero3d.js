@@ -9,6 +9,15 @@ const PALETTES = {
 };
 const RARITY_COLORS = { common: 0xa6ae9c, rare: 0x548fc7, epic: 0x9c65c4, legendary: 0xe4b653 };
 const FUR = { fox: 0xdf8c48, owl: 0x9582b1, dragon: 0x65a88c, cat: 0xb0947a };
+const GEAR_STYLES = {
+  leaf: { base: 0x83ab9c, accent: 0xa1efc7, trim: 0xe7d9a6 },
+  gear: { base: 0xa88454, accent: 0x87d4dd, trim: 0xe8c679 },
+  cloud: { base: 0xb7d2df, accent: 0xc4efff, trim: 0xe6edf2 },
+  sail: { base: 0x648f9d, accent: 0xb5e4db, trim: 0xe3bf79 },
+  root: { base: 0x657f4f, accent: 0xb0d37a, trim: 0xa87c4e },
+  dune: { base: 0xb59165, accent: 0xffcf76, trim: 0xdfbc76 },
+};
+
 const PEOPLE = {
   'aether-elf': { skin: 0xe9cbb6, hair: 0xe2e6cf, eyes: 0x69d3b3, scale: [.88, 1.05, .90] },
   'aether-engineer': { skin: 0xc89570, hair: 0x75503c, eyes: 0x71523c, scale: [1.07, .87, 1.02] },
@@ -82,25 +91,103 @@ function equipmentFor(hero) {
     [slot, hero.equipmentVisuals?.[slot] || items.get(hero.equipment?.[slot]) || null]));
 }
 
+function gearLook(item) {
+  return GEAR_STYLES[item?.visualStyle] || null;
+}
+
+function gearMotif(parent, item, position, size = 1) {
+  const look = gearLook(item);
+  if (!look) return;
+  const group = new THREE.Group();
+  group.position.set(...position); group.scale.setScalar(size); parent.add(group);
+  const glow = material(look.accent, { emissive: look.accent, emissiveIntensity: .22 });
+  const trim = material(look.trim, { metalness: .4 });
+  const style = item.visualStyle;
+  if (style === 'gear') {
+    addMesh(group, new THREE.TorusGeometry(.12, .035, 4, 10), trim);
+    for (let i = 0; i < 6; i++) {
+      const angle = i / 6 * TAU;
+      const tooth = box(group, trim, [Math.cos(angle) * .15, Math.sin(angle) * .15, 0], [.07, .07, .04]);
+      tooth.rotation.z = angle;
+    }
+    sphere(group, glow, [0, 0, .035], [.055, .055, .035]);
+  } else if (style === 'cloud') {
+    for (const [x, y, radius] of [[-.09, 0, .09], [0, .045, .12], [.10, 0, .085]]) {
+      sphere(group, trim, [x, y, 0], [radius, radius * .72, .035]);
+    }
+    addMesh(group, new THREE.OctahedronGeometry(.055), glow, [0, -.095, 0]);
+  } else if (style === 'sail') {
+    const sail = cone(group, glow, [.015, .035, 0], .13, .26, 3);
+    sail.scale.z = .22; sail.rotation.z = -.15;
+    cylinder(group, trim, [-.09, 0, .01], .015, .015, .33, 5);
+    box(group, trim, [0, -.13, 0], [.25, .025, .04]);
+  } else if (style === 'dune') {
+    addMesh(group, new THREE.OctahedronGeometry(.105), glow, [0, 0, .015]);
+    for (let i = 0; i < 6; i++) {
+      const angle = i / 6 * TAU;
+      const ray = cone(group, trim, [Math.cos(angle) * .15, Math.sin(angle) * .15, 0], .025, .10, 3);
+      ray.rotation.z = angle - Math.PI / 2;
+    }
+  } else {
+    for (const side of [-1, 1]) {
+      const leaf = sphere(group, glow, [side * .075, side * .025, 0], [.055, .145, .025]);
+      leaf.rotation.z = side * -.48;
+    }
+    if (style === 'root') {
+      for (const side of [-1, 1]) {
+        const branch = cylinder(group, trim, [side * .065, -.04, 0], .017, .025, .24, 5);
+        branch.rotation.z = side * -.42;
+      }
+    } else addMesh(group, new THREE.OctahedronGeometry(.075), trim, [0, -.025, .025]);
+  }
+}
+
 function makeWeapon(parent, item, direction) {
   const group = new THREE.Group();
   group.position.set(0, -.68, .13);
   group.rotation.z = direction * -.15;
   parent.add(group);
-  const color = RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
+  const look = gearLook(item);
+  const color = look?.base || RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
   const metal = material(color, { metalness: .48, roughness: .34 });
-  const gold = material(0xe9c46e, { metalness: .45 });
+  const gold = material(look?.trim || 0xe9c46e, { metalness: .45 });
+  const jewel = material(look?.accent || RARITY_COLORS[item.rarity] || 0xc1b0f0,
+    { emissive: look?.accent || 0x584675, emissiveIntensity: .22 });
+  const shape = item.weaponShape || (item.templateId?.includes('rune') ? 'staff' : 'blade');
   if (item.type === 'shield') {
-    const shield = cylinder(group, metal, [0, .15, .12], .34, .30, .12, 6);
+    const shield = cylinder(group, metal, [0, .15, .12], .34, .30, .12, look ? 8 : 6);
     shield.rotation.x = Math.PI / 2;
+    if (item.visualStyle === 'leaf' || item.visualStyle === 'root') shield.scale.z = 1.22;
     const boss = cylinder(group, gold, [0, .15, .21], .11, .11, .06, 8);
     boss.rotation.x = Math.PI / 2;
     box(group, gold, [0, .15, .19], [.045, .45, .04]);
-  } else if (item.templateId?.includes('rune')) {
-    cylinder(group, material(0x826846), [0, .27, 0], .035, .045, 1.3, 6);
-    const gem = addMesh(group, new THREE.OctahedronGeometry(.19), metal, [0, 1.02, 0]);
+    gearMotif(group, item, [0, .15, .26], 1.05);
+  } else if (shape === 'hammer') {
+    cylinder(group, material(0x6b4c39), [0, .24, 0], .055, .065, .86, 6);
+    box(group, metal, [0, .70, 0], [.64, .28, .29]);
+    box(group, gold, [-.33, .70, 0], [.08, .33, .33]);
+    box(group, gold, [.33, .70, 0], [.08, .33, .33]);
+    gearMotif(group, item, [0, .70, .17], .9);
+  } else if (shape === 'spear') {
+    cylinder(group, gold, [0, .30, 0], .035, .045, 1.35, 6);
+    const tip = cone(group, metal, [0, 1.10, 0], .13, .43, 4); tip.scale.z = .35;
+    box(group, jewel, [0, .83, 0], [.18, .08, .12]);
+    for (const side of [-1, 1]) {
+      const fin = cone(group, metal, [side * .11, .86, 0], .08, .22, 3);
+      fin.rotation.z = side * -.7; fin.scale.z = .4;
+    }
+  } else if (shape === 'staff') {
+    cylinder(group, material(look?.trim || 0x826846), [0, .27, 0], .035, .045, 1.3, 6);
+    const gem = addMesh(group, new THREE.OctahedronGeometry(.19), look ? jewel : metal, [0, 1.02, 0]);
     gem.rotation.z = .2;
     cylinder(group, gold, [0, .82, 0], .10, .06, .13, 6);
+    if (look) {
+      for (const side of [-1, 1]) {
+        const branch = cylinder(group, gold, [side * .14, .94, 0], .025, .04, .36, 5);
+        branch.rotation.z = side * -.36;
+      }
+      gearMotif(group, item, [0, .67, .07], .75);
+    }
   } else {
     box(group, material(0x6b4c39), [0, -.03, 0], [.09, .29, .10]);
     box(group, gold, [0, .12, 0], [.42, .07, .12]);
@@ -108,6 +195,10 @@ function makeWeapon(parent, item, direction) {
     const tip = cone(group, metal, [0, .91, 0], .10, .19, 4);
     tip.rotation.y = Math.PI / 4;
     sphere(group, gold, [0, -.20, 0], [.09, .09, .09]);
+    if (look) {
+      box(group, jewel, [0, .51, .04], [.035, .57, .02]);
+      gearMotif(group, item, [0, .10, .09], .55);
+    }
   }
 }
 
@@ -116,13 +207,120 @@ function selectedCosmetic(hero, type) {
   return Array.isArray(hero.cosmetics?.owned) && hero.cosmetics.owned.includes(selected) ? selected : null;
 }
 
+const AETHERIA_COMPANIONS = new Set(['pet-aether-falcon', 'pet-clockwork-beetle', 'pet-mist-cat', 'pet-blossom-moth', 'pet-crystal-golem', 'pet-aether-phoenix']);
+
+function makeAetheriaCompanion(group, id, eyes) {
+  const wings = [];
+  const gleam = material(0xd9f5f0, { emissive: 0x7ce2cf, emissiveIntensity: .4 });
+  if (id === 'pet-aether-falcon' || id === 'pet-aether-phoenix') {
+    const phoenix = id === 'pet-aether-phoenix';
+    const body = material(phoenix ? 0xf1ba57 : 0x8fbad0,
+      { emissive: phoenix ? 0xc96438 : 0x335d82, emissiveIntensity: phoenix ? .3 : .12 });
+    const feathers = material(phoenix ? 0xe98265 : 0xd6e6ef);
+    const beak = material(0xe6bf70);
+    sphere(group, body, [0, -.015, 0], [.16, .22, .15]);
+    sphere(group, body, [0, .18, .075], [.145, .14, .14]);
+    const bill = cone(group, beak, [0, .155, .235], .055, .13, 4); bill.rotation.x = Math.PI / 2;
+    for (const side of [-1, 1]) {
+      sphere(group, eyes, [side * .07, .20, .192], [.024, .032, .018]);
+      const hinge = new THREE.Group(); hinge.position.set(side * .11, .06, -.02); group.add(hinge);
+      hinge.userData.side = side;
+      const wing = sphere(hinge, body, [side * .18, 0, 0], [.24, .055, .13]);
+      wing.rotation.z = side * .12;
+      for (let i = 0; i < 3; i++) {
+        const feather = cone(hinge, feathers, [side * (.20 + i * .08), -.045, -.06 + i * .02], .055, .23 + i * .02, 4);
+        feather.rotation.z = side * -.95; feather.scale.z = .48;
+      }
+      wings.push(hinge);
+      const tail = cone(group, feathers, [side * .045, -.28, -.09], .06, phoenix ? .38 : .22, 4);
+      tail.rotation.x = -.35; tail.rotation.z = side * .18;
+    }
+    if (phoenix) {
+      for (let i = -1; i <= 1; i++) {
+        const crest = cone(group, feathers, [i * .055, .34, .01], .045, .18 + (i === 0 ? .05 : 0), 4);
+        crest.rotation.z = -i * .25;
+      }
+      for (const side of [-1, 1]) addMesh(group, new THREE.OctahedronGeometry(.045), gleam, [side * .22, -.31, 0]);
+    }
+  } else if (id === 'pet-clockwork-beetle') {
+    const brass = material(0xc39a58, { metalness: .65, roughness: .42 });
+    const shell = material(0x718d9d, { metalness: .55 });
+    sphere(group, brass, [0, -.035, 0], [.20, .20, .16]);
+    for (const side of [-1, 1]) {
+      sphere(group, shell, [side * .09, .015, .105], [.10, .18, .065]);
+      for (let i = 0; i < 3; i++) {
+        const leg = box(group, brass, [side * .23, .02 - i * .11, -.015], [.17, .035, .035]);
+        leg.rotation.z = side * (.35 - i * .35);
+      }
+      const antenna = cylinder(group, brass, [side * .09, .30, 0], .013, .018, .18, 5);
+      antenna.rotation.z = side * -.4;
+    }
+    sphere(group, brass, [0, .17, .04], [.13, .11, .11]);
+    // Bright eyes sit on the head; a tiny cog turns the shell into a machine.
+    for (const side of [-1, 1]) sphere(group, gleam, [side * .064, .19, .174], [.028, .031, .018]);
+    addMesh(group, new THREE.TorusGeometry(.075, .022, 4, 8), brass, [0, -.07, .18]);
+    sphere(group, eyes, [0, -.07, .188], [.025, .025, .015]);
+  } else if (id === 'pet-mist-cat') {
+    const mist = material(0xb0c6df, { emissive: 0x6c8ba6, emissiveIntensity: .17, transparent: true, opacity: .91 });
+    sphere(group, mist, [0, -.08, -.015], [.21, .14, .14]);
+    sphere(group, mist, [.015, .10, .07], [.16, .15, .14]);
+    for (const side of [-1, 1]) {
+      const ear = cone(group, mist, [side * .11, .27, .06], .065, .19, 3); ear.rotation.z = side * -.18;
+      sphere(group, material(0x91ead9, { emissive: 0x4aa99b, emissiveIntensity: .4 }), [side * .062 + .015, .12, .198], [.027, .036, .017]);
+      sphere(group, mist, [side * .13, -.20, .065], [.065, .055, .07]);
+    }
+    sphere(group, eyes, [.015, .055, .22], [.027, .018, .017]);
+    const tail = addMesh(group, new THREE.TorusGeometry(.17, .042, 5, 12, Math.PI * 1.5), mist, [-.23, -.05, -.04]);
+    tail.rotation.z = .4;
+    const cloud = addMesh(group, new THREE.TorusGeometry(.30, .015, 4, 16), material(0xd4e8f4, { transparent: true, opacity: .6 }), [0, -.25, 0]);
+    cloud.rotation.x = Math.PI / 2;
+  } else if (id === 'pet-blossom-moth') {
+    const wing = material(0xb5a0dd, { emissive: 0x67558c, emissiveIntensity: .24 });
+    const flower = material(0xf0c0d4, { emissive: 0x9d647c, emissiveIntensity: .22 });
+    const body = material(0x729e8a);
+    sphere(group, body, [0, -.015, 0], [.055, .20, .065]);
+    sphere(group, body, [0, .19, .01], [.085, .075, .07]);
+    for (const side of [-1, 1]) {
+      const hinge = new THREE.Group(); hinge.position.set(side * .045, .04, -.025); group.add(hinge); hinge.userData.side = side;
+      const upper = sphere(hinge, wing, [side * .17, .09, 0], [.22, .20, .028]); upper.rotation.z = side * -.35;
+      const lower = sphere(hinge, flower, [side * .13, -.14, 0], [.16, .16, .024]); lower.rotation.z = side * .25;
+      for (let i = 0; i < 3; i++) sphere(hinge, flower, [side * .20 + Math.cos(i / 3 * TAU) * .04, .10 + Math.sin(i / 3 * TAU) * .04, .032], [.035, .035, .014]);
+      sphere(hinge, gleam, [side * .20, .10, .048], [.027, .027, .015]);
+      sphere(group, eyes, [side * .028, .20, .071], [.014, .022, .012]);
+      const antenna = cylinder(group, gleam, [side * .055, .30, .01], .008, .011, .16, 5); antenna.rotation.z = side * -.45;
+      wings.push(hinge);
+    }
+  } else if (id === 'pet-crystal-golem') {
+    const stone = material(0x8099ac, { roughness: .85 });
+    const dark = material(0x536b83);
+    const rune = material(0xb6a3ee, { emissive: 0x7860b7, emissiveIntensity: .55 });
+    box(group, stone, [0, -.02, 0], [.27, .28, .19]);
+    box(group, stone, [0, .22, .01], [.25, .21, .22]);
+    for (const side of [-1, 1]) {
+      sphere(group, rune, [side * .064, .23, .13], [.027, .033, .014]);
+      sphere(group, stone, [side * .23, 0, 0], [.10, .12, .11]);
+      box(group, dark, [side * .085, -.23, .035], [.12, .12, .16]);
+      const crystal = addMesh(group, new THREE.OctahedronGeometry(.11), rune, [side * .17, .14, 0]);
+      crystal.rotation.z = side * -.25;
+    }
+    box(group, rune, [0, -.015, .11], [.035, .17, .025]);
+    box(group, rune, [.04, .025, .11], [.10, .03, .025]);
+    addMesh(group, new THREE.OctahedronGeometry(.09), gleam, [0, .40, 0]);
+  }
+  return wings;
+}
+
 function makeCompanion(parent, id) {
-  if (!['pet-firefly', 'pet-cloud', 'pet-rune', 'pet-tide'].includes(id)) return null;
+  if (!['pet-firefly', 'pet-cloud', 'pet-rune', 'pet-tide'].includes(id) && !AETHERIA_COMPANIONS.has(id)) return null;
   const group = new THREE.Group();
   group.position.set(.99, 1.64, .14);
   group.userData.cosmetic = id;
   parent.add(group);
   const eyes = material(0x343044);
+  if (AETHERIA_COMPANIONS.has(id)) {
+    const wings = makeAetheriaCompanion(group, id, eyes);
+    return { group, y: group.position.y, wings };
+  }
   if (id === 'pet-tide') {
     const water = material(0x71cec6, { emissive: 0x246c78, emissiveIntensity: .35, transparent: true, opacity: .92 });
     sphere(group, water, [0, 0, 0], [.22, .25, .19]);
@@ -412,32 +610,83 @@ function makeHero(hero = {}) {
 
   const worn = equipmentFor(hero);
   if (worn.helmet) {
-    const cap = material(RARITY_COLORS[worn.helmet.rarity] || 0xa6ae9c, { metalness: .35, roughness: .5 });
+    const helmetLook = gearLook(worn.helmet);
+    const cap = material(helmetLook?.base || RARITY_COLORS[worn.helmet.rarity] || 0xa6ae9c, { metalness: .35, roughness: .5 });
     const helmet = addMesh(head, new THREE.SphereGeometry(person ? .51 : .72, 8, 5, 0, TAU, 0, Math.PI / 2), cap, [0, .28, 0], [1, .66, .87]);
     helmet.userData.slot = 'helmet';
     cylinder(head, cap, [0, .29, 0], person ? .50 : .71, person ? .50 : .71, .11, 8).scale.z = .87;
     if (worn.helmet.templateId?.includes('guardian')) {
       box(head, gold, [0, .40, .61], [.10, .35, .055]);
     }
+    if (helmetLook) {
+      const trim = material(helmetLook.trim, { metalness: .4 });
+      const glow = material(helmetLook.accent, { emissive: helmetLook.accent, emissiveIntensity: .2 });
+      const front = person ? .43 : .62;
+      const style = worn.helmet.visualStyle;
+      if (style === 'gear') {
+        for (const side of [-1, 1]) {
+          addMesh(head, new THREE.TorusGeometry(.105, .027, 5, 12), trim, [side * .17, .26, front]);
+          sphere(head, glow, [side * .17, .26, front], [.079, .079, .025]);
+        }
+        box(head, trim, [0, .26, front], [.13, .035, .035]);
+      } else if (style === 'root') {
+        for (const side of [-1, 1]) {
+          const antler = cylinder(head, trim, [side * .35, .57, -.04], .025, .055, .46, 5);
+          antler.rotation.z = side * -.55;
+          const twig = cylinder(head, trim, [side * .43, .64, -.03], .015, .028, .24, 5);
+          twig.rotation.z = side * .5;
+          const leaf = sphere(head, glow, [side * .48, .70, -.03], [.055, .12, .025]);
+          leaf.rotation.z = side * -.5;
+        }
+      } else if (style === 'leaf') {
+        for (const side of [-1, 1]) {
+          const leaf = sphere(head, glow, [side * .29, .51, .15], [.075, .22, .03]);
+          leaf.rotation.z = side * -.5;
+        }
+        addMesh(head, new THREE.OctahedronGeometry(.085), glow, [0, .32, front]);
+      } else if (style === 'cloud') {
+        for (const side of [-1, 1]) sphere(head, trim, [side * .31, .45, -.10], [.17, .10, .15]);
+        const crest = cone(head, glow, [0, .66, -.06], .085, .29, 4); crest.scale.z = .45;
+      } else if (style === 'sail') {
+        const ribbon = box(head, glow, [.42, .02, -.12], [.11, .53, .055]); ribbon.rotation.z = .18;
+        addMesh(head, new THREE.TorusGeometry(.075, .02, 5, 12), trim, [0, .31, front]);
+      } else gearMotif(head, worn.helmet, [0, .34, front], .58);
+    }
   }
   if (worn.chest) {
-    const armor = material(RARITY_COLORS[worn.chest.rarity] || 0xa6ae9c, { metalness: .42, roughness: .45 });
+    const chestLook = gearLook(worn.chest);
+    const armor = material(chestLook?.base || RARITY_COLORS[worn.chest.rarity] || 0xa6ae9c, { metalness: .42, roughness: .45 });
     box(root, armor, [0, 1.35, .30], [.83, .76, .25]);
     box(root, gold, [0, 1.38, .44], [.06, .65, .03]);
     for (const side of [-1, 1]) sphere(root, armor, [side * .54, 1.72, 0], [.25, .17, .29]);
+    if (chestLook) {
+      const trim = material(chestLook.trim, { metalness: .3 });
+      box(root, armor, [0, 1.40, .45], [.36, .39, .035]);
+      gearMotif(root, worn.chest, [0, 1.40, .49], .90);
+      for (const side of [-1, 1]) {
+        const seam = box(root, trim, [side * .33, 1.35, .445], [.025, .66, .035]); seam.rotation.z = side * -.08;
+        if (['leaf', 'root'].includes(worn.chest.visualStyle)) {
+          const leaf = sphere(root, trim, [side * .55, 1.73, .18], [.12, .20, .035]); leaf.rotation.z = side * -.7;
+        }
+      }
+    }
   }
   if (worn.hand1) makeWeapon(rig.arms[0], worn.hand1, -1);
   if (worn.hand2) makeWeapon(rig.arms[1], worn.hand2, 1);
   if (worn.necklace) {
-    const chain = material(RARITY_COLORS[worn.necklace.rarity] || 0xe9bf67, { metalness: .5 });
+    const necklaceLook = gearLook(worn.necklace);
+    const chain = material(necklaceLook?.trim || RARITY_COLORS[worn.necklace.rarity] || 0xe9bf67, { metalness: .5 });
     const necklace = addMesh(root, new THREE.TorusGeometry(.28, .022, 5, 14), chain, [0, 1.75, .32]);
     necklace.scale.y = .64;
-    addMesh(root, new THREE.OctahedronGeometry(.105), chain, [0, 1.53, .46]);
+    if (necklaceLook) gearMotif(root, worn.necklace, [0, 1.61, .52], .55);
+    else addMesh(root, new THREE.OctahedronGeometry(.105), chain, [0, 1.53, .46]);
   }
   if (worn.ring) {
-    const ring = material(RARITY_COLORS[worn.ring.rarity] || 0xe9bf67, { metalness: .6 });
+    const ringLook = gearLook(worn.ring);
+    const ring = material(ringLook?.trim || RARITY_COLORS[worn.ring.rarity] || 0xe9bf67, { metalness: .6 });
     addMesh(rig.arms[1], new THREE.TorusGeometry(.075, .025, 5, 10), ring, [0, -.64, .17]);
-    addMesh(rig.arms[1], new THREE.OctahedronGeometry(.055), ring, [0, -.57, .19]);
+    if (ringLook) gearMotif(rig.arms[1], worn.ring, [0, -.59, .20], .32);
+    else addMesh(rig.arms[1], new THREE.OctahedronGeometry(.055), ring, [0, -.57, .19]);
   }
   rig.companion = makeCompanion(root, selectedCosmetic(hero, 'companion'));
   if (person) {
@@ -559,6 +808,7 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
       if (rig.companion) {
         rig.companion.group.position.y = rig.companion.y;
         rig.companion.group.rotation.y = 0;
+        for (const wing of rig.companion.wings || []) wing.rotation.z = wing.userData.side * .12;
       }
       for (const { mat, color } of rig.materials) mat.color.copy(color);
     }
@@ -602,6 +852,7 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
           if (rig.companion) {
             rig.companion.group.position.y = rig.companion.y + Math.sin(now * .0025 + index) * .07;
             rig.companion.group.rotation.y = Math.sin(now * .0011 + index) * .25;
+            for (const wing of rig.companion.wings || []) wing.rotation.z = wing.userData.side * (.12 + Math.sin(now * .007 + index) * .32);
           }
         }
       }

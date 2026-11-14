@@ -294,9 +294,9 @@ test('concurrent final raid actions resolve and award unique cosmetics once with
     assert.equal((await lina.raid(id)).status, 'won');
     for (const [index, client] of clients.entries()) {
       const user = (await client.state()).user;
-      assert.deepEqual([...user.cosmetics.owned].sort(), ['outfit-runekeeper', 'pet-rune', 'trophy-golem']);
+      assert.deepEqual([...user.cosmetics.owned].sort(), ['outfit-runekeeper', 'pet-crystal-golem', 'pet-rune', 'trophy-golem']);
       assert.deepEqual(economy(user), before[index]);
-      assert.equal(f.db.prepare('SELECT COUNT(*) AS count FROM cosmetic_unlocks WHERE user_id = ?').get(ids[index]).count, 3);
+      assert.equal(f.db.prepare('SELECT COUNT(*) AS count FROM cosmetic_unlocks WHERE user_id = ?').get(ids[index]).count, 4);
     }
   }
 });

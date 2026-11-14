@@ -537,3 +537,12 @@ option { color: #e4eef5; background: #142238; }
 @media (prefers-reduced-motion: reduce) {
   .button, .nav-item, .icon-button, .demo-button, .ancestry-option, .paperdoll-slot { transition: none; }
 }
+
+/* Equipment provenance is catalogued independently of the wearer's people. */
+.gear-origin { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin: 10px 0; color: var(--ae-teal); font-size: 12px; line-height: 1.6; }
+.gear-origin span { color: var(--ae-muted); }
+.inventory-filters { flex-wrap: wrap; }
+.inventory-filters>label { flex: 1 1 210px; min-width: 0; max-width: 300px; }
+.inventory-filters select { width: 100%; }
+.companion-portrait { display: block; width: 84px; height: 84px; max-width: 100%; filter: drop-shadow(0 3px 9px #0003); }
+@media(max-width:600px) { .inventory-filters>label { max-width: none; } }

@@ -135,8 +135,8 @@ test('a full ten-floor ascent awards each milestone exactly once and cannot cont
     if (floor < 10) run = applyTowerChoice(run, 'power');
   }
   assert.equal(run.status, 'completed');
-  assert.deepEqual(run.pendingRewards, ['pet-firefly', 'outfit-starlight', 'trophy-tower-bronze', 'pet-cloud', 'outfit-warden', 'trophy-tower-gold']);
-  assert.equal(new Set(run.pendingRewards).size, 6);
+  assert.deepEqual(run.pendingRewards, ['pet-firefly', 'outfit-starlight', 'pet-aether-falcon', 'trophy-tower-bronze', 'pet-clockwork-beetle', 'pet-cloud', 'outfit-warden', 'trophy-tower-gold', 'pet-aether-phoenix']);
+  assert.equal(new Set(run.pendingRewards).size, 9);
   assert.throws(() => applyTowerChoice(run, 'power'), /erst nach/);
   const ids = run.events.map(entry => entry.id);
   assert.equal(new Set(ids).size, ids.length);

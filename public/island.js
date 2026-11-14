@@ -1,8 +1,9 @@
+import { ISLAND_REWARDS } from '../lib/cosmetics.js';
 const kinds = {
   puzzle: ['✧', 'Rätsel'], combat: ['⚔', 'Kampf'], event: ['➶', 'Begegnung'],
   camp: ['❧', 'Lagerplatz'], treasure: ['◇', 'Inselfund'], guardian: ['♜', 'Finale'],
 };
-const rewards = ['pet-tide', 'outfit-pathfinder', 'trophy-island'];
+const rewards = Object.entries(ISLAND_REWARDS);
 const illustration = `<svg class="island-illustration" viewBox="0 0 360 240" aria-hidden="true"><ellipse cx="178" cy="219" rx="112" ry="12" fill="#173e48" opacity=".2"/><path d="m62 125 36 55 74 37 87-39 37-57-113-52Z" fill="#8d8c9d"/><path d="m62 125 110 92-29-96Z" fill="#777b92"/><path d="m172 217 46-99 78 3-37 57Z" fill="#a5a2ad"/><path d="m58 121 51-51 116-7 77 55-78 33-106-3Z" fill="#84bea1"/><path d="m77 118 51-34 88-5 63 36-63 25-93-3Z" fill="#a1d2ae"/><path d="M107 119q46-57 118-13" fill="none" stroke="#ede0ae" stroke-width="9" stroke-linecap="round"/><path d="m107 119 42 11m76-24-21 24" fill="none" stroke="#ede0ae" stroke-width="6" stroke-linecap="round"/><path d="M169 122v-45" stroke="#706b5b" stroke-width="7"/><path d="m137 84 31-56 32 56Z" fill="#4f8c78"/><path d="m144 66 24-46 25 46Z" fill="#69a98b"/><path d="M248 116V76" stroke="#7d7972" stroke-width="7"/><path d="m232 75 16-26 17 26Z" fill="#e7c16f"/><path d="M75 55h41m-11-10h29m132 141h42m-11-12h28M32 160h42" stroke="#c0e2df" stroke-width="3" stroke-linecap="round"/><circle cx="104" cy="117" r="8" fill="#f0c66a"/><circle cx="224" cy="106" r="8" fill="#a68bd5"/><path d="m304 46 4 9 10 1-8 7 2 10-8-5-9 5 2-10-7-7 10-1Z" fill="#ebce85"/></svg>`;
 
 function rewardCards(state, ids, e) {
@@ -24,7 +25,7 @@ function chart(run, e) {
   }).join('')}</ol></div>`;
 }
 function milestones(state, e) {
-  return `<section class="adventure-panel island-milestones"><div class="section-title"><h2>Erinnerungen an deine Reise</h2><span class="pill neutral">REIN KOSMETISCH</span></div><div class="island-reward-grid">${rewards.map((id, index) => `<div><strong>${index === 2 ? 'Insel abschließen' : `${index === 0 ? 3 : 5} Stationen & sichern`}</strong>${rewardCards(state, [id], e)}<small>${state.user.cosmetics?.owned?.includes(id) ? '✓ Bereits in deiner Sammlung' : 'Noch zu entdecken'}</small></div>`).join('')}</div></section>`;
+  return `<section class="adventure-panel island-milestones"><div class="section-title"><h2>Erinnerungen an deine Reise</h2><span class="pill neutral">REIN KOSMETISCH</span></div><div class="island-reward-grid">${rewards.map(([step, ids]) => `<div><strong>${Number(step) === 7 ? 'Insel abschließen' : `${step} Stationen & sichern`}</strong>${rewardCards(state, ids, e)}<small>${ids.every(id => state.user.cosmetics?.owned?.includes(id)) ? '✓ Bereits in deiner Sammlung' : 'Noch zu entdecken'}</small></div>`).join('')}</div></section>`;
 }
 
 export function renderIsland({ state, e, icon, heroAvatar }) {

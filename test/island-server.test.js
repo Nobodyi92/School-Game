@@ -118,12 +118,16 @@ test('three cleared stations bank a unique companion without granting XP, potion
   assert.equal(island.state.cleared, 3);
   assert.ok(island.state.pendingRewards.includes('pet-tide'));
   assert.ok(!(await player.state()).user.cosmetics.owned.includes('pet-tide'));
+  assert.ok(!(await player.state()).user.cosmetics.owned.includes('pet-mist-cat'));
   const result = await player.request('/api/island/bank', packet(island));
-  assert.equal(result.status, 200); assert.deepEqual(result.body.unlocked, ['pet-tide']);
+  assert.equal(result.status, 200); assert.deepEqual(result.body.unlocked, ['pet-tide', 'pet-mist-cat']);
   const after = (await player.state()).user;
   assert.equal(after.xp, before.xp); assert.equal(after.totalXp, before.totalXp); assert.deepEqual(after.inventory, before.inventory);
   assert.equal((await player.request('/api/island/bank', packet(island))).status, 409);
   assert.equal(db.prepare('SELECT COUNT(*) AS count FROM cosmetic_unlocks WHERE user_id = ? AND item_id = ?').get(after.id, 'pet-tide').count, 1);
+  assert.equal(db.prepare('SELECT COUNT(*) AS count FROM cosmetic_unlocks WHERE user_id = ? AND item_id = ?').get(after.id, 'pet-mist-cat').count, 1);
+  assert.equal((await player.request('/api/cosmetics/equip', { type: 'companion', id: 'pet-mist-cat' })).status, 200);
+  assert.equal((await player.state()).user.cosmetics.selected.companion, 'pet-mist-cat');
   assert.equal((await player.request('/api/cosmetics/equip', { type: 'companion', id: 'pet-tide' })).status, 200);
   assert.equal((await player.state()).user.cosmetics.selected.companion, 'pet-tide');
 });
@@ -134,7 +138,7 @@ test('a complete expedition defeats the guardian and grants all three new cosmet
   assert.equal(island.state.status, 'completed'); assert.equal(island.state.cleared, 7);
   assert.equal(island.state.enemy.hp, 0);
   const after = (await player.state()).user;
-  for (const id of ['pet-tide', 'outfit-pathfinder', 'trophy-island']) assert.ok(after.cosmetics.owned.includes(id));
+  for (const id of ['pet-tide', 'pet-mist-cat', 'outfit-pathfinder', 'pet-blossom-moth', 'trophy-island']) assert.ok(after.cosmetics.owned.includes(id));
   assert.equal(after.xp, before.xp); assert.deepEqual(after.inventory, before.inventory);
   assert.equal((await player.request('/api/cosmetics/equip', { type: 'outfit', id: 'outfit-pathfinder' })).status, 200);
   assert.equal((await player.request('/api/island/action', packet(island, { action: 'attack' }))).status, 400);
