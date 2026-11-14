@@ -1,0 +1,54 @@
+.tower-portal, .golem-portal { display:grid; grid-template-columns:minmax(190px,.7fr) minmax(0,1.3fr); gap:28px; align-items:center; }
+.tower-portal::after, .golem-portal::after { display:none; }
+.tower-portal { background:radial-gradient(ellipse at 15% 30%,#78584355,transparent 60%),linear-gradient(120deg,#172236,#252a3d); }
+.tower-portal h2, .golem-portal h2 { max-width:none; }
+.tower-portal p, .golem-portal p { max-width:650px; }
+.tower-portal-art { width:100%; max-width:300px; justify-self:center; }
+.tower-exterior { display:block; width:100%; height:100%; }
+.mine-portal-art { position:relative; width:100%; aspect-ratio:1.2; min-height:220px; overflow:hidden; border:1px solid #527480; border-radius:50% 50% 18px 18px; background:#142638; }
+.mine-portal-art svg { width:100%; height:100%; position:absolute; inset:0; }
+.tower-ascent { display:grid; grid-template-columns:110px minmax(0,1fr); align-items:center; gap:22px; padding:18px 26px 18px 16px; margin:24px 0; background:linear-gradient(110deg,#202b3e,#172437); border:1px solid #3a4b62; border-radius:18px; }
+.tower-ascent>.tower-exterior { height:174px; }
+.tower-ascent h3 { margin:7px 0 6px; font:500 24px/1.25 Georgia,serif; color:var(--ae-text); }
+.tower-ascent p { margin:0; color:#b5c6d6; font-size:13px; line-height:1.7; max-width:800px; }
+.tower-ascent .tower-track { padding:0; list-style:none; margin:14px 0 7px; gap:7px; }
+.tower-ascent .tower-step { min-height:42px; border-radius:9px; }
+.tower-ascent .tower-step span { font-size:13px; }
+.tower-ascent .tower-step small { font-size:10px; }
+.tower-ascent .tower-step.current { background:#3f384f; border-color:#d1b8ee; color:#e8d6ff; box-shadow:0 0 0 2px #c0a5d82b; }
+.tower-ascent-legend { display:block; font-size:12px; color:#a7bccc; }
+.tower-window.current { filter:drop-shadow(0 0 4px #f2d0a5); }
+.tower-room-name { margin:7px 0 0; color:#d0badf; font-size:14px; }
+.tower-room-scene { background:#202736; border-color:#79717c; }
+.mine-room-scene { background:#152630; border-color:#54888b; }
+.adventure-arena .adventure-setting-fallback { display:block; padding:0; }
+.adventure-room-backdrop { position:absolute; inset:0; width:100%; height:100%; }
+.adventure-fallback-actors { position:absolute; inset:34% 8% 9%; display:flex; align-items:center; justify-content:center; gap:15%; }
+.adventure-fallback-actors>.avatar { width:118px; height:138px; flex-shrink:0; filter:drop-shadow(0 8px 7px #0005); }
+.adventure-fallback-actors>span { color:#e7d3b1; font-size:16px; }
+.adventure-fallback-actors>.golem-fallback-symbol { font-size:90px; color:#b4d6d1; }
+.adventure-scene-location { position:absolute; left:16px; top:14px; z-index:2; max-width:calc(100% - 32px); padding:7px 10px; border:1px solid #95a7c047; border-radius:8px; background:#101b2cd9; color:#d9e1eb; font-size:12px; pointer-events:none; }
+.adventure-setting-fallback~.hero3d-status { padding:5px 10px; width:fit-content; margin:auto; background:#101b2cd9; border-radius:6px; color:#d9e1eb; }
+@media(min-width:1100px) { .tower-current .adventure-arena, .raid-battle .adventure-arena { height:400px; } }
+@media(max-width:650px) {
+  .tower-portal,.golem-portal { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .tower-portal-art { max-width:170px; height:175px; }
+  .mine-portal-art { min-height:175px; max-height:190px; aspect-ratio:auto; }
+  .tower-portal p,.golem-portal p { font-size:14px; }
+  .tower-ascent { grid-template-columns:64px minmax(0,1fr); gap:12px; padding:14px 12px 14px 8px; }
+  .tower-ascent>.tower-exterior { height:136px; }
+  .tower-ascent h3 { font-size:19px; }
+  .tower-ascent p { font-size:12px; }
+  .tower-ascent .tower-track { grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; }
+  .tower-ascent .tower-step { min-height:35px; }
+  .tower-ascent .tower-step small { display:none; }
+  .adventure-fallback-actors { gap:10%; left:4%; right:4%; }
+  .adventure-fallback-actors>.avatar { width:80px; height:100px; }
+  .adventure-scene-location { font-size:12px; padding:6px 8px; left:10px; top:10px; }
+  .tower-current>.section-title { gap:10px; }
+  .tower-room-name { font-size:13px; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  .adventure-torch { transform-box:fill-box; transform-origin:50% 100%; animation:adventure-torch-glow 2.8s ease-in-out infinite alternate; }
+  @keyframes adventure-torch-glow { to { transform:scale(.92,1.06); opacity:.8; } }
+}

@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { isAncestry } from './ancestries.js';
+import { normalizeAdventureEnvironment, makeAdventureScenery } from './adventure-scenery3d.js';
 
 // All models are built locally from geometry. No models, textures or user data
 // leave the browser; appearance and equipment come from the server's snapshots.
@@ -65,6 +66,7 @@ function disposeObject(object) {
   const geometries = new Set();
   const materials = new Set();
   object.traverse(node => {
+    if (node.isInstancedMesh) node.dispose();
     if (node.geometry) geometries.add(node.geometry);
     for (const mat of (Array.isArray(node.material) ? node.material : [node.material])) if (mat) materials.add(mat);
   });
@@ -748,12 +750,16 @@ function unsupportedController(host) {
   return { supported: false, dispose() {}, cancel() {}, update() {}, turn() {}, play: async () => {} };
 }
 
-function mount(host, heroes, { arena = false, raid = false, userId, interactive = !arena } = {}) {
+function mount(host, heroes, { arena = false, raid = false, userId, interactive = !arena, environment: suppliedEnvironment = null } = {}) {
   if (!host) return { supported: false, dispose() {}, cancel() {}, update() {}, turn() {}, play: async () => {} };
+  const environment = normalizeAdventureEnvironment(suppliedEnvironment);
+  if (environment) host.dataset.environment = environment.kind;
+  else delete host.dataset.environment;
+  delete host.dataset.scenery;
   const canvas = document.createElement('canvas');
   canvas.dataset.renderer = 'webgl';
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', raid ? 'Dreidimensionale Gruppenarena mit Runengolem' : arena ? 'Dreidimensionale Arena mit beiden Kämpfern' : 'Dreidimensionaler Charakter mit seiner Ausrüstung');
+  canvas.setAttribute('aria-label', environment ? environment.kind === 'tower' ? `Turmraum auf Etage ${environment.floor} mit deinem Helden und seinem Gegner` : environment.kind === 'island' ? `Schwebende Inselgruppe an Station ${environment.station} im Ätherstrom` : 'Kristallkammer des Runengolems mit deiner Gruppe' : raid ? 'Dreidimensionale Gruppenarena mit Runengolem' : arena ? 'Dreidimensionale Arena mit beiden Kämpfern' : 'Dreidimensionaler Charakter mit seiner Ausrüstung');
   canvas.style.cssText = 'display:block;width:100%;height:100%;touch-action:pan-y;';
   let gl;
   try { gl = canvas.getContext('webgl2', { alpha: true, antialias: true, powerPreference: 'low-power' }); }
@@ -785,7 +791,11 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
   scene.add(light);
   const fill = new THREE.DirectionalLight(0xb7b4f4, 1.1);
   fill.position.set(4, 3, -3); scene.add(fill);
-  makeStage(scene, arena, raid);
+  const scenery = makeAdventureScenery(scene, environment, { arena, raid });
+  if (scenery) {
+    host.dataset.scenery = scenery.label;
+    fill.color.set(scenery.ambient);
+  } else makeStage(scene, arena, raid);
   const models = new THREE.Group(); scene.add(models);
   const fx = new THREE.Group(); scene.add(fx);
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -898,7 +908,15 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
     const width = Math.max(1, rect.width || 380), height = Math.max(1, rect.height || 420);
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    if (raid) {
+    if (environment?.kind === 'island') {
+      const fit = Math.max(1, (arena ? 1.5 : 1.15) / camera.aspect);
+      camera.position.set(2.9 * fit, (arena ? 5.2 : 4.15) * fit, (arena ? 10.5 : 9.1) * fit);
+      camera.lookAt(0, .35, -.45);
+    } else if (environment?.kind === 'tower') {
+      const fit = Math.max(1, 1.5 / camera.aspect);
+      camera.position.set(1.85 * fit, 4.2 * fit, 10.4 * fit);
+      camera.lookAt(0, 1.30, -.55);
+    } else if (raid) {
       const fit = Math.max(1, 1.65 / camera.aspect);
       camera.position.set(3.0 * fit, 6.3 * fit, 11.4 * fit);
       camera.lookAt(0, 1.15, 0);

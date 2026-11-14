@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.11** ergänzt eigene, gestaltbare Luftschiffe ab Level 5, Reiseziele im Ätherstrom und Geld aus Truhen. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.12** gibt jedem Abenteuer einen eigenen Schauplatz: steinerne Turmräume, eine Reise über sieben schwebende Inseln und die Kristallhöhle des Runengolems. Version **0.11** ergänzt eigene, gestaltbare Luftschiffe ab Level 5, Reiseziele im Ätherstrom und Geld aus Truhen. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -215,6 +215,14 @@ Nur **zusätzliche Exemplare desselben Gegenstands in derselben Seltenheit** las
 Ab **Spielerlevel 5** sind der kleine **Windling** (25 Thal) und der mittlere **Himmelsfalter** (75 Thal) kaufbar, ab **Level 10** die große **Ätherarche** (3 Krona). Jede Truhe enthält zusätzlich Geld, dessen Menge mit dem Spielerlevel steigt. **10 Ätherlinge = 1 Thal; 100 Thal = 1 Krona.** Unter **Luftschiff** lassen sich die Schiffe in 3D drehen und Segel, Rumpf sowie Flagge gestalten. 18 dauerhafte Designs aus sechs Kulturen werden über gesicherte Abenteuererfolge ab Level 5 verdient. Ihre Boni verändern die tatsächliche Reisezeit zwischen fünf Anlegern im Ätherstrom. Der eigene Luftschiffmarker erscheint auf der Weltkarte.
 
 [Preise, Truhenbeträge, Fundorte und Reiseregeln](docs/aetheria-luftschiffe.md)
+
+## Abenteuer mit eigenen Schauplätzen
+
+Der **Turm der Prüfungen** zeigt steinerne Innenräume mit Fackeln, Runen, Fenstern und einer Treppe. Sein Miniaturmodell und die zehn Etagenmarkierungen zeigen den gespeicherten Aufstieg; höhere Etagen führen in die Wolkengalerie und zur Kuppel. Die **wandelnde Insel** ist als Reise über sieben kleine, schwebende Inseln dargestellt: Ein Luftschiffmarker verbindet die Etappen im Ätherstrom, besuchte Orte zeigen ihre tatsächlichen Begegnungen, unbekannte Ziele bleiben im Nebel. Die Landschaft am Helden passt zu Kampf, Rätsel, Lager, Fund, Begegnung und Finale. Der **Runengolem** wartet in einer Kristallhöhle mit Minenstützen.
+
+Die 3D-Ansichten und ihre gezeichneten Ersatzansichten stellen dieselben Orte dar. Vorhandene Abenteuer, Entscheidungen, Belohnungen und Kampfregeln bleiben erhalten. Bewegungen berücksichtigen die Einstellung für reduzierte Bewegung.
+
+[Vorschau der neuen Abenteuerschauplätze](docs/aetheria-abenteuer.md)
 
 ## Kampfanimationen
 
