@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Seit Version **0.7** führt eine interaktive **Weltkarte von Aetheria** zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.8** bringt eine durchgängige, moderne Oberfläche im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -48,6 +48,14 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
 - Bei 0 LP endet der Kampf. Nach spätestens 30 Runden entscheidet der höhere verbleibende LP-Anteil; bei exaktem Gleichstand gewinnt der Herausforderer.
 - Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm, Insel und Runengolem vergeben ausschließlich kosmetische Begleiter, Outfits und Trophäen. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+
+## Oberfläche im Stil von Aetheria
+
+[Vorschau der neuen Oberfläche](docs/aetheria-oberflaeche.png)
+
+Anmeldung, Schüler- und Lehrerbereich, Charaktergestaltung, Inventar, Arena, Abenteuer und Sammlung verwenden ein gemeinsames Design. Die leuchtenden Farben des Ätherstroms ergänzen dunkle, ruhige Flächen. Die Startseite zeigt die Weltkarte als Reiseübersicht und den aktuellen Fortschritt in Turm, Inselreise und Runengolemgruppe. Von dort führen direkte Schaltflächen zur Weltkarte und zur Arena.
+
+Formulare, Ortsauswahl und Ausrüstungsplätze bleiben auf dem iPad und schmalen Bildschirmen bedienbar. Aktive, ausgewählte und gesperrte Zustände werden weiterhin mit Texten oder Symbolen gekennzeichnet. Eine aktivierte Einstellung für reduzierte Bewegung wird berücksichtigt. Alle Schriftarten und Grafikdateien werden lokal verwendet; zusätzliche Installationen sind nicht erforderlich. Spielstände, Rollen, Belohnungen und Kampfregeln funktionieren wie bisher.
 
 ## Die Weltkarte von Aetheria
 

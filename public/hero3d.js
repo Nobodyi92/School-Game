@@ -458,10 +458,10 @@ function makeHero(hero = {}) {
 }
 
 function makeStage(scene, arena, raid = false) {
-  const stone = material(0xe4dbc9);
-  const edge = material(0xafa08b);
-  const gold = material(0xd7b25c, { metalness: .3 });
-  const purple = material(0x817093);
+  const stone = material(0x2b4155, { roughness: .67 });
+  const edge = material(0x172a3d);
+  const gold = material(0xa4d9cb, { metalness: .4, emissive: 0x328c81, emissiveIntensity: .23 });
+  const purple = material(0x7775a4);
   const radius = arena ? (raid ? 4.7 : 3.6) : 1.31;
   cylinder(scene, edge, [0, -.14, 0], radius, radius + .12, .27, arena ? 40 : 24);
   cylinder(scene, stone, [0, .005, 0], radius - .07, radius - .07, .04, arena ? 40 : 24);
