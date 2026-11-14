@@ -6,6 +6,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { openStore, hashPassword, verifyPassword, userView, battleView, normalizeAppearance, APPEARANCE_OPTIONS } from './lib/store.js';
 import { createBattleState, applyAction } from './lib/combat.js';
 import { createAdventureApi } from './lib/adventure-api.js';
+import { createAirshipApi, rollChestCoins } from './lib/airships.js';
 import { catalogue, normalizeInventory, normalizeEquipment, resolveItem, compatibleSlot, rollChest, SLOTS, POTIONS } from './lib/items.js';
 import { DEFAULT_ANCESTRY, isAncestry, ancestryFor, legacyTraining, normalizeTraining, skillsFor, progressFor } from './shared/ancestries.js';
 
@@ -50,7 +51,7 @@ async function readJson(req) {
 }
 
 export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite'), demo = true,
-  secureCookies = false, now = () => Date.now(), lootRandomInt, islandRandomInt } = {}) {
+  secureCookies = false, now = () => Date.now(), lootRandomInt, islandRandomInt, coinRandomInt } = {}) {
   const db = openStore(dbPath, { demo });
   const attempts = new Map();
   const viewUser = (row, options = {}) => userView(row, { ...options, db });
@@ -102,6 +103,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
   }
 
   const adventures = createAdventureApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly, islandRandomInt });
+  const airships = createAirshipApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly });
 
   async function api(req, res, path) {
     const method = req.method;
@@ -180,6 +182,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         battles: battles.map(battleView),
         catalogue: catalogue(),
         adventure: adventures.stateFor(user),
+        airships: airships.stateFor(user),
         rewards: rewards.map(r => ({ id: r.id, studentId: r.student_id, studentName: r.student_name,
           teacherName: r.teacher_name, xp: r.xp, item: r.item, reason: r.reason, createdAt: r.created_at })),
       };
@@ -187,6 +190,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
 
     const adventureResult = adventures.handle(path, method, body, user);
     if (adventureResult !== null) return adventureResult;
+    const airshipResult = airships.handle(path, method, body, user);
+    if (airshipResult !== null) return airshipResult;
 
     if (path === '/api/character' && method === 'POST') {
       studentOnly(user);
@@ -212,9 +217,12 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
     if (path === '/api/chests/open' && method === 'POST') {
       studentOnly(user);
       return transaction(() => {
-        const inventory = normalizeInventory(byId(user.id).inventory);
+        const fresh = byId(user.id);
+        const inventory = normalizeInventory(fresh.inventory);
         requireThat(inventory.chests > 0, 400, 'Du hast gerade keine Truhe. Deine Lehrkraft kann dir eine vergeben.');
         const rolled = rollChest(lootRandomInt);
+        const coinsAwarded = rollChestCoins(1 + Math.floor(fresh.total_xp / 100), coinRandomInt);
+        requireThat(Number.isSafeInteger(fresh.coins + coinsAwarded), 409, 'Dein Geldbeutel ist voll.');
         const drops = rolled.map(drop => {
           if (drop.kind === 'equipment') {
             const entry = { id: randomUUID(), templateId: drop.templateId };
@@ -226,8 +234,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
           return { ...drop, name: potion.name, healing: potion.healing };
         });
         inventory.chests--;
-        db.prepare('UPDATE users SET inventory = ? WHERE id = ?').run(JSON.stringify(inventory), user.id);
-        return { drops, user: viewUser(byId(user.id), { includeEmail: true }) };
+        db.prepare('UPDATE users SET inventory = ?, coins = coins + ? WHERE id = ?').run(JSON.stringify(inventory), coinsAwarded, user.id);
+        return { drops, coinsAwarded, user: viewUser(byId(user.id), { includeEmail: true }) };
       });
     }
 
@@ -399,10 +407,14 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'],
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
+        '/airship3d.js': ['airship3d.js', 'text/javascript'],
+        '/airships.js': ['airships.js', 'text/javascript'], '/airships.css': ['airships.css', 'text/css'],
+        '/shared/airships.js': ['../shared/airships.js', 'text/javascript'],
         '/ancestries.js': ['../shared/ancestries.js', 'text/javascript'],
         '/lib/cosmetics.js': ['../lib/cosmetics.js', 'text/javascript'],
         '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
         '/map-atmosphere.js': ['map-atmosphere.js', 'text/javascript'],
+        '/airship-map.js': ['airship-map.js', 'text/javascript'],
         '/world-map.js': ['world-map.js', 'text/javascript'], '/world-map.css': ['world-map.css', 'text/css'],
         '/aetheria-theme.css': ['aetheria-theme.css', 'text/css'], '/aetheria-adventures.css': ['aetheria-adventures.css', 'text/css'],
         '/assets/aetheria-map.png': ['assets/aetheria-map.png', 'image/png'],

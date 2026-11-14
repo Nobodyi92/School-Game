@@ -97,3 +97,8 @@
  .world-map-atmosphere { display:none; }
  .world-map-atmosphere [class],.world-map-pin.is-travelling .world-map-pin-core { animation:none; }
 }
+.player-airship-route { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; visibility:hidden; }
+.player-airship-marker { position:absolute; z-index:4; width:52px; height:48px; padding:1px; border:1px solid #9ae4ce; border-radius:14px; color:#eef8f4; background:#132b35ee; box-shadow:0 0 16px #6ed6c55c; transform:translate(-50%,-50%); cursor:pointer; }
+.player-airship-marker svg { display:block; width:100%; height:100%; }
+.player-airship-marker span { position:absolute; top:100%; left:50%; transform:translateX(-50%); padding:2px 5px; background:#0c182be8; border-radius:4px; white-space:nowrap; font-size:10px; }
+.player-airship-marker:focus-visible { outline:3px solid #e8c585; outline-offset:4px; }

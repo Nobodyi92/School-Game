@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.11** ergänzt eigene, gestaltbare Luftschiffe ab Level 5, Reiseziele im Ätherstrom und Geld aus Truhen. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -25,7 +25,7 @@ Im standardmäßig aktiven Demomodus stehen diese Konten bereit. Alle verwenden 
 | Schüler | `ben@demo.schule` | Nebelpfote |
 
 1. Als Lina anmelden und den Trainingsgegner in der Arena herausfordern. Dieser handelt automatisch.
-2. Unter **Mein Held** Tierfigur, Farben, Kleidung und Emblem gestalten oder Stärke, Fokus und Ausdauer verbessern.
+2. Unter **Mein Held** Volk, Farben, Kleidung und Emblem gestalten oder Stärke, Fokus und Ausdauer verbessern.
 3. Unter **Inventar** eine Truhe öffnen, Gegenstände vergleichen und ausrüsten. Die Demokonten Lina und Ben erhalten einmalig zwei Truhen, eine kleine Trankflasche und vier Beispielgegenstände, darunter einen doppelten Helm zum Ausprobieren des XP-Tauschs.
 4. Als Lehrkraft anmelden und einem Schülerkonto XP und/oder eine Truhe oder einen der drei Heiltränke mit Begründung vergeben.
 5. Für ein echtes Schülerduell Lina und Ben in **zwei getrennten Browserprofilen** (z. B. normal und privat) anmelden. Eine Herausforderung senden, auf dem anderen Konto annehmen und abwechselnd Aktionen wählen. Ein zweiter Tab desselben Browserprofils teilt denselben Login.
@@ -210,6 +210,12 @@ Ausrüstung verbessert Angriff, Fokus, maximale LP oder Rüstung. Rüstung reduz
 
 Nur **zusätzliche Exemplare desselben Gegenstands in derselben Seltenheit** lassen sich gegen die kleinen XP-Beträge eintauschen. Ausgerüstete Stücke und das letzte Exemplar bleiben geschützt. Der Tausch erhöht verfügbare und Gesamt-XP; die dafür nötige Ausrüstung stammt aus Lehrertruhen. Heiltränke werden gestapelt und im Kampf verbraucht, nicht eingetauscht.
 
+## Eigene Luftschiffe
+
+Ab **Spielerlevel 5** sind der kleine **Windling** (25 Thal) und der mittlere **Himmelsfalter** (75 Thal) kaufbar, ab **Level 10** die große **Ätherarche** (3 Krona). Jede Truhe enthält zusätzlich Geld, dessen Menge mit dem Spielerlevel steigt. **10 Ätherlinge = 1 Thal; 100 Thal = 1 Krona.** Unter **Luftschiff** lassen sich die Schiffe in 3D drehen und Segel, Rumpf sowie Flagge gestalten. 18 dauerhafte Designs aus sechs Kulturen werden über gesicherte Abenteuererfolge ab Level 5 verdient. Ihre Boni verändern die tatsächliche Reisezeit zwischen fünf Anlegern im Ätherstrom. Der eigene Luftschiffmarker erscheint auf der Weltkarte.
+
+[Preise, Truhenbeträge, Fundorte und Reiseregeln](docs/aetheria-luftschiffe.md)
+
 ## Kampfanimationen
 
 Angriff und Fokusstoß zeigen Bewegung, Trefferreaktion und Schadenszahlen; Deckung und Heiltränke haben eigene Effekte. Trainingszüge von Spieler und Gegner werden nacheinander abgespielt. Eine Siegesanimation schließt das Duell ab. Die Animationen ändern keine serverseitig berechneten Kampfwerte und blockieren Eingaben nur während des kurzen Effekts. Die Betriebssystem-/Browser-Einstellung für reduzierte Bewegung wird berücksichtigt.
@@ -224,7 +230,7 @@ Three.js **0.180.0** und seine MIT-Lizenz sind unter `public/vendor/` mitgeliefe
 
 ## Speicherung und Konfiguration
 
-Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch der aktuelle Turmaufstieg, die Inselreise, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
+Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch Geldbeutel, eigene Luftschiffe, freigeschaltete Schiffsteile, Umbauten, laufende Reisen und der aktuelle Turmaufstieg, die Inselreise, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
 
 ### Update unter Windows
 
@@ -253,5 +259,7 @@ Node-HTTP-Server, SQLite, Vanilla JavaScript, CSS und die mitgelieferte Three.js
 `npm test` führt die Tests der Kampfregeln, Beuteverteilung, Inventarregeln und HTTP-API aus. API-Tests verwenden eigene Datenbanken und verändern keine lokalen Spielstände. Dazu gehören auch die Migration der ersten Datenbankversion sowie parallele Anfragen, die keine Truhe oder Gegenstände doppelt verbrauchen dürfen. Die Völkerprüfungen testen Startwerte und tatsächlichen Schaden, manipulationssichere Registrierung, Volkswechsel, Lernkosten, erhaltene Stufen über dem Maximum und einmalige Spielstandübernahme. Weitere Tests prüfen die lokal ausgelieferten 3D-Module und die gespeicherte Ausrüstungsdarstellung: Ein später abgelegter oder eingetauschter Gegenstand verändert keinen bereits begonnenen Kampf. Die Abenteuerprüfungen decken Turmfortschritt und Belohnungssicherung, Gruppenbildung, Runenaktionen, veraltete oder doppelte Spielzüge, serverseitige Zeitfristen, kosmetische Besitzrechte sowie die Speicherung nach einem Neustart ab.
 
 Die Kartenprüfungen kontrollieren die lokal ausgelieferte Bilddatei, die Auswahl aller elf Orte und den Zugang zu den drei spielbaren Abenteuern. Sie prüfen außerdem, dass reine Navigation keine neuen Versuche startet und laufende Turm-, Insel- und Gruppenabenteuer samt Ressourcen erhalten bleiben.
+
+Die Luftschiffprüfungen decken Währungsumrechnung, levelabhängiges Truhengeld, doppelte und parallele Käufe, Besitz- und Levelgrenzen, Abenteuerteile, tatsächliche Reisewerte, erlaubte Anleger, veraltete Abfahrten sowie Migration und Reisen nach einem Neustart ab. Die Werft wurde zusätzlich im Browser in Desktop-, iPad- und Handygröße einschließlich der drei 3D-Schiffe und der Ersatzansicht geprüft.
 
 Wichtige Dateien: `public/world-map.js` und `public/world-map.css` (Weltkarte und Ortsauswahl), `shared/ancestries.js` (Völker, Startwerte und Skillfortschritt), `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).

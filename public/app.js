@@ -2,6 +2,9 @@ import { playBattleEvents, isAnimating, cancelBattleEffects } from './battle-eff
 import { mountHero3D, mountArena3D, mountRaid3D } from './hero3d.js';
 import { ANCESTRIES, DEFAULT_ANCESTRY, ancestryFor, isAncestry, skillsFor } from './ancestries.js';
 import { mountWorldMap, disposeWorldMap } from './world-map.js';
+import { renderAirships, handleAirshipAction, mountAirships, updateAirshipClocks, resetAirshipUI } from './airships.js';
+import { mountAirship3D } from './airship3d.js';
+import { formatMoney, moneyRangeForLevel } from '../shared/airships.js';
 import { renderAdventures, renderCollection, mountAdventure3D, handleAdventureAction, adventureEventCandidates, animateAdventures, adventureIsAnimating, cancelAdventureAnimations, resetAdventureState, updateAdventureClocks } from './adventures.js';
 
 const app = document.querySelector('#app');
@@ -20,6 +23,7 @@ let inventoryType = 'all';
 let inventoryRarity = 'all';
 let inventoryOrigin = 'all';
 let lastDrops = null;
+let lastCoinsAwarded = 0;
 let selectedEquipmentSlot = null;
 const mounted3DViews = new Set();
 const seenBattleEvents = new Map();
@@ -39,6 +43,7 @@ const initials = name => String(name || '?').split(' ').filter(Boolean).slice(0,
 
 function icon(name, className = '', size = 20) {
   const paths = {
+    compass: '<circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6 6-2Z"/>',
     grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
     swords: '<path d="m14.5 3 6.5 0 0 6.5L7 23l-6-6L14.5 3Z" transform="translate(1 -1) scale(.91)"/><path d="m3 3 6.5 0L21 15l-6 6L3 9.5V3Zm1 17 4-4m8-8 4-4M2 22l3-3m14 0 3 3"/>',
     hero: '<path d="M8 3h8l3 6-2 10-5 3-5-3L5 9l3-6Z"/><path d="m8 10 2 1m6-1-2 1m-4 5h4M9 3l3 4 3-4"/>',
@@ -133,7 +138,7 @@ function hero3DMarkup(source, user, label = 'Dein Held in 3D') {
 
 function mount3DViews() {
   if (!state || state.user.role !== 'student') return;
-  mountWorldMap();
+  mountWorldMap({ state });
   const register = (host, create) => {
     try {
       const controller = create();
@@ -157,6 +162,7 @@ function mount3DViews() {
     register(host, () => mountArena3D(host, fighters, { userId: state.user.id, interactive: false }));
   }
   mountAdventure3D({ state, mountHero3D, mountArena3D, mountRaid3D, register });
+  mountAirships({ state, register, mountAirship3D });
 }
 
 function defaultAppearance() { return { color: 'amber', outfit: 'adventurer', emblem: 'star' }; }
@@ -210,12 +216,12 @@ function renderItemCard(item) {
 }
 function renderDrops() {
   if (!lastDrops) return '';
-  return `<section class="panel chest-reveal" aria-label="Deine Truhenbeute"><div class="section-title"><div><span class="eyebrow">DAS WAR IN DEINER TRUHE</span><h2>${lastDrops.length === 1 ? 'Ein neuer Fund!' : 'Gleich zwei neue Funde!'}</h2></div><button class="icon-button" data-action="dismiss-drops" aria-label="Beuteanzeige schließen">×</button></div><div class="drop-grid">${lastDrops.map(drop => `<article class="drop-card rarity-${e(drop.rarity)}"><span class="drop-symbol">${icon(drop.kind === 'potion' ? 'potion' : itemIcon(drop.type), '', 42)}</span><span class="rarity-label">${e(rarityNames[drop.rarity])}</span><h3>${e(drop.name)}</h3><div class="bonus-pills">${drop.kind === 'potion' ? `<span class="bonus-pill">Heilt bis zu ${drop.healing} LP</span>` : bonusPills(drop.bonuses)}</div></article>`).join('')}</div><p>Die Gegenstände sind bereits sicher in deinem Inventar.</p></section>`;
+  return `<section class="panel chest-reveal" aria-label="Deine Truhenbeute"><div class="section-title"><div><span class="eyebrow">DAS WAR IN DEINER TRUHE</span><h2>${lastDrops.length === 1 ? 'Ein neuer Fund!' : 'Gleich zwei neue Funde!'}</h2></div><button class="icon-button" data-action="dismiss-drops" aria-label="Beuteanzeige schließen">×</button></div><p class="chest-coins">✦ +${e(formatMoney(lastCoinsAwarded))} für deinen Luftschiff-Traum</p><div class="drop-grid">${lastDrops.map(drop => `<article class="drop-card rarity-${e(drop.rarity)}"><span class="drop-symbol">${icon(drop.kind === 'potion' ? 'potion' : itemIcon(drop.type), '', 42)}</span><span class="rarity-label">${e(rarityNames[drop.rarity])}</span><h3>${e(drop.name)}</h3><div class="bonus-pills">${drop.kind === 'potion' ? `<span class="bonus-pill">Heilt bis zu ${drop.healing} LP</span>` : bonusPills(drop.bonuses)}</div></article>`).join('')}</div><p>Die Gegenstände sind bereits sicher in deinem Inventar.</p></section>`;
 }
 function renderInventory() {
   const u = state.user;
   const items = gearItems().filter(item => (inventoryType === 'all' || item.type === inventoryType) && (inventoryRarity === 'all' || item.rarity === inventoryRarity) && (inventoryOrigin === 'all' || item.origin === inventoryOrigin) && (!selectedEquipmentSlot || slotType[selectedEquipmentSlot].includes(item.type)));
-  return `${heading('DEINE FUNDE. DEINE STRATEGIE.', 'Gut gerüstet ins Abenteuer<span class="title-dot">.</span>', 'Öffne Truhen, entdecke neue Ausrüstung und finde deinen eigenen Kampfstil.')}<section class="chest-banner"><span class="chest-illustration">${icon('chest', '', 78)}<i>✦</i></span><div><span class="eyebrow">VON DEINEN LEHRKRÄFTEN VERDIENT</span><h2>${u.inventory.chests || 0} ${u.inventory.chests === 1 ? 'Truhe wartet auf dich' : 'Truhen warten auf dich'}</h2><p>Jede Truhe enthält 1–2 Gegenstände: Ausrüstung oder einen Heiltrank. Die Seltenheit entscheidet der Zufall.</p><button class="button gold" data-action="open-chest" ${u.inventory.chests > 0 ? '' : 'disabled'}>${icon('chest')} Eine Truhe öffnen</button></div></section>${renderDrops()}<div class="inventory-top-layout">${renderCombatStats(u)}<section class="panel potion-stock"><div class="section-title"><h2>Deine Heiltränke</h2>${icon('potion')}</div>${potions().map(potion => `<div class="potion-stock-row"><span class="potion-bottle potion-${e(potion.id)}">${icon('potion', '', 25)}</span><div><strong>${e(potion.name)}</strong><small>Heilt bis zu ${potion.healing} LP · kostet einen Zug</small></div><b>×${u.inventory[potion.id] || 0}</b></div>`).join('')}</section></div>${renderLoadout()}<section class="gear-section" id="gear-selection"><div class="section-title"><div><span class="eyebrow">DEINE SCHATZKAMMER</span><h2>${selectedEquipmentSlot ? `Ausrüstung für ${slotNames[selectedEquipmentSlot]}` : 'Gesammelte Ausrüstung'}</h2></div><span class="pill neutral">${gearItems().length} GEGENSTÄNDE</span></div>${selectedEquipmentSlot ? `<div class="slot-filter-note">${icon(itemIcon(selectedEquipmentSlot.startsWith('hand') ? 'weapon' : selectedEquipmentSlot), '', 18)}<span>Passend für ${slotNames[selectedEquipmentSlot]}</span><button class="text-button" data-action="clear-slot">Alle Gegenstände anzeigen</button></div>` : ''}<div class="inventory-filters"><label for="inventory-type">Kategorie<select id="inventory-type">${[['all', 'Alle Kategorien'], ...Object.entries(typeNames)].map(([value, label]) => `<option value="${value}" ${inventoryType === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label for="inventory-rarity">Seltenheit<select id="inventory-rarity">${[['all', 'Alle Seltenheiten'], ...Object.entries(rarityNames)].map(([value, label]) => `<option value="${value}" ${inventoryRarity === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label for="inventory-origin">Herkunft<select id="inventory-origin"><option value="all">Alle Herkunftsorte</option>${['Silberwind', 'Zephyria', 'Nebelheim', 'Himmelsruhe', 'Ätherhain', 'Äthkern'].map(origin => `<option value="${origin}" ${inventoryOrigin === origin ? 'selected' : ''}>${origin}</option>`).join('')}</select></label></div><div class="gear-grid">${items.map(renderItemCard).join('') || `<section class="panel gear-empty">${emptyState('chest', gearItems().length ? 'Hier wurde noch nichts gefunden.' : 'Deine ersten Funde warten noch.', gearItems().length ? 'Wähle eine andere Kategorie oder Seltenheit.' : 'Öffne eine Truhe von deiner Lehrkraft, um Ausrüstung zu finden.')}</section>`}</div></section><section class="panel loot-guide"><h3>So funktioniert deine Beute</h3><div>${Object.entries(rarityNames).map(([id, name], i) => `<span class="rarity-${id}"><b>${name}</b><small>${[60,28,10,2][i]} % · Duplikat: ${[2,4,7,10][i]} XP</small></span>`).join('')}</div><p>Nur zusätzliche, nicht ausgerüstete Exemplare desselben Gegenstands lassen sich eintauschen. Dein letztes Exemplar bleibt erhalten.</p></section>`;
+  return `${heading('DEINE FUNDE. DEINE STRATEGIE.', 'Gut gerüstet ins Abenteuer<span class="title-dot">.</span>', 'Öffne Truhen, entdecke neue Ausrüstung und finde deinen eigenen Kampfstil.')}<section class="chest-banner"><span class="chest-illustration">${icon('chest', '', 78)}<i>✦</i></span><div><span class="eyebrow">VON DEINEN LEHRKRÄFTEN VERDIENT</span><h2>${u.inventory.chests || 0} ${u.inventory.chests === 1 ? 'Truhe wartet auf dich' : 'Truhen warten auf dich'}</h2><p>Jede Truhe enthält 1–2 Gegenstände und zusätzlich ${moneyRangeForLevel(u.level).min}–${moneyRangeForLevel(u.level).max} Ätherlinge auf deinem aktuellen Level. Spare für dein eigenes Luftschiff ab Level 5.</p><button class="button gold" data-action="open-chest" ${u.inventory.chests > 0 ? '' : 'disabled'}>${icon('chest')} Eine Truhe öffnen</button></div></section>${renderDrops()}<div class="inventory-top-layout">${renderCombatStats(u)}<section class="panel potion-stock"><div class="section-title"><h2>Deine Heiltränke</h2>${icon('potion')}</div>${potions().map(potion => `<div class="potion-stock-row"><span class="potion-bottle potion-${e(potion.id)}">${icon('potion', '', 25)}</span><div><strong>${e(potion.name)}</strong><small>Heilt bis zu ${potion.healing} LP · kostet einen Zug</small></div><b>×${u.inventory[potion.id] || 0}</b></div>`).join('')}</section></div>${renderLoadout()}<section class="gear-section" id="gear-selection"><div class="section-title"><div><span class="eyebrow">DEINE SCHATZKAMMER</span><h2>${selectedEquipmentSlot ? `Ausrüstung für ${slotNames[selectedEquipmentSlot]}` : 'Gesammelte Ausrüstung'}</h2></div><span class="pill neutral">${gearItems().length} GEGENSTÄNDE</span></div>${selectedEquipmentSlot ? `<div class="slot-filter-note">${icon(itemIcon(selectedEquipmentSlot.startsWith('hand') ? 'weapon' : selectedEquipmentSlot), '', 18)}<span>Passend für ${slotNames[selectedEquipmentSlot]}</span><button class="text-button" data-action="clear-slot">Alle Gegenstände anzeigen</button></div>` : ''}<div class="inventory-filters"><label for="inventory-type">Kategorie<select id="inventory-type">${[['all', 'Alle Kategorien'], ...Object.entries(typeNames)].map(([value, label]) => `<option value="${value}" ${inventoryType === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label for="inventory-rarity">Seltenheit<select id="inventory-rarity">${[['all', 'Alle Seltenheiten'], ...Object.entries(rarityNames)].map(([value, label]) => `<option value="${value}" ${inventoryRarity === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label for="inventory-origin">Herkunft<select id="inventory-origin"><option value="all">Alle Herkunftsorte</option>${['Silberwind', 'Zephyria', 'Nebelheim', 'Himmelsruhe', 'Ätherhain', 'Äthkern'].map(origin => `<option value="${origin}" ${inventoryOrigin === origin ? 'selected' : ''}>${origin}</option>`).join('')}</select></label></div><div class="gear-grid">${items.map(renderItemCard).join('') || `<section class="panel gear-empty">${emptyState('chest', gearItems().length ? 'Hier wurde noch nichts gefunden.' : 'Deine ersten Funde warten noch.', gearItems().length ? 'Wähle eine andere Kategorie oder Seltenheit.' : 'Öffne eine Truhe von deiner Lehrkraft, um Ausrüstung zu finden.')}</section>`}</div></section><section class="panel loot-guide"><h3>So funktioniert deine Beute</h3><div>${Object.entries(rarityNames).map(([id, name], i) => `<span class="rarity-${id}"><b>${name}</b><small>${[60,28,10,2][i]} % · Duplikat: ${[2,4,7,10][i]} XP</small></span>`).join('')}</div><p>Nur zusätzliche, nicht ausgerüstete Exemplare desselben Gegenstands lassen sich eintauschen. Dein letztes Exemplar bleibt erhalten.</p></section>`;
 }
 
 function toast(message, error = false) {
@@ -232,6 +238,8 @@ async function api(path, body) {
   if (!response.ok) {
     if (response.status === 401 && state) {
       resetAdventureState();
+      resetAirshipUI();
+      lastDrops = null; lastCoinsAwarded = 0;
       state = null; profileDraft = null; inventoryOrigin = 'all'; lastStateJSON = '';
       renderAuth();
     }
@@ -285,7 +293,7 @@ function renderDemoSection() {
 function navItems() {
   return state.user.role === 'teacher'
     ? [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'class', name: 'Meine Klasse', icon: 'users' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }]
-    : [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'arena', name: 'Arena', icon: 'swords' }, { id: 'adventures', name: 'Abenteuer', icon: 'book' }, { id: 'collection', name: 'Sammlung', icon: 'trophy' }, { id: 'character', name: 'Mein Held', icon: 'hero' }, { id: 'inventory', name: 'Inventar', icon: 'chest' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }];
+    : [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'arena', name: 'Arena', icon: 'swords' }, { id: 'adventures', name: 'Abenteuer', icon: 'book' }, { id: 'airships', name: 'Luftschiff', icon: 'compass' }, { id: 'collection', name: 'Sammlung', icon: 'trophy' }, { id: 'character', name: 'Mein Held', icon: 'hero' }, { id: 'inventory', name: 'Inventar', icon: 'chest' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }];
 }
 
 function render() {
@@ -297,9 +305,10 @@ function render() {
   if (!items.some(x => x.id === tab)) tab = 'overview';
   const currentNav = items.find(x => x.id === tab);
   dispose3DViews();
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><a href="/" class="brand" data-action="nav" data-tab="overview">${brand()}</a><div class="campus-switch"><span class="campus-icon">${icon('book')}</span><span><strong>${e(user.schoolName || 'Campus Nord')}</strong><small>${teacher ? 'Lehrkraftbereich' : 'Dein Schülerbereich'}</small></span><span class="online-dot" title="Verbunden"></span></div><div class="nav-label">DEIN CAMPUS</div><nav class="${teacher ? 'teacher-navigation' : 'student-navigation'}" aria-label="Hauptnavigation" style="--nav-columns:${items.length}">${items.map(item => `<button class="nav-item ${tab === item.id ? 'active' : ''}" data-action="nav" data-tab="${item.id}" aria-label="${e(item.name)}" ${tab === item.id ? 'aria-current="page"' : ''}>${icon(item.icon)}<span>${item.name}</span>${item.id === 'arena' && pending ? `<span class="nav-count">${pending}</span>` : ''}</button>`).join('')}</nav><div class="sidebar-note"><span class="note-icon">${icon(teacher ? 'spark' : 'book', '', 25)}</span><h3>${teacher ? 'Anerkennung, die ankommt.' : 'Dein Einsatz zählt.'}</h3><p>${teacher ? 'Mach aus guter Mitarbeit einen besonderen Moment.' : 'Erfahrung sammelst du durch gute Mitarbeit im Schulalltag.'}</p><span class="note-stars">✦<i>✧</i>✦</span></div><div class="sidebar-profile">${teacher ? `<span class="profile-initials">${e(initials(user.name))}</span>` : heroAvatar(user)}<span><strong>${e(user.name)}</strong><small>${teacher ? 'Lehrkraft' : `Level ${user.level} · Schüleraccount`}</small></span><button class="icon-button" data-action="logout" aria-label="Abmelden" title="Abmelden">${icon('logout', '', 18)}</button></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">${icon('book', '', 16)}<span>${e(user.schoolName || 'Campus Nord')}</span><span>/</span><strong>${currentNav.name}</strong></div><div class="topbar-right"><span class="live-label"><i></i> Dein Abenteuer läuft</span><span class="role-badge">${demoMode ? 'Demo · ' : ''}${teacher ? 'Lehrkraft' : 'Schüler:in'}</span><button class="icon-button mobile-logout" data-action="logout" aria-label="Abmelden">${icon('logout')}</button></div></header><main id="main-content" tabindex="-1">${tab === 'overview' ? renderOverview() : tab === 'arena' ? renderArena() : tab === 'character' ? renderCharacter() : tab === 'class' ? renderClass() : tab === 'inventory' ? renderInventory() : tab === 'adventures' ? renderAdventures({ state, e, icon, heroAvatar }) : tab === 'collection' ? renderCollection({ state, e, icon }) : renderRewardsPage()}</main><footer class="app-footer"><span>klassenhelden <i>✦</i> Gemeinsam wachsen.</span><span>Fair spielen. Stärker werden.</span></footer></div></div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><a href="/" class="brand" data-action="nav" data-tab="overview">${brand()}</a><div class="campus-switch"><span class="campus-icon">${icon('book')}</span><span><strong>${e(user.schoolName || 'Campus Nord')}</strong><small>${teacher ? 'Lehrkraftbereich' : 'Dein Schülerbereich'}</small></span><span class="online-dot" title="Verbunden"></span></div><div class="nav-label">DEIN CAMPUS</div><nav class="${teacher ? 'teacher-navigation' : 'student-navigation'}" aria-label="Hauptnavigation" style="--nav-columns:${items.length}">${items.map(item => `<button class="nav-item ${tab === item.id ? 'active' : ''}" data-action="nav" data-tab="${item.id}" aria-label="${e(item.name)}" ${tab === item.id ? 'aria-current="page"' : ''}>${icon(item.icon)}<span>${item.name}</span>${item.id === 'arena' && pending ? `<span class="nav-count">${pending}</span>` : ''}</button>`).join('')}</nav><div class="sidebar-note"><span class="note-icon">${icon(teacher ? 'spark' : 'book', '', 25)}</span><h3>${teacher ? 'Anerkennung, die ankommt.' : 'Dein Einsatz zählt.'}</h3><p>${teacher ? 'Mach aus guter Mitarbeit einen besonderen Moment.' : 'Erfahrung sammelst du durch gute Mitarbeit im Schulalltag.'}</p><span class="note-stars">✦<i>✧</i>✦</span></div><div class="sidebar-profile">${teacher ? `<span class="profile-initials">${e(initials(user.name))}</span>` : heroAvatar(user)}<span><strong>${e(user.name)}</strong><small>${teacher ? 'Lehrkraft' : `Level ${user.level} · Schüleraccount`}</small></span><button class="icon-button" data-action="logout" aria-label="Abmelden" title="Abmelden">${icon('logout', '', 18)}</button></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">${icon('book', '', 16)}<span>${e(user.schoolName || 'Campus Nord')}</span><span>/</span><strong>${currentNav.name}</strong></div><div class="topbar-right">${teacher ? '' : `<button class="wallet-badge" data-action="nav" data-tab="airships" aria-label="Geldbeutel: ${e(formatMoney(user.wallet))}. Zur Luftschiffwerft">✦ ${e(formatMoney(user.wallet))}</button>`}<span class="live-label"><i></i> Dein Abenteuer läuft</span><span class="role-badge">${demoMode ? 'Demo · ' : ''}${teacher ? 'Lehrkraft' : 'Schüler:in'}</span><button class="icon-button mobile-logout" data-action="logout" aria-label="Abmelden">${icon('logout')}</button></div></header><main id="main-content" tabindex="-1">${tab === 'overview' ? renderOverview() : tab === 'arena' ? renderArena() : tab === 'character' ? renderCharacter() : tab === 'class' ? renderClass() : tab === 'inventory' ? renderInventory() : tab === 'adventures' ? renderAdventures({ state, e, icon, heroAvatar }) : tab === 'collection' ? renderCollection({ state, e, icon }) : tab === 'airships' ? renderAirships({ state, e, icon }) : renderRewardsPage()}</main><footer class="app-footer"><span>klassenhelden <i>✦</i> Gemeinsam wachsen.</span><span>Fair spielen. Stärker werden.</span></footer></div></div>`;
   mount3DViews();
   updateAdventureClocks();
+  updateAirshipClocks();
 }
 
 function heading(eyebrow, title, subtitle, action = '') {
@@ -459,6 +468,7 @@ app.addEventListener('click', async event => {
   if ((busy || isAnimating() || adventureIsAnimating()) && !['nav', 'select-battle', 'dismiss-battle'].includes(action)) return;
   if (action === 'auth-mode') { authMode = button.dataset.mode; renderAuth(); return; }
   if (action === 'nav') { cancelBattleEffects(); cancelAdventureAnimations(); document.body.classList.remove('is-animating'); tab = button.dataset.tab; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (action.startsWith('airship-')) { await handleAirshipAction(button, { api, mutate, render, toast }); return; }
   if (/^(adventure-|tower-|island-|raid-|cosmetic-)/.test(action)) { await handleAdventureAction(button, { api, mutate, render, toast, confirmDialog }); return; }
   if (action === 'demo-login') {
     if (busy) return;
@@ -470,6 +480,8 @@ app.addEventListener('click', async event => {
   }
   if (action === 'logout') {
     resetAdventureState();
+    resetAirshipUI();
+    lastCoinsAwarded = 0;
     try { await api('/auth/logout', {}); state = null; profileDraft = null; inventoryOrigin = 'all'; lastStateJSON = ''; selectedBattleId = null; selectedEquipmentSlot = null; seenBattleEvents.clear(); lastDrops = null; rewardDraft = { studentId: '', xp: '50', item: 'chest', reason: '' }; renderAuth(); }
     catch (error) { toast(error.message, true); }
     return;
@@ -502,7 +514,7 @@ app.addEventListener('click', async event => {
   if (action === 'clear-slot') { selectedEquipmentSlot = null; render(); return; }
   if (action === 'appearance') { profileDraft.appearance[button.dataset.group] = button.dataset.value; render(); return; }
   if (action === 'dismiss-drops') { lastDrops = null; render(); return; }
-  if (action === 'open-chest') return mutate(async () => { const result = await api('/chests/open', {}); lastDrops = result.drops; toast('Deine Truhe ist geöffnet. Entdecke deine neuen Funde!'); });
+  if (action === 'open-chest') return mutate(async () => { const result = await api('/chests/open', {}); lastDrops = result.drops; lastCoinsAwarded = result.coinsAwarded; toast(`Truhe geöffnet! Zusätzlich ${formatMoney(result.coinsAwarded)} gefunden.`); });
   if (action === 'equip' || action === 'unequip') return mutate(async () => { await api('/equipment', { slot: button.dataset.slot, itemId: action === 'equip' ? button.dataset.id : null }); toast(action === 'equip' ? 'Ausrüstung angelegt. Die Boni gelten im nächsten Duell.' : 'Gegenstand abgelegt.'); });
   if (action === 'recycle') {
     const item = gearItems().find(value => value.id === button.dataset.id);
@@ -574,6 +586,6 @@ async function boot() {
 }
 window.addEventListener('pagehide', dispose3DViews);
 window.addEventListener('pageshow', event => { if (event.persisted) mount3DViews(); });
-setInterval(updateAdventureClocks, 1000);
+setInterval(() => { updateAdventureClocks(); updateAirshipClocks(); }, 1000);
 setInterval(() => { if (state && !busy && !isAnimating() && !adventureIsAnimating() && !document.hidden) refresh().catch(error => { if (state) toast(error.message, true); }); }, 5000);
 boot();

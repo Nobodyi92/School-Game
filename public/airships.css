@@ -1,0 +1,331 @@
+.airships-page { --ship-line: #31465a; min-width: 0; }
+.airships-page *, .airships-page *::before, .airships-page *::after { box-sizing: border-box; }
+.airship-page-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 20px; }
+.airship-page-heading h1 { font-size: clamp(32px, 3.7vw, 48px); margin: 9px 0 10px; line-height: 1.12; }
+.airship-page-heading p { color: var(--ae-muted); font-size: 13px; margin: 0; max-width: 580px; }
+.airship-wallet { display: flex; align-items: center; gap: 14px; flex-shrink: 0; background: linear-gradient(130deg, #322d29, #1c2a39); padding: 16px 21px; border: 1px solid #6c6242; border-radius: 16px; }
+.airship-wallet-symbol { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; color: #f0d295; font-size: 25px; border: 1px solid #aa945b; border-radius: 50%; background: #b1953b17; }
+.airship-wallet small, .airship-wallet strong, .airship-wallet div > span { display: block; }
+.airship-wallet small { color: #bfb79e; font-size: 12px; letter-spacing: 1.3px; }
+.airship-wallet strong { color: #f2d89e; font-size: 19px; line-height: 1.5; }
+.airship-wallet div > span { color: #b2c0c9; font-size: 12px; }
+.airship-currency-note { display: flex; justify-content: space-between; align-items: baseline; gap: 12px 24px; margin: 0 0 25px; color: var(--ae-muted); font-size: 12px; }
+.airship-currency-note > span { display: inline-flex; align-items: center; gap: 8px; }
+.airship-currency-note .icon { color: var(--ae-gold); flex-shrink: 0; }
+.airship-currency-note details { position: relative; flex-shrink: 0; }
+.airship-currency-note summary { color: #bbd5dd; cursor: pointer; min-height: 44px; display: flex; align-items: center; list-style: none; text-decoration: underline; text-underline-offset: 3px; }
+.airship-currency-note details > p { position: absolute; right: 0; top: 36px; z-index: 4; min-width: 228px; padding: 15px 18px; background: #1c2b3e; color: #d6e3ec; border: 1px solid #4a6276; border-radius: 12px; box-shadow: 0 8px 30px #0006; line-height: 1.9; }
+.airship-main-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(285px, 1fr); align-items: start; gap: 22px; }
+.airship-panel { min-width: 0; border: 1px solid var(--ship-line); border-radius: 20px; background: linear-gradient(145deg, #19273a, #121e30 75%); box-shadow: 0 8px 28px #03071326; overflow: hidden; }
+.airship-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 23px 24px 15px; }
+.airship-panel-heading h2 { font: 500 28px/1.2 Georgia, serif; margin: 7px 0 0; letter-spacing: -.7px; }
+.airship-panel-heading .eyebrow { font-size: 12px; letter-spacing: 1.4px; }
+.airship-badge { display: inline-block; padding: 5px 9px; color: #c3d1df; background: #29384c; border: 1px solid #425269; border-radius: 6px; font-size: 12px; line-height: 1.5; white-space: nowrap; }
+.airship-badge.active { color: #a5ead7; background: #25443f; border-color: #3d7369; }
+.airship-owned-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 24px 12px; }
+.airship-owned-tabs button, .airship-catalogue-tabs button { padding: 8px 12px; min-height: 44px; border: 1px solid #3c4f64; border-radius: 9px; background: #172539; color: #c1ceda; font-size: 12px; }
+.airship-owned-tabs button.selected, .airship-catalogue-tabs button.selected { color: #b5f2df; background: #294541; border-color: #598e82; }
+.airship-owned-tabs button span { color: #8fe3cb; padding-left: 8px; }
+.airship-hangar-top { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(175px, 1fr); gap: 12px; padding: 0 24px 20px; align-items: center; }
+.airship-stage-wrap { min-width: 0; }
+.airship-stage { position: relative; min-height: 334px; isolation: isolate; overflow: hidden; border: 1px solid #355163; border-radius: 16px; background: radial-gradient(ellipse at 50% 52%, #37576765, transparent 66%), linear-gradient(155deg, #182941, #112035); }
+.airship-stage::before { content: ''; position: absolute; z-index: -1; width: 155%; height: 26%; left: -30%; top: 44%; opacity: .24; background: linear-gradient(5deg, transparent, #82d8c1 45%, #b5b2ed 55%, transparent); filter: blur(18px); transform: rotate(-24deg); }
+.airship-svg-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.airship-illustration { display: block; width: 100%; height: auto; overflow: visible; }
+.airship-stage .airship-illustration { width: 124%; max-width: none; flex-shrink: 0; }
+.airship-stage canvas { position: relative; z-index: 1; width: 100%; display: block; touch-action: pan-y; }
+.airship-stage[data-render-state] .airship-svg-fallback { display: none; }
+.airship-stage-label { position: absolute; left: 14px; top: 13px; color: #9bb5c4; font-size: 12px; letter-spacing: 1.7px; z-index: 2; pointer-events: none; }
+.airship-stage-orbit { position: absolute; left: 12%; right: 12%; bottom: 13%; height: 15%; border: 1px solid #70c7bd20; border-radius: 50%; pointer-events: none; z-index: -1; }
+.airship-stage-caption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 10px; font-size: 12px; line-height: 1.6; color: #9fb9c7; margin-top: 8px; }
+.airship-stage-caption > span { display: flex; align-items: center; gap: 5px; }
+.airship-stage-caption .icon { color: #85d8c6; flex-shrink: 0; }
+.airship-stage-caption small { font-size: 12px; color: #829cac; }
+.airship-specs { min-width: 0; }
+.airship-description { font-size: 12px; line-height: 1.8; color: #b8c9d6; margin: 0 0 16px; }
+.airship-stats { display: grid; gap: 12px; }
+.airship-stats > div { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 0 8px; }
+.airship-stats > div > span { font-size: 12px; color: #b6c8d5; }
+.airship-stats strong { color: #e7d1a0; font-size: 16px; white-space: nowrap; }
+.airship-stat-preview { color: #91e8d0; font-size: 13px; }
+.airship-stats small { grid-column: 1 / -1; font-size: 12px; color: #91a8b9; margin-top: 1px; }
+.airship-stats-explainer { font-size: 12px; line-height: 1.8; color: #94aebc; margin: 14px 0; }
+.airship-current-note { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: #a4decd; line-height: 1.7; padding-top: 12px; border-top: 1px solid #31445a; }
+.airship-current-note .icon { flex-shrink: 0; margin-top: 1px; }
+.airship-specs .button { font-size: 12px; padding: 10px 12px; }
+.airship-unowned-note { border-top: 1px solid #344557; padding-top: 12px; }
+.airship-unowned-note strong { font-size: 12px; color: #e7c78b; }
+.airship-unowned-note p { font-size: 12px; color: #9fb5c5; line-height: 1.8; margin: 5px 0; }
+.airship-unowned-note a { display: inline-flex; align-items: center; }
+.airship-design-panel { border-top: 1px solid #30465a; padding: 21px 24px 24px; background: #0c17242b; }
+.airship-design-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px; }
+.airship-design-heading .eyebrow { font-size: 12px; letter-spacing: 1.2px; }
+.airship-design-heading h3 { font-size: 15px; margin: 5px 0 0; }
+.airship-count { color: #b3c6d5; font-size: 12px; white-space: nowrap; }
+.airship-slot-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.airship-slot { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; min-height: 117px; padding: 12px 8px; color: #c6d5df; border: 1px solid #3c5268; background: #1b2b40; border-radius: 12px; }
+.airship-slot.selected { border-color: #7cd3bf; background: #263f43; box-shadow: inset 0 0 0 1px #73ceb130; }
+.airship-slot > svg { width: 36px; height: 36px; margin-bottom: 5px; }
+.airship-slot span { min-width: 0; width: 100%; }
+.airship-slot strong { display: block; font-size: 12px; }
+.airship-slot small { display: block; font-size: 12px; color: #a8c0ce; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.airship-design-choices { display: grid; gap: 6px; margin-top: 13px; max-height: 246px; overflow: auto; scrollbar-width: thin; scrollbar-color: #476c78 transparent; padding: 2px; }
+.airship-design-choice { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 60px; padding: 9px 10px; text-align: left; border: 1px solid #34495e; background: #152438; border-radius: 10px; color: #dae5ec; }
+.airship-design-choice.selected { background: #243d40; border-color: #5b9788; }
+.airship-design-swatch { flex-shrink: 0; width: 35px; height: 35px; background: #09142250; border: 1px solid #7189984d; border-radius: 8px; }
+.airship-design-swatch svg { width: 100%; height: 100%; }
+.airship-design-choice > span:nth-child(2) { min-width: 0; flex: 1; }
+.airship-design-choice strong { display: block; font-size: 12px; line-height: 1.5; }
+.airship-design-choice small { display: block; font-size: 12px; line-height: 1.7; color: #aac1cb; }
+.airship-choice-mark { font-size: 12px; color: #adddcd; white-space: nowrap; }
+.airship-design-footer { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 15px; }
+.airship-design-footer p { color: #a8becb; font-size: 12px; line-height: 1.8; margin: 0; }
+.airship-design-footer .button { flex-shrink: 0; font-size: 12px; }
+.airship-hangar-empty { display: flex; align-items: center; gap: 13px; padding: 18px 24px; background: #132b343b; border-top: 1px solid #304659; }
+.airship-hangar-empty > svg { width: 44px; height: 44px; flex-shrink: 0; }
+.airship-hangar-empty p { margin: 0; color: #a7bfcd; font-size: 12px; line-height: 1.9; }
+.airship-hangar-empty strong { font-size: 12px; color: #c9dfdf; }
+.airship-hangar-empty .button { margin-left: auto; flex-shrink: 0; }
+.airship-travel .airship-panel-heading { padding-bottom: 9px; }
+.airship-travel .airship-panel-heading h2 { font-size: 24px; }
+.airship-route-symbol { color: #93ddce; font-size: 32px; }
+.airship-travel-intro { font-size: 12px; line-height: 1.9; color: #a9c0ce; margin: 0 24px 20px; }
+.airship-current-dock { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 0 24px 17px; border: 1px solid #476c70; border-radius: 12px; background: #203b41; }
+.airship-current-dock > span:first-child { color: #95dfcf; }
+.airship-current-dock > div { min-width: 0; }
+.airship-current-dock small { display: block; font-size: 12px; letter-spacing: 1.1px; color: #9fc9c6; margin-bottom: 3px; }
+.airship-current-dock strong { font-size: 12px; color: #d6ece7; }
+.airship-dock-dot { width: 7px; height: 7px; margin-left: auto; flex-shrink: 0; background: #8be1bc; border-radius: 50%; box-shadow: 0 0 9px #8be1bc50; }
+.airship-destinations { display: grid; gap: 6px; margin: 0 24px; }
+.airship-destinations button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 49px; text-align: left; color: #b9ccd8; padding: 10px 12px; border: 1px solid #31485e; border-radius: 10px; background: #152539; }
+.airship-destinations button.selected { border-color: #679a91; background: #294348; color: #d0e9df; }
+.airship-destinations button > span:first-child { display: grid; place-items: center; flex-shrink: 0; width: 24px; font-size: 19px; color: #a8cfcc; }
+.airship-destinations strong { font-size: 12px; font-weight: 550; }
+.airship-destinations button > span:last-child { margin-left: auto; font-size: 12px; }
+.airship-destination-description { margin: 13px 24px 17px; font-size: 12px; line-height: 1.8; color: #9eb5c5; min-height: 36px; }
+.airship-departure { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 24px 20px; border-top: 1px solid #30465b; }
+.airship-departure small { display: block; color: #9cbdc5; font-size: 12px; letter-spacing: 1px; }
+.airship-departure strong { display: block; color: #d8e6ec; font-size: 12px; margin: 5px 0 3px; }
+.airship-departure div > span { display: block; font-size: 12px; color: #9bb4c4; }
+.airship-departure .button { flex-shrink: 0; padding: 10px 12px; font-size: 12px; }
+.airship-route-note { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; padding: 15px 24px; border-top: 1px solid #30465b; background: #152c383d; }
+.airship-route-note > .icon { flex-shrink: 0; color: #9ed8d0; margin-top: 3px; }
+.airship-route-note p { flex: 1; min-width: 130px; margin: 0; font-size: 12px; color: #a7c0cc; line-height: 1.8; }
+.airship-route-note .text-button { min-height: 35px; font-size: 12px; margin: 0 0 0 25px; }
+.airship-voyage { margin: 10px 24px 24px; padding: 20px 17px; border: 1px solid #5a8b83; border-radius: 14px; background: radial-gradient(ellipse at 60% 50%, #406d6438, transparent), #152b36; }
+.airship-voyage-route { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0; }
+.airship-voyage-route strong { font-size: 12px; line-height: 1.7; }
+.airship-voyage-route > span { color: #8fdfc8; }
+.airship-flight-track { height: 5px; border-radius: 4px; background: #36545c; overflow: hidden; }
+.airship-flight-track > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #72c6be, #c4ecbf); transition: width 1s linear; border-radius: inherit; }
+.airship-voyage > p { font-size: 13px; color: #b9e8d7; margin: 15px 0 9px; }
+.airship-voyage > small { color: #a1bec7; line-height: 1.8; display: block; font-size: 12px; }
+.airship-shipyard, .airship-parts-section { margin-top: 36px; scroll-margin-top: 22px; }
+#airship-hangar { scroll-margin-top: 22px; }
+.airship-section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 15px; margin-bottom: 20px; }
+.airship-section-heading .eyebrow { font-size: 12px; }
+.airship-section-heading h2 { font: 500 28px/1.25 Georgia, serif; letter-spacing: -.8px; margin: 7px 0 0; }
+.airship-section-heading > p { font-size: 12px; color: #9fb6c7; margin: 0 0 3px; }
+.airship-shop-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+.airship-shop-card { display: flex; flex-direction: column; min-width: 0; border: 1px solid #3c5267; border-radius: 17px; background: linear-gradient(145deg, #1c2c41, #142134); padding: 19px; overflow: hidden; }
+.airship-shop-card.owned { border-color: #567f76; }
+.airship-shop-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.airship-shop-top .airship-badge { font-size: 12px; letter-spacing: 1px; border-color: #4a616f; background: #2b3b48; padding: 4px 8px; }
+.airship-level { color: #aec2d1; font-size: 12px; }
+.airship-shop-art { width: 100%; display: block; min-height: 44px; border: 0; padding: 0; border-radius: 12px; background: radial-gradient(ellipse at 50% 65%, #4f867b19, transparent 65%); margin: -4px 0 -8px; }
+.airship-shop-art:hover { background: radial-gradient(ellipse at 50% 65%, #4f867b35, transparent 65%); }
+.airship-shop-art .airship-illustration { max-height: 155px; }
+.airship-shop-card h3 { font: 500 23px Georgia, serif; letter-spacing: -.7px; margin: 0 0 10px; }
+.airship-shop-card > p { color: #aec1d0; font-size: 12px; line-height: 1.85; margin: 0 0 16px; flex: 1; }
+.airship-shop-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-top: 1px solid #364b5e; border-bottom: 1px solid #364b5e; padding: 11px 0; margin-bottom: 15px; }
+.airship-shop-stats > span { font-size: 14px; color: #c9ddda; }
+.airship-shop-stats small { display: block; color: #a1b6c7; font-size: 12px; margin-top: 1px; }
+.airship-price { margin-bottom: 13px; }
+.airship-price > span { display: block; font-size: 12px; color: #a1b7c6; }
+.airship-price > strong { display: block; color: #ebd19b; font-size: 20px; font-weight: 550; margin-top: 1px; }
+.airship-shop-card > .button { font-size: 12px; padding: 10px 11px; line-height: 1.6; }
+.airship-shop-card > .button:disabled { opacity: 1; color: #8fa8bb; background: #1d2d40; border-color: #3a4c60; }
+.airship-shop-card.owned > .button:disabled { color: #a3d4bd; border-color: #48655c; background: #223a35; }
+.airship-purchase-note { display: block; color: #92abbd; text-align: center; font-size: 12px; margin: 11px 0 1px; }
+.airship-shop-inspect { justify-content: center; font-size: 12px; margin-top: 3px; margin-bottom: -9px; }
+.airship-section-intro { font-size: 12px; color: #a9bfce; line-height: 1.9; max-width: 740px; margin: -4px 0 19px; }
+.airship-catalogue-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 17px; }
+.airship-catalogue-tabs button { min-width: 70px; }
+.airship-parts-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.airship-part-card { display: flex; flex-direction: column; min-width: 0; border: 1px solid #354b60; border-radius: 14px; padding: 17px; background: #18283b; }
+.airship-part-card.owned { border-color: #557e72; background: linear-gradient(135deg, #20383e, #17283b); }
+.airship-part-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+.airship-part-art { display: block; width: 52px; height: 52px; flex-shrink: 0; border: 1px solid #536573; background: #102133; border-radius: 12px; }
+.airship-part-art svg { width: 100%; height: 100%; padding: 4px; }
+.airship-part-status { color: #9eb8c6; font-size: 12px; text-align: right; }
+.airship-part-card.owned .airship-part-status { color: #b4dfc6; }
+.airship-part-kind { font-size: 12px; text-transform: uppercase; letter-spacing: .65px; color: #9cc2ca; }
+.airship-part-card h3 { font-size: 13px; line-height: 1.6; margin: 6px 0 7px; }
+.airship-part-bonuses { font-size: 12px; color: #bddccf; margin: 0 0 10px; line-height: 1.7; }
+.airship-part-source { font-size: 12px; color: #a5bbcb; margin: 0 0 15px; line-height: 1.8; flex: 1; }
+.airship-part-source > span { display: block; color: #c2b9d9; font-size: 12px; margin-top: 6px; }
+.airship-part-footnote { color: #849faf; font-size: 12px; padding-top: 11px; border-top: 1px solid #334c5f; }
+.airship-part-card .button { font-size: 12px; padding: 9px; }
+.airship-parts-note { display: flex; align-items: center; gap: 12px; border: 1px solid #3b5366; background: #152c3a; padding: 16px 20px; border-radius: 13px; margin-top: 18px; }
+.airship-parts-note > .icon { color: #a1dfce; flex-shrink: 0; }
+.airship-parts-note p { color: #afc7d1; font-size: 12px; margin: 0; line-height: 1.8; }
+.airship-parts-note .text-button { margin-left: auto; flex-shrink: 0; font-size: 12px; }
+@media (min-width: 1550px) { .airship-hangar-top { gap: 24px; } }
+@media (max-width: 1200px) {
+  .airship-main-grid { grid-template-columns: minmax(0, 1fr); }
+  .airship-hangar-top { grid-template-columns: minmax(0, 1.45fr) minmax(185px, 1fr); gap: 24px; }
+  .airship-travel .airship-destinations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .airship-travel-intro { max-width: 650px; }
+  .airship-route-note { align-items: center; }
+  .airship-route-note p { flex-basis: 60%; }
+  .airship-route-note .text-button { margin: 0 0 0 auto; }
+  .airship-shop-grid { gap: 12px; }
+  .airship-shop-card { padding: 15px; }
+  .airship-shop-card h3 { font-size: 20px; }
+  .airship-parts-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+}
+@media (max-width: 980px) {
+  .airship-page-heading { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .airship-wallet { width: 100%; padding: 13px 17px; }
+  .airship-wallet strong { font-size: 19px; }
+  .airship-wallet div { display: grid; grid-template-columns: auto auto; gap: 0 18px; align-items: baseline; flex: 1; }
+  .airship-wallet small { grid-column: 1 / -1; }
+  .airship-wallet div > span { justify-self: end; }
+  .airship-currency-note { flex-wrap: wrap; gap: 0 12px; margin-bottom: 17px; }
+  .airship-currency-note details > p { right: auto; left: 0; }
+  .airship-hangar-top { grid-template-columns: minmax(0, 1fr); gap: 17px; }
+  .airship-stage .airship-illustration { width: 100%; }
+  .airship-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .airship-stats > div { display: flex; flex-direction: column; }
+  .airship-stats strong { font-size: 21px; }
+  .airship-stats-explainer { margin: 12px 0; }
+  .airship-description { margin-bottom: 14px; }
+  .airship-hangar-empty { flex-wrap: wrap; }
+  .airship-hangar-empty p { flex: 1; min-width: 170px; }
+  .airship-hangar-empty .button { margin-left: 57px; }
+  .airship-shop-grid { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+  .airship-shop-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 20px; padding: 20px; }
+  .airship-shop-top { grid-column: 1 / -1; }
+  .airship-shop-art { grid-column: 1; grid-row: 2 / 5; align-self: center; margin: 0; }
+  .airship-shop-card h3 { grid-column: 2; margin-top: 15px; }
+  .airship-shop-card > p { grid-column: 2; margin-bottom: 12px; }
+  .airship-shop-stats { grid-column: 2; padding: 8px 0; margin-bottom: 12px; }
+  .airship-price { grid-column: 1; margin: 3px 0 0; align-self: center; }
+  .airship-shop-card > .button { grid-column: 2; align-self: center; }
+  .airship-purchase-note, .airship-shop-inspect { grid-column: 2; }
+  .airship-purchase-note { margin-top: 7px; }
+  .airship-section-heading { align-items: flex-start; flex-wrap: wrap; gap: 9px; }
+  .airship-parts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .airship-parts-note { flex-wrap: wrap; gap: 10px; }
+  .airship-parts-note p { flex: 1; min-width: 160px; }
+  .airship-parts-note .text-button { margin-left: 32px; }
+}
+@media (max-width: 520px) {
+  .airship-page-heading h1 { font-size: 38px; }
+  .airship-page-heading p { font-size: 12px; }
+  .airship-wallet div { display: block; }
+  .airship-wallet div > span { font-size: 12px; }
+  .airship-wallet strong { font-size: 21px; }
+  .airship-currency-note { font-size: 12px; }
+  .airship-currency-note > span { align-items: flex-start; }
+  .airship-currency-note .icon { margin-top: 2px; }
+  .airship-panel-heading { padding: 20px 17px 14px; gap: 8px; align-items: flex-start; }
+  .airship-panel-heading h2 { font-size: 27px; }
+  .airship-panel-heading > .airship-badge { font-size: 12px; max-width: 120px; white-space: normal; text-align: right; margin-top: 4px; }
+  .airship-hangar-top { padding: 0 17px 18px; }
+  .airship-stage .airship-illustration { width: 118%; }
+  .airship-owned-tabs { padding: 0 17px 13px; }
+  .airship-owned-tabs button { padding: 8px 10px; font-size: 12px; }
+  .airship-description { font-size: 12px; }
+  .airship-stats { gap: 8px; }
+  .airship-stats > div > span { font-size: 12px; }
+  .airship-stats small { font-size: 12px; }
+  .airship-stat-preview { font-size: 12px; }
+  .airship-design-panel { padding: 18px 17px; }
+  .airship-design-heading { flex-wrap: wrap; }
+  .airship-design-heading h3 { font-size: 14px; }
+  .airship-count { font-size: 12px; }
+  .airship-slot-tabs { gap: 6px; }
+  .airship-slot { min-height: 107px; padding: 9px 5px; }
+  .airship-slot strong { font-size: 12px; }
+  .airship-slot small { font-size: 12px; }
+  .airship-design-choice { gap: 8px; padding: 8px; }
+  .airship-choice-mark { font-size: 12px; }
+  .airship-design-footer { flex-direction: column; align-items: stretch; gap: 12px; }
+  .airship-design-footer p { font-size: 12px; }
+  .airship-hangar-empty { padding: 17px; }
+  .airship-hangar-empty .button { margin-left: 0; width: 100%; }
+  .airship-travel .airship-panel-heading h2 { font-size: 24px; }
+  .airship-travel-intro { margin: 0 17px 17px; font-size: 12px; }
+  .airship-current-dock { margin: 0 17px 14px; padding: 12px; }
+  .airship-travel .airship-destinations { margin: 0 17px; grid-template-columns: minmax(0, 1fr); }
+  .airship-destination-description { margin: 12px 17px 16px; font-size: 12px; }
+  .airship-departure { padding: 17px; flex-wrap: wrap; }
+  .airship-departure > div { flex: 1; min-width: 145px; }
+  .airship-departure strong { font-size: 12px; }
+  .airship-route-note { padding: 15px 17px; }
+  .airship-voyage { margin: 8px 17px 20px; padding: 17px 14px; }
+  .airship-section-heading h2 { font-size: 27px; }
+  .airship-section-heading > p { font-size: 12px; }
+  .airship-shop-card { gap: 0 12px; padding: 17px; }
+  .airship-shop-art { margin-left: -15px; width: calc(100% + 15px); }
+  .airship-shop-card h3 { font-size: 19px; margin: 14px 0 9px; }
+  .airship-shop-card > p { font-size: 12px; line-height: 1.7; }
+  .airship-shop-stats { gap: 5px; }
+  .airship-shop-stats > span { font-size: 12px; }
+  .airship-shop-stats small { font-size: 12px; }
+  .airship-price > strong { font-size: 17px; }
+  .airship-price > span { font-size: 12px; }
+  .airship-shop-card > .button { font-size: 12px; padding: 9px 8px; }
+  .airship-purchase-note { font-size: 12px; }
+  .airship-section-intro { font-size: 12px; }
+  .airship-parts-grid { gap: 9px; }
+  .airship-part-card { padding: 12px; }
+  .airship-part-top { display: block; margin-bottom: 9px; }
+  .airship-part-art { width: 46px; height: 46px; margin-bottom: 7px; }
+  .airship-part-status { font-size: 12px; text-align: left; }
+  .airship-part-kind { font-size: 12px; letter-spacing: .3px; }
+  .airship-part-card h3 { font-size: 12px; }
+  .airship-part-bonuses { font-size: 12px; }
+  .airship-part-source { font-size: 12px; line-height: 1.7; }
+  .airship-part-source > span { font-size: 12px; }
+  .airship-part-footnote { font-size: 12px; }
+  .airship-part-card .button { font-size: 12px; padding: 8px 6px; }
+  .airship-parts-note { padding: 15px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .airship-svg-fallback .airship-art-ship { animation: airship-idle 5s ease-in-out infinite; transform-origin: 50% 60%; }
+  .airship-svg-fallback .airship-art-stream { animation: airship-stream 5s ease-in-out infinite alternate; }
+  @keyframes airship-idle { 0%, 100% { transform: translateY(-3px) rotate(-.6deg); } 50% { transform: translateY(3px) rotate(.6deg); } }
+  @keyframes airship-stream { to { opacity: .55; transform: translateX(5px); } }
+}
+
+/* Keep small screens readable; only decorative headings use the compact size. */
+.airships-page .eyebrow { font-size: 10px; }
+.airship-wallet small, .airship-current-dock small, .airship-departure small,
+.airship-part-kind, .airship-stage-label { font-size: 10px; }
+.airship-stage-caption, .airship-stage-caption small { font-size: 11px; }
+.airship-shop-top .airship-badge { font-size: 10px; }
+.airship-design-choice, .airship-choice-mark, .airship-design-choice strong,
+.airship-design-choice small { overflow-wrap: anywhere; }
+.airship-choice-mark { white-space: normal; max-width: 76px; text-align: right; }
+@media (max-width: 520px) {
+  .airship-shop-card { display: flex; gap: 0; }
+  .airship-shop-art { margin: -8px 0 -8px; width: 100%; }
+  .airship-shop-card h3 { margin-top: 0; font-size: 23px; }
+  .airship-shop-card > p { font-size: 12px; margin-bottom: 16px; }
+  .airship-shop-card .airship-shop-stats { margin-bottom: 15px; }
+  .airship-shop-card .airship-price { margin-bottom: 14px; }
+  .airship-shop-card > .button { width: 100%; align-self: stretch; }
+  .airship-shop-card .airship-purchase-note { margin-top: 10px; }
+  .airship-design-choice { flex-wrap: wrap; }
+  .airship-design-choice > span:nth-child(2) { min-width: 130px; }
+  .airship-choice-mark { max-width: none; margin-left: 43px; text-align: left; }
+  .airship-parts-grid { grid-template-columns: minmax(0, 1fr); }
+  .airship-part-top { display: flex; }
+  .airship-part-card { padding: 17px; }
+  .airship-part-art { width: 52px; height: 52px; }
+  .airship-part-card h3 { font-size: 15px; }
+  .airship-part-bonuses, .airship-part-source { font-size: 12px; }
+  .airship-part-card .button { font-size: 12px; }
+}
