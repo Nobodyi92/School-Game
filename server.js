@@ -8,6 +8,7 @@ import { createBattleState, applyAction } from './lib/combat.js';
 import { createAdventureApi } from './lib/adventure-api.js';
 import { createAirshipApi, rollChestCoins } from './lib/airships.js';
 import { createHousingApi } from './lib/housing.js';
+import { createDailyChestApi } from './lib/daily-chest.js';
 import { catalogue, normalizeInventory, normalizeEquipment, resolveItem, compatibleSlot, rollChest, SLOTS, POTIONS } from './lib/items.js';
 import { DEFAULT_ANCESTRY, isAncestry, ancestryFor, legacyTraining, normalizeTraining, skillsFor, progressFor } from './shared/ancestries.js';
 import { availableAbilities, normalizeAbilityLoadout } from './shared/abilities.js';
@@ -106,7 +107,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
 
   const adventures = createAdventureApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly, islandRandomInt });
   const airships = createAirshipApi({ db, viewUser, byId, transaction, now, requireThat, studentOnly });
-  const housing = createHousingApi({ db, transaction, now, requireThat, studentOnly });
+  const housing = createHousingApi({ db, transaction, now, requireThat, studentOnly, byId, viewUser });
+  const dailyChest = createDailyChestApi({ db, transaction, now, requireThat, studentOnly, byId, viewUser });
 
   async function api(req, res, path) {
     const method = req.method;
@@ -187,6 +189,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         adventure: adventures.stateFor(user),
         airships: airships.stateFor(user),
         home: housing.stateFor(user),
+        dailyChest: dailyChest.stateFor(user),
         rewards: rewards.map(r => ({ id: r.id, studentId: r.student_id, studentName: r.student_name,
           teacherName: r.teacher_name, xp: r.xp, item: r.item, reason: r.reason, createdAt: r.created_at })),
       };
@@ -198,6 +201,8 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
     if (airshipResult !== null) return airshipResult;
     const homeResult = housing.handle(path, method, body, user);
     if (homeResult !== null) return homeResult;
+    const dailyResult = dailyChest.handle(path, method, body, user);
+    if (dailyResult !== null) return dailyResult;
 
     if (path === '/api/character' && method === 'POST') {
       studentOnly(user);
@@ -241,7 +246,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       return transaction(() => {
         const fresh = byId(user.id);
         const inventory = normalizeInventory(fresh.inventory);
-        requireThat(inventory.chests > 0, 400, 'Du hast gerade keine Truhe. Deine Lehrkraft kann dir eine vergeben.');
+        requireThat(inventory.chests > 0, 400, 'Du hast gerade keine Truhe. Hole deine tägliche Gratis-Truhe ab oder erhalte eine von deiner Lehrkraft.');
         const rolled = rollChest(lootRandomInt);
         const coinsAwarded = rollChestCoins(1 + Math.floor(fresh.total_xp / 100), coinRandomInt);
         requireThat(Number.isSafeInteger(fresh.coins + coinsAwarded), 409, 'Dein Geldbeutel ist voll.');
@@ -438,6 +443,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
         '/housing.js': ['housing.js', 'text/javascript'], '/housing.css': ['housing.css', 'text/css'],
+        '/daily-chest.js': ['daily-chest.js', 'text/javascript'], '/daily-chest.css': ['daily-chest.css', 'text/css'],
         '/housing3d.js': ['housing3d.js', 'text/javascript'], '/shared/housing.js': ['../shared/housing.js', 'text/javascript'],
         '/enemy3d.js': ['enemy3d.js', 'text/javascript'],
         '/shared/enemies.js': ['../shared/enemies.js', 'text/javascript'],

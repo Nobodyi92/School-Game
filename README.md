@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten 3D-Helden aus sechs Völkern von Aetheria, sammeln Ausrüstung und kämpfen rundenbasiert mit Ätherenergie und drei gewählten Fähigkeiten. Eine belebte Weltkarte verbindet Turm, Inselreise und Gruppenboss; ab Level 5 können eigene Luftschiffe gekauft und gestaltet werden. Version **0.15** ergänzt eigene Häuser an sieben Wohnorten mit unterschiedlicher Architektur und Fensteraussicht, frei platzierbaren Möbeln und ausgestellten Trophäen. Die Schauplätze, Ausrüstung, Begleiter und Oberfläche folgen dem Stil von Aetheria.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten 3D-Helden aus sechs Völkern von Aetheria, sammeln Ausrüstung und kämpfen rundenbasiert mit Ätherenergie und drei gewählten Fähigkeiten. Eine belebte Weltkarte verbindet Turm, Inselreise und Gruppenboss; ab Level 5 können eigene Luftschiffe gekauft und gestaltet werden. Version **0.16** ergänzt den Hauskauf mit Spielgeld und eine tägliche Gratis-Truhe. Sieben Wohnorte bieten unterschiedliche Architektur und Fensteraussicht, frei platzierbare Möbel und ausgestellte Trophäen. Die Schauplätze, Ausrüstung, Begleiter und Oberfläche folgen dem Stil von Aetheria.
 
 ## Start
 
@@ -33,13 +33,13 @@ Im standardmäßig aktiven Demomodus stehen diese Konten bereit. Alle verwenden 
 7. Für **Abenteuer → Kristallminen → Runengolem** drei getrennte Schülerkonten verwenden: Lina, Ben und ein über **Schüleraccount erstellen** neu registriertes Demokonto. Es wird kein drittes Schülerkonto automatisch angelegt. Drei unabhängige Browserprofile oder Geräte verwenden, etwa Edge, Chrome und ein Edge-InPrivate-Fenster. In einem Konto eine Gruppe eröffnen, in den anderen beiden beitreten und als Gruppenleitung starten.
 8. Unter **Abenteuer → Wandelnde Insel** den Ort auf der Karte oder in der Liste wählen und eine Solo-Reise beginnen. Wähle an den Weggabelungen zwischen verschiedenen Begegnungen. Nach drei bzw. fünf abgeschlossenen Stationen lassen sich neue kosmetische Funde sichern; die siebte Station führt zum Gezeitenwächter.
 9. Unter **Sammlung** freigeschaltete Begleiter und Outfits auswählen sowie die verdienten Trophäen ansehen.
-10. Unter **Mein Haus** einen Wohnort wählen, Möbel mit Maus oder Touch frei verschieben und drehen und mit **Einziehen & speichern** sichern. Neue Möbel werden durch gesicherte Abenteuererfolge freigeschaltet; verdiente Trophäen lassen sich auf eigenen Sockeln ausstellen.
+10. Auf der **Übersicht**, im **Inventar** oder bei **Mein Haus** die tägliche Gratis-Truhe abholen und im Inventar öffnen. Das Geld für ein Haus sparen, unter **Mein Haus** den gewünschten Wohnort kaufen und Möbel mit Maus oder Touch frei verschieben und drehen. **Einrichtung speichern** sichert Änderungen. Neue Möbel werden durch gesicherte Abenteuererfolge freigeschaltet; verdiente Trophäen lassen sich auf eigenen Sockeln ausstellen.
 
 Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Registrierungen erhalten ausschließlich die Schülerrolle, keine Lehrerrechte und keine selbst gewählten XP. Alle Konten gehören in dieser Version zur gemeinsamen Demoklasse „Campus Nord“.
 
 ## Spielregeln
 
-- Nur Lehrkräfte vergeben Belohnungen: bis zu 100 XP und/oder eine Truhe oder einen Heiltrank je Vergabe. Anlass und Vergabe werden gespeichert.
+- Lehrkräfte vergeben Schulbelohnungen: bis zu 100 XP und/oder eine Truhe oder einen Heiltrank je Vergabe. Anlass und Vergabe werden gespeichert.
 - **Verfügbare XP** werden für Stärke, Fokus und Ausdauer ausgegeben; ein Upgrade kostet `(bereits gekaufte Stufen dieses Skills + 1) × 25 XP`, unabhängig vom Volk. Maximalstufe eines Grund-Skills: 10.
 - **Gesamt-XP** bleiben bei einem Upgrade erhalten und bestimmen die Heldenstufe: `1 + floor(Gesamt-XP / 100)`.
 - Stärke verbessert Angriff und Fokusstoß, Fokus verbessert den Fokusstoß, Ausdauer erhöht Lebenspunkte und Regeneration in Deckung.
@@ -48,7 +48,7 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 - Der Herausforderer beginnt. Fähigkeiten, Ausrüstungsboni und Aussehen werden bei Kampfbeginn festgehalten; spätere Änderungen gelten für das nächste Duell. Vorhandene Duelle aus der ersten Version behalten ihre bisherigen Werte.
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
 - Bei 0 LP endet der Kampf. Nach spätestens 30 Runden entscheidet der höhere verbleibende LP-Anteil; bei exaktem Gleichstand gewinnt der Herausforderer.
-- Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm, Insel und Runengolem vergeben kosmetische Begleiter, Outfits, Trophäen und passende Möbel. XP und Ausrüstungstruhen bleiben Lehrerbelohnungen.
+- Schülerduelle und Training vergeben **keine XP oder Gegenstände**. Turm, Insel und Runengolem vergeben kosmetische Begleiter, Outfits, Trophäen und passende Möbel. Zusätzlich gibt es eine tägliche Gratis-Truhe. Weitere XP und Truhen können Lehrkräfte vergeben.
 
 ## Oberfläche im Stil von Aetheria
 
@@ -209,7 +209,7 @@ Im Inventar lässt sich nach **Herkunft** filtern. Neue Gegenstände zeigen ihre
 
 Ausrüstung verbessert Angriff, Fokus, maximale LP oder Rüstung. Rüstung reduziert Trefferschaden vor der Deckung um höchstens 12 Punkte; jeder Treffer verursacht mindestens einen Schadenspunkt. Farben, Kleidung und Emblem sind rein optisch.
 
-Nur **zusätzliche Exemplare desselben Gegenstands in derselben Seltenheit** lassen sich gegen die kleinen XP-Beträge eintauschen. Ausgerüstete Stücke und das letzte Exemplar bleiben geschützt. Der Tausch erhöht verfügbare und Gesamt-XP; die dafür nötige Ausrüstung stammt aus Lehrertruhen. Heiltränke werden gestapelt und im Kampf verbraucht, nicht eingetauscht.
+Nur **zusätzliche Exemplare desselben Gegenstands in derselben Seltenheit** lassen sich gegen die kleinen XP-Beträge eintauschen. Ausgerüstete Stücke und das letzte Exemplar bleiben geschützt. Der Tausch erhöht verfügbare und Gesamt-XP; die dafür nötige Ausrüstung stammt aus Lehrertruhen oder der täglichen Gratis-Truhe. Heiltränke werden gestapelt und im Kampf verbraucht, nicht eingetauscht.
 
 ## Eigene Luftschiffe
 
@@ -225,13 +225,21 @@ Die 3D-Ansichten und ihre gezeichneten Ersatzansichten stellen dieselben Orte da
 
 [Vorschau der neuen Abenteuerschauplätze](docs/aetheria-abenteuer.md)
 
+## Tägliche Gratis-Truhe
+
+Jedes Schülerkonto kann auf der **Übersicht**, im **Inventar** oder bei der Hausauswahl **einmal pro Kalendertag** kostenlos eine Truhe abholen. Der neue Tag beginnt um **0 Uhr in Europe/Berlin**, einschließlich Sommer-/Winterzeit. Nicht abgeholte Tage werden nicht angesammelt.
+
+Die Truhe landet ungeöffnet im Inventar. Beim Öffnen gibt es wie bei Lehrertruhen **1–2 zufällige Gegenstände und Geld nach aktuellem Spielerlevel**. Auf Level 1 sind es 15–30 Ätherlinge, auf Level 5 35–70 Ätherlinge. So lässt sich auch ohne Lehrerbelohnungen langsam auf ein Haus oder später ein Luftschiff sparen. Abholen selbst vergibt keine XP und verändert keine Schulbelohnungshistorie.
+
+[Vorschau und Regeln für Gratis-Truhen und Hauskäufe](docs/aetheria-haeuser.md)
+
 ## Eigene Häuser einrichten
 
-Unter **Mein Haus** wählen Schülerkonten kostenlos einen Wohnort: Zephyria, Silberwind, Nebelheim, Himmelsruhe, Lysara, Ätherhain oder Äthkern. Jedes Haus hat einen passenden Baustil und eine eigene Aussicht durch das Fenster. Ein späterer Umzug übernimmt die vorhandene Einrichtung.
+Unter **Mein Haus** kaufen Schülerkonten ein Haus mit dem gemeinsamen Spielgeld aus ihrem Geldbeutel. Die Preise reichen von **15 Thal** in Ätherhain bis **60 Thal** in Himmelsruhe. Auch Zephyria, Silberwind, Nebelheim, Lysara und Äthkern stehen zur Wahl. Gekaufte Häuser bleiben im Besitz; ein Wechsel zwischen eigenen Häusern ist kostenlos und übernimmt die Einrichtung. Vor diesem Update gespeicherte Häuser bleiben erhalten, ohne nachträgliche Kosten.
 
 Möbel lassen sich auf dem Boden **ohne festes Raster** ziehen und frei drehen. Per Touch genügt auch: Möbelstück antippen, dann den neuen Platz antippen. Raumansicht, Grundriss, Außenansicht, Rückgängig und ein Lager unterstützen das Einrichten. Möbel dürfen auf Teppichen stehen; Wände und andere Möbel begrenzen den Platz. **Einrichtung speichern** sichert den Stand dauerhaft für das eigene Konto. Ohne WebGL bleibt der gezeichnete Grundriss bedienbar.
 
-Neun Möbelstücke stehen als Grundausstattung bereit. Gesicherte Erfolge aus Turm, Inselreise und Runengolem schalten weitere Möbel frei, auch für bereits erreichte Erfolge. Insgesamt gibt es **29 Entwürfe einschließlich vier Trophäen auf Sockeln**. Die Einrichtung ist kosmetisch.
+Neun Möbelstücke sind als Grundausstattung im Hauspreis enthalten. Gesicherte Erfolge aus Turm, Inselreise und Runengolem schalten weitere Möbel frei, auch für bereits erreichte Erfolge. Insgesamt gibt es **29 Entwürfe einschließlich vier Trophäen auf Sockeln**. Die Einrichtung ist kosmetisch.
 
 [Hausgalerie, Bedienung und Möbel-Fundorte](docs/aetheria-haeuser.md)
 
@@ -267,7 +275,7 @@ Three.js **0.180.0** und seine MIT-Lizenz sind unter `public/vendor/` mitgeliefe
 
 ## Speicherung und Konfiguration
 
-Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch Hausstandort und Möbelpositionen, Geldbeutel, eigene Luftschiffe, freigeschaltete Schiffsteile, Umbauten, laufende Reisen und der aktuelle Turmaufstieg, die Inselreise, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
+Konten, gehashte Passwörter, Sitzungen, Fähigkeiten, Inventar, Ausrüstung, Charaktergestaltung, Duelle und Vergaben liegen in `.data/klassenhelden.sqlite`. Auch gekaufte Häuser, Hausstandort und Möbelpositionen, abgeholte tägliche Truhen, Geldbeutel, eigene Luftschiffe, freigeschaltete Schiffsteile, Umbauten, laufende Reisen und der aktuelle Turmaufstieg, die Inselreise, Gruppenbosskämpfe einschließlich noch ausstehender Gruppenzüge, freigeschaltete Sammlungseinträge und ausgewählte Begleiter/Outfits werden dort gespeichert. Dieser Ordner ist von Git ausgeschlossen und bleibt bei Neustarts erhalten. Die Beispielkonten werden einmalig angelegt; Fortschritte werden beim Neustart nicht zurückgesetzt. Vorhandene Datenbanken werden beim Start automatisch um die benötigten Tabellen und Spalten erweitert. Alte mittlere Heiltränke bleiben erhalten; die Demo-Truhen und Beispielausrüstung werden pro Datenbank nur einmal ergänzt.
 
 ### Update unter Windows
 
@@ -299,6 +307,8 @@ Die Kartenprüfungen kontrollieren die lokal ausgelieferte Bilddatei, die Auswah
 
 Die Luftschiffprüfungen decken Währungsumrechnung, levelabhängiges Truhengeld, doppelte und parallele Käufe, Besitz- und Levelgrenzen, Abenteuerteile, tatsächliche Reisewerte, erlaubte Anleger, veraltete Abfahrten sowie Migration und Reisen nach einem Neustart ab. Die Werft wurde zusätzlich im Browser in Desktop-, iPad- und Handygröße einschließlich der drei 3D-Schiffe und der Ersatzansicht geprüft.
 
-Die Hausprüfungen decken Besitzrechte und Möbelmengen, freie Koordinaten und Drehwinkel, Wand- und Möbelkollisionen, gleichzeitige Speicheranfragen, Rollen und Spielstandübernahme ab. Alle **207 Tests** bestehen. Zusätzlich wurden Maus- und Touchbedienung, sieben Hausstile, echte 3D-Platzierung, der Grundriss bei fehlendem WebGL und die Darstellung in iPad- und Handygröße im Browser geprüft.
+Die Hausprüfungen decken Besitzrechte und Möbelmengen, freie Koordinaten und Drehwinkel, Wand- und Möbelkollisionen, gleichzeitige Speicheranfragen, Rollen und Spielstandübernahme ab. Alle **219 Tests** bestehen. Zusätzlich wurden Maus- und Touchbedienung, sieben Hausstile, echte 3D-Platzierung, der Grundriss bei fehlendem WebGL und die Darstellung in iPad- und Handygröße im Browser geprüft.
 
-Wichtige Dateien: `shared/housing.js` (Wohnorte, Möbel und Platzierungsregeln), `lib/housing.js` (Haus-API), `public/housing.js` und `public/housing3d.js` (Einrichtung und 3D-Häuser), `public/world-map.js` und `public/world-map.css` (Weltkarte und Ortsauswahl), `shared/ancestries.js` (Völker, Startwerte und Skillfortschritt), `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).
+Die Wirtschaftsprüfungen testen zusätzlich serverseitige Hauspreise, doppelte Käufe, konkurrierende Haus- und Schiffskäufe aus demselben Geldbeutel und die Übernahme früherer Häuser. Die tägliche Truhe wird auf Besitz pro Schülerkonto und Kalendertag, konkurrierende Anfragen, Sommer-/Winterzeit, Tageswechsel, Neustarts und fehlende Nachholbelohnungen geprüft. Ein vollständiger Ablauf zeigt, dass ein neues Konto allein mit täglichen Truhen genug Geld für das erste Haus sparen kann.
+
+Wichtige Dateien: `lib/daily-chest.js` (tägliche Truhe), `shared/housing.js` (Wohnorte, Möbel und Platzierungsregeln), `lib/housing.js` (Haus-API), `public/housing.js` und `public/housing3d.js` (Einrichtung und 3D-Häuser), `public/world-map.js` und `public/world-map.css` (Weltkarte und Ortsauswahl), `shared/ancestries.js` (Völker, Startwerte und Skillfortschritt), `server.js` (HTTP/API), `lib/store.js` (Speicherung/Konten), `lib/items.js` (Gegenstände/Beute), `lib/combat.js` (Kampfregeln), `lib/adventures.js` (Turm-/Bossregeln), `lib/island.js` (Inselregeln), `lib/adventure-api.js` (Abenteuer-API), `lib/cosmetics.js` (Sammlung), `public/` (Oberfläche und Effekte), `test/` (Tests).

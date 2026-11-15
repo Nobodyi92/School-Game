@@ -9,7 +9,10 @@ export const HOME_LOCATIONS = Object.freeze([
   { id: 'lysara', name: 'Lysara', houseName: 'Fachwerkhaus', style: 'town', description: 'Ein gemütliches Fachwerkhaus mit warmem Holz. Draußen warten der Marktplatz und die grünen Ebenen.', view: 'Marktplatz, Gärten und grüne Hügel', wall: '#d3c5a5', floor: '#a27b53', trim: '#725744', roof: '#a85f55', sky: '#a7cad6' },
   { id: 'aether-grove', name: 'Ätherhain', houseName: 'Hainhütte', style: 'grove', description: 'Holz, Moos und lebendige Wurzeln. Nebelwälder und Ätherpflanzen wachsen direkt vor deinem Fenster.', view: 'Nebelwald und schimmernde Ätherpflanzen', wall: '#718b73', floor: '#8b7551', trim: '#b6cb92', roof: '#426857', sky: '#92b9ad' },
   { id: 'aethkern', name: 'Äthkern', houseName: 'Wüstenhaus', style: 'desert', description: 'Sandstein, dunkles Metall und violette Akzente. Durch den Bogen siehst du Dünen und die Türme der Wüstenstadt.', view: 'Dünen und die Türme von Äthkern', wall: '#c9a77e', floor: '#bd9871', trim: '#766186', roof: '#6f667b', sky: '#c7a1ac' },
-].map(Object.freeze));
+].map(location => Object.freeze({ ...location, price: {
+  'aether-grove': 150, lysara: 200, silverwind: 300, zephyria: 350,
+  aethkern: 400, nebelheim: 500, 'sky-rest': 600,
+}[location.id] })));
 
 const item = (id, name, kind, width, depth, color, source, extra = {}) =>
   Object.freeze({ id, name, kind, width, depth, color, source, ...extra });

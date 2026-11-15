@@ -1,0 +1,13 @@
+.daily-chest { display:flex; gap:22px; align-items:center; border:1px solid #55736f; border-radius:18px; padding:24px; margin:0 0 26px; background:linear-gradient(115deg,#203e43,#1a2a3e 75%); min-width:0; }
+.daily-chest-art { display:grid; place-items:center; position:relative; flex-shrink:0; width:70px; height:74px; border:1px solid #668c80; border-radius:18px; color:#e4c989; background:#254c4a; }
+.daily-chest-art i { position:absolute; right:5px; top:-7px; font:26px Georgia,serif; }
+.daily-chest-copy { min-width:0; flex:1; }
+.daily-chest h2 { font-size:23px; margin:7px 0 10px; }
+.daily-chest p { font-size:14px; line-height:1.8; color:#d3e1df; margin:0; }
+.daily-chest small { display:block; font-size:12px; line-height:1.8; color:#b4cbd0; margin-top:8px; }
+.daily-chest-actions { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+.daily-chest-actions>.button { min-height:46px; font-size:13px; }
+.daily-chest-actions>.text-button { min-height:44px; font-size:12px; }
+.daily-chest.claimed { border-color:#3c5663; background:#192d3b; }
+@media(max-width:900px) { .daily-chest { flex-wrap:wrap; gap:16px; } .daily-chest-copy { flex-basis:calc(100% - 100px); } .daily-chest-actions { width:100%; } }
+@media(max-width:540px) { .daily-chest { padding:20px 17px; } .daily-chest-art { width:54px; height:60px; } .daily-chest-art>.icon { width:30px; } .daily-chest h2 { font-size:21px; } .daily-chest-copy { flex-basis:calc(100% - 80px); } .daily-chest p { font-size:13px; } }

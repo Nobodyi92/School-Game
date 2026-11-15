@@ -12,6 +12,8 @@ Ab Spielerlevel 5 öffnet die Werft in Zephyria. Unter **Luftschiff** kaufst du 
 
 Die Währung folgt dem Aetheria-Dokument: **10 Ätherlinge = 1 Thal**, **100 Thal = 1 Krona**. Die Schiffspreise und Truhenbeträge sind die erste Spielbalance und können später angepasst werden.
 
+Auch die tägliche Gratis-Truhe enthält beim Öffnen dieselben Gegenstände und Geldbeträge wie eine Lehrertruhe. Sie kann einmal pro Kalendertag abgeholt werden; Details stehen bei den [Häusern und Gratis-Truhen](aetheria-haeuser.md).
+
 Jede geöffnete Truhe enthält zusätzlich zu ihren bisherigen 1–2 Gegenständen Geld. Entscheidend ist dein **aktuelles Spielerlevel beim Öffnen**:
 
 | Spielerlevel | Geld pro Truhe |
@@ -20,7 +22,7 @@ Jede geöffnete Truhe enthält zusätzlich zu ihren bisherigen 1–2 Gegenständ
 | 5 | 35–70 Ätherlinge |
 | 10 | 60–120 Ätherlinge |
 
-Die Spanne steigt je Level um 5–10 Ätherlinge, bis Level 100. Geld gibt keine XP und kann nicht von einem Schülerkonto selbst vergeben werden. Bestehende Konten starten mit leerem Geldbeutel; bereits geöffnete Truhen werden nicht nachträglich vergütet.
+Die Spanne steigt je Level um 5–10 Ätherlinge, bis Level 100. Geld gibt keine XP und kann nicht von einem Schülerkonto selbst vergeben werden. Bei Einführung der Währung starteten bestehende Konten mit leerem Geldbeutel; bereits geöffnete Truhen wurden nicht nachträglich vergütet. Weitere Updates erhalten den vorhandenen Geldbeutel.
 
 ## Segel, Rumpf und Flagge
 

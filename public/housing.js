@@ -1,5 +1,7 @@
 import { initialHomeLayout, homeLocationFor, furnitureFor, layoutIssue } from '../shared/housing.js';
 import { mountHousing3D, locationIllustration } from './housing3d.js';
+import { formatMoney } from '../shared/airships.js';
+import { renderDailyChest } from './daily-chest.js';
 
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const clone=value=>structuredClone(value);
@@ -42,11 +44,22 @@ function syncPanels(){
   for(const button of document.querySelectorAll('[data-action="home-view"]')){const active=button.dataset.mode===mode;button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active));}
 }
 
+function locationShop(state,e,icon){
+  const balance=state.user.wallet.total,owned=state.home.ownedLocations;
+  return `<div class="housing-page"><div class="page-heading"><div><span class="eyebrow">DEIN ZUHAUSE IN AETHERIA</span><h1>Wo möchtest du wohnen<span class="title-dot">?</span></h1><p>Kaufe dein Haus mit Spielgeld. Hausstil und Fensterblick passen zum Wohnort. Die Grundausstattung ist im Preis enthalten.</p></div>${draft.locationId?'<button class="button outline" data-action="home-cancel-location">Zurück zum Einrichten</button>':''}</div>
+    <div class="home-shop-balance"><span>Dein Geldbeutel <strong>${e(formatMoney(balance))}</strong></span><p>Gekaufte Häuser bleiben dein Besitz. Beim Wechsel zwischen eigenen Häusern nimmst du deine Einrichtung kostenlos mit.</p></div>
+    ${renderDailyChest({state,e,icon})}<div class="home-location-grid">${state.home.catalogue.locations.map(location=>{
+      const purchased=owned.includes(location.id),missing=Math.max(0,location.price-balance);
+      return `<article class="home-location-card ${location.id===draft.locationId?'selected':''}" data-home-location="${location.id}"><div class="home-location-art">${locationIllustration(location)}</div><div><span class="eyebrow">${e(location.name)}</span><h2>${e(location.houseName)}</h2><p>${e(location.description)}</p><small>Fensterblick: ${e(location.view)}</small><div class="home-price"><strong>${e(formatMoney(location.price))}</strong><span>${purchased?'✓ In deinem Besitz':'Inklusive Grundausstattung'}</span></div>
+        <button class="button ${purchased?'outline':'primary'}" data-action="${purchased?'home-location':'home-buy'}" data-location="${location.id}" ${!purchased&&missing?'disabled':''}>${purchased?location.id===draft.locationId?'Zum Einrichten':'Hier einziehen':`Haus kaufen · ${e(formatMoney(location.price))}`} ${icon(purchased?'arrow':'home','',17)}</button>${!purchased&&missing?`<small class="home-shortage">Dir fehlen noch ${e(formatMoney(missing))}.</small>`:''}</div></article>`;
+    }).join('')}</div></div>`;
+}
+
 export function renderHousing({state,e=escapeHTML,icon=()=>''}){
   prepare(state);
-  if(choosing||!draft.locationId)return `<div class="housing-page"><div class="page-heading"><div><span class="eyebrow">DEIN ZUHAUSE IN AETHERIA</span><h1>Wo möchtest du wohnen<span class="title-dot">?</span></h1><p>Wähle deinen Wohnort. Hausstil und Fensteraussicht passen zur Stadt. Eine Grundausstattung steht für dich bereit.</p></div>${draft.locationId?'<button class="button outline" data-action="home-cancel-location">Zurück zum Einrichten</button>':''}</div><div class="home-location-grid">${state.home.catalogue.locations.map(location=>`<article class="home-location-card ${location.id===draft.locationId?'selected':''}"><div class="home-location-art">${locationIllustration(location)}</div><div><span class="eyebrow">${e(location.name)}</span><h2>${e(location.houseName)}</h2><p>${e(location.description)}</p><small>Fensterblick: ${e(location.view)}</small><button class="button primary" data-action="home-location" data-location="${location.id}">${location.id===draft.locationId?'Hier wohnst du':'Diesen Wohnort wählen'} ${icon('arrow','',17)}</button></div></article>`).join('')}</div></div>`;
+  if(choosing||!draft.locationId)return locationShop(state,e,icon);
   const location=homeLocationFor(draft.locationId);
-  return `<div class="housing-page"><div class="page-heading"><div><span class="eyebrow">${e(location.name)} · DEIN ZUHAUSE</span><h1>${e(location.houseName)}<span class="title-dot">.</span></h1><p>${e(location.description)}</p></div><button class="button outline" data-action="home-choose-location">Wohnort wechseln ${icon('grid','',17)}</button></div><div class="home-toolbar"><div class="home-view-buttons" role="group" aria-label="Hausansicht">${[['room','Raumansicht'],['top','Grundriss'],['outside','Außenansicht']].map(([id,name])=>`<button data-action="home-view" data-mode="${id}" class="${mode===id?'selected':''}" aria-pressed="${mode===id}">${name}</button>`).join('')}</div><div class="home-save-controls"><span data-home-save-state>${dirty?'Ungespeicherte Änderungen':'Alles gespeichert'}</span><button class="button outline" data-action="home-undo" ${history.length?'':'disabled'}>↶ Rückgängig</button><button class="button primary" data-action="home-save" ${dirty?'':'disabled'}>${state.home.house?'Einrichtung speichern':'Einziehen & speichern'} ${icon('check','',17)}</button></div></div><div class="home-editor-grid"><section class="home-room-panel"><div class="home-room-label"><span>Fensterblick: ${e(location.view)}</span><small>Freies Platzieren · ohne Raster</small></div><div class="housing-stage" data-home-stage role="group" aria-label="Einrichtbares Haus in ${e(location.name)}"></div><p class="home-editor-status" data-home-status role="status">Möbel auswählen und ziehen – oder antippen und anschließend den neuen Platz antippen.</p></section><aside class="home-inspector" id="home-inspector">${inspector(e)}</aside></div><div class="home-secondary-actions"><span>${draft.placements.length} Gegenstände im Haus</span><button class="text-button" data-action="home-reload">Gespeicherten Stand laden / Änderungen verwerfen</button></div><section class="home-storage" id="home-storage">${storage(e)}</section></div>`;
+  return `<div class="housing-page"><div class="page-heading"><div><span class="eyebrow">${e(location.name)} · DEIN ZUHAUSE</span><h1>${e(location.houseName)}<span class="title-dot">.</span></h1><p>${e(location.description)}</p></div><button class="button outline" data-action="home-choose-location">Wohnort wechseln ${icon('grid','',17)}</button></div><div class="home-toolbar"><div class="home-view-buttons" role="group" aria-label="Hausansicht">${[['room','Raumansicht'],['top','Grundriss'],['outside','Außenansicht']].map(([id,name])=>`<button data-action="home-view" data-mode="${id}" class="${mode===id?'selected':''}" aria-pressed="${mode===id}">${name}</button>`).join('')}</div><div class="home-save-controls"><span data-home-save-state>${dirty?'Ungespeicherte Änderungen':'Alles gespeichert'}</span><button class="button outline" data-action="home-undo" ${history.length?'':'disabled'}>↶ Rückgängig</button><button class="button primary" data-action="home-save" ${dirty?'':'disabled'}>${draft.locationId!==state.home.house.locationId?'Umzug & Einrichtung speichern':'Einrichtung speichern'} ${icon('check','',17)}</button></div></div><div class="home-editor-grid"><section class="home-room-panel"><div class="home-room-label"><span>Fensterblick: ${e(location.view)}</span><small>Freies Platzieren · ohne Raster</small></div><div class="housing-stage" data-home-stage role="group" aria-label="Einrichtbares Haus in ${e(location.name)}"></div><p class="home-editor-status" data-home-status role="status">Möbel auswählen und ziehen – oder antippen und anschließend den neuen Platz antippen.</p></section><aside class="home-inspector" id="home-inspector">${inspector(e)}</aside></div><div class="home-secondary-actions"><span>${draft.placements.length} Gegenstände im Haus</span><button class="text-button" data-action="home-reload">Gespeicherten Stand laden / Änderungen verwerfen</button></div><section class="home-storage" id="home-storage">${storage(e)}</section></div>`;
 }
 
 export function mountHousing({state,register}){
@@ -74,8 +87,17 @@ export async function handleHousingAction(button,{state,api,mutate,render,toast}
   prepare(state);
   if(action==='home-choose-location'){choosing=true;render();return true;}
   if(action==='home-cancel-location'){choosing=false;render();return true;}
+  if(action==='home-buy'){
+    await mutate(async()=>{
+      const firstHome=!state.home.house,result=await api('/home/buy',{locationId:button.dataset.location});
+      state.home=result.home;state.user=result.user;
+      if(firstHome){draft=null;dirty=false;history=[];selectedId=null;choosing=false;}
+      toast(firstHome?'Dein Haus ist gekauft. Willkommen zu Hause!':'Das Haus gehört jetzt dir. Du kannst dort einziehen.');
+    });return true;
+  }
   if(action==='home-location'){
     if(!homeLocationFor(button.dataset.location))return true;
+    if(!state.home.ownedLocations.includes(button.dataset.location)){toast('Kaufe dieses Haus zuerst mit Spielgeld.',true);return true;}
     if(draft.locationId!==button.dataset.location){remember();draft.locationId=button.dataset.location;dirty=true;}
     choosing=false;render();return true;
   }

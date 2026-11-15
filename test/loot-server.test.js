@@ -52,7 +52,7 @@ async function fixture(t, options = {}) {
   return { ...app, origin, client, inventory };
 }
 
-test('only teachers grant chests and all three potion sizes; grants cannot choose loot rarity', async t => {
+test('school rewards require a teacher for chests and potions; grants cannot choose loot rarity', async t => {
   const { client } = await fixture(t);
   const student = client();
   const teacher = client();

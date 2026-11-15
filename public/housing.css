@@ -9,6 +9,14 @@
 .home-location-card p { font-size:14px; line-height:1.8; color:#bdcdd7; min-height:100px; }
 .home-location-card small { display:block; color:#a7cfc9; font-size:12px; line-height:1.8; margin:12px 0 20px; }
 .home-location-card .button { width:100%; min-height:46px; }
+.home-shop-balance { display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin:0 0 22px; padding:20px 24px; border:1px solid #46596c; border-radius:14px; background:#1b2d3e; }
+.home-shop-balance>span { color:#bfd3db; font-size:13px; }
+.home-shop-balance strong { display:block; color:#ebd098; font-size:23px; margin-top:8px; }
+.home-shop-balance p { flex:1; min-width:190px; max-width:600px; color:#b9cfd5; font-size:13px; line-height:1.8; }
+.home-price { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.home-price>strong { font-size:19px; color:#edce92; }
+.home-price>span { font-size:12px; color:#bad7ce; }
+.home-location-card small.home-shortage { margin:10px 0 0; color:#d6c6ac; }
 .home-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:15px; margin:22px 0 16px; }
 .home-view-buttons,.home-save-controls { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
 .home-view-buttons button,.home-storage-tabs button { min-height:44px; border:1px solid #455e73; border-radius:10px; padding:10px 14px; color:#c1d5de; background:#192a3d; font:inherit; font-size:13px; }
