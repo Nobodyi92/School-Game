@@ -1,0 +1,6 @@
+.npc-portrait { display:inline-block; vertical-align:middle; flex-shrink:0; overflow:hidden; border-radius:25%; }
+.npc-portrait--bandit { color:#795e48; }
+.npc-portrait--mage { color:#5d8b9d; }
+.npc-portrait--dark-mage { color:#8f6eb0; }
+.npc-portrait--tide-guardian { color:#65aaa7; }
+.npc-portrait--training-warden { color:#9e805d; }

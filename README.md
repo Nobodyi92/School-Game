@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.13** erweitert Kämpfe um Ätherenergie, drei auswählbare Fähigkeiten, Volksboni, kurze Zustände und mehrphasige Bossgegner. Version **0.12** gibt jedem Abenteuer einen eigenen Schauplatz: steinerne Turmräume, eine Reise über sieben schwebende Inseln und die Kristallhöhle des Runengolems. Version **0.11** ergänzt eigene, gestaltbare Luftschiffe ab Level 5, Reiseziele im Ätherstrom und Geld aus Truhen. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten 3D-Helden aus sechs Völkern von Aetheria, sammeln Ausrüstung und kämpfen rundenbasiert mit Ätherenergie und drei gewählten Fähigkeiten. Eine belebte Weltkarte verbindet Turm, Inselreise und Gruppenboss; ab Level 5 können eigene Luftschiffe gekauft und gestaltet werden. Version **0.14** ersetzt die Tiergegner durch menschliche Banditen, Magier und einen Übungsmeister und erhöht die Stärke neuer Gegner moderat. Die Schauplätze, Ausrüstung, Begleiter und Oberfläche folgen dem Stil von Aetheria.
 
 ## Start
 
@@ -102,7 +102,7 @@ Bei der Registrierung und unter **Mein Held** stehen sechs Völker aus dem Aethe
 | Ätherdruiden | 1 | 3 | 2 | Fokus-Attacken, Ausdauer und Heilung in Deckung |
 | Ätherdämmerer | 4 | 1 | 1 | Besonders starke normale Angriffe |
 
-Die Figuren unterscheiden sich auch optisch: Elfenohren und Kristallschmuck, Ingenieursbrillen und Werkzeuge, Wolkenhaar, Reiseschals, Blattkronen oder sandfarbene Haut mit schimmerndem dunklem Haar. Farbe, Outfit und Wappen sowie alle sechs Ausrüstungsplätze und kosmetischen Begleiter bleiben verwendbar. Tierische Gegner und Begleiter bleiben erhalten.
+Die Figuren unterscheiden sich auch optisch: Elfenohren und Kristallschmuck, Ingenieursbrillen und Werkzeuge, Wolkenhaar, Reiseschals, Blattkronen oder sandfarbene Haut mit schimmerndem dunklem Haar. Farbe, Outfit und Wappen sowie alle sechs Ausrüstungsplätze und kosmetischen Begleiter bleiben verwendbar. Die Gegner in Training, Turm und Inselreise erhalten eigene menschliche Modelle und Porträts; tierische Begleiter bleiben erhalten.
 
 Ein Volkswechsel ist jederzeit möglich. Er kostet keine XP und verschiebt nur die Startwerte. Gekaufte Skillstufen werden zusätzlich angerechnet; über Stufe 10 hinausgehende Stufen bleiben gespeichert und werden bei einem passenden Volkswechsel wieder wirksam. Der Preis weiterer Upgrades hängt von den gekauften Stufen ab und lässt sich durch Volkswechsel nicht senken. Laufende Duelle, Turmaufstiege, Inselreisen und gestartete Bosskämpfe behalten ihre Werte und ihr Volk vom Start.
 
@@ -223,6 +223,14 @@ Der **Turm der Prüfungen** zeigt steinerne Innenräume mit Fackeln, Runen, Fens
 Die 3D-Ansichten und ihre gezeichneten Ersatzansichten stellen dieselben Orte dar. Vorhandene Abenteuer, Entscheidungen, Belohnungen und Kampfregeln bleiben erhalten. Bewegungen berücksichtigen die Einstellung für reduzierte Bewegung.
 
 [Vorschau der neuen Abenteuerschauplätze](docs/aetheria-abenteuer.md)
+
+## Banditen, Magier und anspruchsvollere Gegner
+
+Auf **Turmetage 1–5** stehen Banditenspäher, Schläger und Hauptleute; auf **Etage 6–10** warten Magier bis zum Magier der Turmkuppel. Auf den Inseln begegnen dir Banditen und dunkle Magier passend zum gewählten Weg. Der Gezeitenwächter erhält eine humanoide Kristallrüstung, das Training einen menschlichen Übungsmeister mit Übungswaffe. Dieselben Gegnertypen erscheinen auch in den gezeichneten Ersatzansichten.
+
+Neue Turm- und Inselgegner erhalten rund **12 % mehr LP und 10 % mehr Angriffsschaden**, neue Runengolems rund **10 % mehr LP und 8 % mehr Schaden**. Werte werden auf ganze Punkte gerundet. Der neue Übungsmeister hat **103 LP**, **15 normalen Schaden** und **23 Fokus-Schaden**. Vorhandene Kämpfe und die weiteren Etagen beziehungsweise Stationen bereits begonnener Abenteuer behalten ihre bisherigen Kampfwerte. Ihre alten Tiergegner werden in der Ansicht trotzdem als passende menschliche Gegner dargestellt. Spielerwerte und Schülerduelle bleiben unverändert.
+
+[Gegnergalerie und Details zur Schwierigkeit](docs/aetheria-gegner.md)
 
 ## Taktisches Kampfsystem
 

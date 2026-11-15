@@ -334,6 +334,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(typeof body.opponentId === 'string' && body.opponentId.trim().length > 0 && body.opponentId.length <= 100, 400, 'Bitte einen Gegner auswählen.');
       const training = body.opponentId === 'training-bot';
       const opponent = training ? { id: 'training-bot', name: 'Trainingswächter', characterName: 'Trainingswächter',
+        npcType: 'training-warden', npcVariant: 'warden', avatar: 'npc-training-warden',
         skills: { strength: 1, focus: 1, endurance: 1 } } : byId(body.opponentId);
       requireThat(opponent && (training || (opponent.role === 'student' && opponent.school_id === user.school_id)), 404, 'Gegner nicht gefunden.');
       requireThat(opponent.id !== user.id, 400, 'Du kannst dich nicht selbst herausfordern.');
@@ -343,6 +344,13 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       requireThat(!ongoing.some(b => (b.challenger_id === user.id && b.opponent_id === opponent.id)
         || (b.challenger_id === opponent.id && b.opponent_id === user.id)), 409, 'Mit diesem Gegner hast du bereits ein offenes Duell.');
       const state = training ? createBattleState(viewUser(user), opponent) : null;
+      if (training) {
+        const warden = state.fighters.find(fighter => fighter.id === 'training-bot');
+        warden.stats.maxHp = Math.round(warden.stats.maxHp * 1.12);
+        warden.stats.attackDamage = Math.round(warden.stats.attackDamage * 1.08);
+        warden.stats.focusDamage = Math.round(warden.stats.focusDamage * 1.08);
+        warden.hp = warden.maxHp = warden.stats.maxHp;
+      }
       const id = randomUUID();
       db.prepare('INSERT INTO battles (id, type, challenger_id, opponent_id, status, state, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
         .run(id, training ? 'training' : 'pvp', user.id, opponent.id, training ? 'active' : 'pending',
@@ -424,6 +432,9 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
       const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'],
         '/battle-effects.js': ['battle-effects.js', 'text/javascript'], '/battle-effects.css': ['battle-effects.css', 'text/css'],
         '/hero3d.js': ['hero3d.js', 'text/javascript'],
+        '/enemy3d.js': ['enemy3d.js', 'text/javascript'],
+        '/shared/enemies.js': ['../shared/enemies.js', 'text/javascript'],
+        '/enemy-portraits.js': ['enemy-portraits.js', 'text/javascript'], '/enemy-portraits.css': ['enemy-portraits.css', 'text/css'],
         '/airship3d.js': ['airship3d.js', 'text/javascript'],
         '/airships.js': ['airships.js', 'text/javascript'], '/airships.css': ['airships.css', 'text/css'],
         '/shared/airships.js': ['../shared/airships.js', 'text/javascript'],

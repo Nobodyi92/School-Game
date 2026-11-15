@@ -155,7 +155,7 @@ test('raid creation requires three to five distinct participants and freezes the
   state.members[0].cosmetics.selected.companion = null;
   state.members[0].stats.attackDamage += 100;
   assert.deepEqual(participants, before);
-  assert.equal(state.boss.hp, 315);
+  assert.equal(state.boss.hp, 347);
   assert.equal(state.round, 1);
 });
 
@@ -181,10 +181,10 @@ test('raid queues one immutable action each and never resolves an incomplete rou
 
 test('only complementary runes by distinct players break the shield and permit real damage', () => {
   const wrong = round(freshRaid(), { a: 'runeSun', b: 'runeSun', c: 'attack' });
-  assert.equal(wrong.boss.hp, 314);
+  assert.equal(wrong.boss.hp, 346);
   assert.deepEqual(wrong.runeshield, { sun: true, moon: false, broken: false });
   const correct = round(freshRaid(), { a: 'runeSun', b: 'runeMoon', c: 'attack' });
-  assert.equal(correct.boss.hp, 315 - 14 - 50);
+  assert.equal(correct.boss.hp, 347 - 14 - 50);
   assert.equal(correct.runeshield.broken, true);
   assert.equal(correct.boss.shielded, true); // Reforms for the next announced round.
   assert.ok(correct.events.some(entry => entry.runeBreak && entry.damage === 50));

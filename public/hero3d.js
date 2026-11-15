@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { isAncestry } from './ancestries.js';
 import { normalizeAdventureEnvironment, makeAdventureScenery } from './adventure-scenery3d.js';
 import { combatEventVisual } from './battle-effects.js';
+import { makeEnemy3D } from './enemy3d.js';
 
 // All models are built locally from geometry. No models, textures or user data
 // leave the browser; appearance and equipment come from the server's snapshots.
@@ -487,6 +488,8 @@ function makePerson(head, body, type, skin, coat, pale, gold) {
 
 function makeHero(hero = {}) {
   if (hero.avatar === 'golem' || hero.kind === 'golem' || hero.id === 'rune-golem') return makeGolem(hero);
+  const enemy = makeEnemy3D(hero);
+  if (enemy) return enemy;
   const root = new THREE.Group();
   root.userData.heroId = String(hero.id || 'hero');
   const cosmeticOutfit = selectedCosmetic(hero, 'outfit');
