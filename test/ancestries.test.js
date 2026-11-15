@@ -83,7 +83,9 @@ test('registration chooses server-owned ancestry skills and rejects unavailable 
   const response = await fetch(origin + '/ancestries.js');
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type'), /javascript/);
-  assert.equal((await fetch(origin + '/shared/ancestries.js')).status, 404);
+  const shared = await fetch(origin + '/shared/ancestries.js');
+  assert.equal(shared.status, 200, 'The shared ability catalogue imports the same ancestry module locally.');
+  assert.match(shared.headers.get('content-type'), /javascript/);
 });
 
 test('switching peoples preserves the economy and learned levels without changing upgrade prices', async t => {

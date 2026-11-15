@@ -1,6 +1,6 @@
 # Klassenhelden
 
-Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.12** gibt jedem Abenteuer einen eigenen Schauplatz: steinerne Turmräume, eine Reise über sieben schwebende Inseln und die Kristallhöhle des Runengolems. Version **0.11** ergänzt eigene, gestaltbare Luftschiffe ab Level 5, Reiseziele im Ätherstrom und Geld aus Truhen. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
+Ein spielbarer Browser-Prototyp für ein Schul-RPG: Lehrkräfte belohnen Mitarbeit mit Erfahrungspunkten, Truhen und Heiltränken. Schülerinnen und Schüler gestalten eigene 3D-Helden aus den Völkern von Aetheria, sammeln Ausrüstung und treten in animierten, rundenbasierten Duellen gegeneinander an. Version **0.13** erweitert Kämpfe um Ätherenergie, drei auswählbare Fähigkeiten, Volksboni, kurze Zustände und mehrphasige Bossgegner. Version **0.12** gibt jedem Abenteuer einen eigenen Schauplatz: steinerne Turmräume, eine Reise über sieben schwebende Inseln und die Kristallhöhle des Runengolems. Version **0.11** ergänzt eigene, gestaltbare Luftschiffe ab Level 5, Reiseziele im Ätherstrom und Geld aus Truhen. Version **0.10** belebt die Weltkarte mit Ätherlicht, Luftschiffen, schwebenden Felsen und aufsteigendem Rauch. Sechs Ausrüstungskollektionen und sechs neue Begleiter ergänzen die Welt von Aetheria. Die durchgängige, moderne Oberfläche bleibt im Stil von Aetheria mit dunklen Flächen, gut lesbaren Texten und türkisfarbenen, violetten und goldenen Akzenten. Eine interaktive **Weltkarte von Aetheria** führt zu den Abenteuern und stellt die Orte der Spielwelt vor. Sechs Völker mit unterschiedlichen Start-Skills ersetzen die spielbaren Tiere. Neben dem **Turm der Prüfungen** und dem Gruppenboss **Runengolem** gibt es seit Version **0.5** die **wandelnde Insel** als Solo-Expedition mit Weggabelungen, Rätseln und überraschenden Begegnungen.
 
 ## Start
 
@@ -39,10 +39,10 @@ Die Oberfläche aktualisiert andere Konten und Spielzüge regelmäßig. Neue Reg
 ## Spielregeln
 
 - Nur Lehrkräfte vergeben Belohnungen: bis zu 100 XP und/oder eine Truhe oder einen Heiltrank je Vergabe. Anlass und Vergabe werden gespeichert.
-- **Verfügbare XP** werden für Fähigkeiten ausgegeben; ein Upgrade kostet `(bereits gekaufte Stufen dieses Skills + 1) × 25 XP`, unabhängig vom Volk. Maximalstufe einer Fähigkeit: 10.
+- **Verfügbare XP** werden für Stärke, Fokus und Ausdauer ausgegeben; ein Upgrade kostet `(bereits gekaufte Stufen dieses Skills + 1) × 25 XP`, unabhängig vom Volk. Maximalstufe eines Grund-Skills: 10.
 - **Gesamt-XP** bleiben bei einem Upgrade erhalten und bestimmen die Heldenstufe: `1 + floor(Gesamt-XP / 100)`.
 - Stärke verbessert Angriff und Fokusstoß, Fokus verbessert den Fokusstoß, Ausdauer erhöht Lebenspunkte und Regeneration in Deckung.
-- Aktionen: Angriff, Fokusstoß, Deckung, Heiltrank. Jede erfolgreiche Aktion beendet den eigenen Zug. Ein Fokusstoß lädt nach zwei anderen eigenen Aktionen wieder auf.
+- Aktionen: Grundangriff, Deckung, drei gewählte Spezialfähigkeiten und Heiltränke. Jede erfolgreiche Aktion beendet den eigenen Zug. Angriff und Deckung laden Ätherenergie auf; Spezialfähigkeiten verbrauchen sie. Ältere laufende Kämpfe behalten den bisherigen Fokusstoß mit seiner Abklingzeit.
 - Deckung reduziert den nächsten Treffer um 55 % und heilt einige LP. Kleine, mittlere und große Heiltränke heilen bis zu **20, 35 bzw. 60 LP** und verbrauchen jeweils einen Gegenstand und einen Zug; bei vollen LP sind sie nicht nutzbar.
 - Der Herausforderer beginnt. Fähigkeiten, Ausrüstungsboni und Aussehen werden bei Kampfbeginn festgehalten; spätere Änderungen gelten für das nächste Duell. Vorhandene Duelle aus der ersten Version behalten ihre bisherigen Werte.
 - Eigene Einladungen lassen sich zurückziehen. In einem aktiven Duell kann jeder Teilnehmer aufgeben; der Gegner gewinnt dann. Höchstens fünf Duelle können gleichzeitig offen sein.
@@ -115,7 +115,7 @@ Die Insel ist eine allein spielbare Expedition über **sieben Stationen**. Bei j
 - **Rätsel:** Zahlenfolgen, Muschelwaagen und Zeichenmuster. Eine richtige Lösung bringt zwei Sternsplitter und bis zu sechs LP. Ein Fehler kostet acht LP, versperrt aber nicht den weiteren Weg.
 - **Begegnungen:** Auf der Windbrücke gibt es einen sicheren Weg oder einen Sprung mit ausdrücklich angezeigtem 50-Prozent-Risiko. Bei Händlern können Splitter gegen Heilung oder Reisefähigkeiten getauscht werden. Einer gestrandeten Späherin lässt sich auf unterschiedliche Weise helfen.
 - **Lager und Inselfunde:** Entscheide zwischen Heilung, Splittern und einem Windsegen. Jeder Halt kann nur einmal genutzt werden.
-- **Kämpfe:** Gegner kündigen ihre nächste Aktion an. Angriff, Fokus, Deckung und eine Notquelle mit 20 LP stehen zur Verfügung. Die Notquelle ist einmal pro Kampf nutzbar und verbraucht keinen Inventartrank. Nach einem Sieg wählst du zwischen zwei angebotenen Reisefähigkeiten.
+- **Kämpfe:** Gegner kündigen ihre nächste Aktion an. Grundangriff, Deckung, die drei gewählten Spezialfähigkeiten und eine Notquelle mit 20 LP stehen zur Verfügung. Die Notquelle ist einmal pro Kampf nutzbar und verbraucht keinen Inventartrank. Nach einem Sieg wählst du zwischen zwei angebotenen Reisefähigkeiten.
 
 Reisefähigkeiten verändern nur den laufenden Versuch: **Doppelblitz** löst bei jedem zweiten normalen Angriff einen zusätzlichen Treffer aus; **Spiegelschild** wirft bei einem abgewehrten Treffer Schaden zurück. **Wurzelkraft**, **Windklinge** und **Gezeitenquelle** verstärken oder heilen den Helden. LP bleiben zwischen den Stationen erhalten. Sternsplitter dienen nur als Vorräte für diese Reise; sie lassen sich nicht gegen Konto-XP, Truhen oder Ausrüstung tauschen.
 
@@ -125,7 +125,7 @@ Die Reise einschließlich unbeantworteter Rätsel bleibt bei Schließen der Seit
 
 ## Turm der Prüfungen
 
-Der Turm ist ein allein spielbares Abenteuer mit **zehn Etagen**. Verschiedene Gegner kündigen ihre nächste Aktion an: normaler Angriff, Deckung, Fokusstoß oder schwerer Schlag. Wer diese Ankündigung beachtet, kann seine eigene Aktion darauf abstimmen. Angreifen, Fokus und Deckung funktionieren mit den beim Start gespeicherten Charakter- und Ausrüstungswerten.
+Der Turm ist ein allein spielbares Abenteuer mit **zehn Etagen**. Verschiedene Gegner kündigen ihre nächste Aktion an: normaler Angriff, Deckung, Fokusstoß oder schwerer Schlag. Wer diese Ankündigung beachtet, kann seine eigene Aktion darauf abstimmen. Angriff, Deckung und die drei gewählten Spezialfähigkeiten funktionieren mit den beim Start gespeicherten Charakter- und Ausrüstungswerten.
 
 Nach jeder besiegten Etage bis Etage 9 wartet eine Entscheidung: **Funde sichern und zurückkehren** oder **weiter aufsteigen**. Für den nächsten Kampf wird einer von drei Segen gewählt:
 
@@ -143,9 +143,9 @@ Neue kosmetische Funde sind zunächst **ungesichert**. Sie werden erst beim frei
 
 Für den Start braucht es **drei bis fünf unterschiedliche Schülerkonten derselben Demoklasse**. Die Gruppenleitung eröffnet die Gruppe und startet, sobald genügend Mitglieder beigetreten sind. Vor dem Start können Mitglieder die Gruppe verlassen; verlässt die Leitung die Gruppe, übernimmt das nächste Mitglied.
 
-Pro Runde wählt jedes noch aktive Gruppenmitglied genau eine Aktion: **Angriff, Fokus, Deckung, Sonnenrune oder Mondrune**. Die bereits gewählten Aktionen sind für die Gruppe sichtbar. Erst wenn alle noch lebenden Helden gewählt haben, wird die gemeinsame Runde aufgelöst. Eine festgelegte Aktion lässt sich in dieser Runde nicht nachträglich ändern.
+Pro Runde wählt jedes noch aktive Gruppenmitglied genau eine Aktion: **Grundangriff, Deckung, eine der drei gewählten Spezialfähigkeiten, Sonnenrune oder Mondrune**. Die bereits gewählten Aktionen sind für die Gruppe sichtbar. Erst wenn alle noch lebenden Helden gewählt haben, wird die gemeinsame Runde aufgelöst. Eine festgelegte Aktion lässt sich in dieser Runde nicht nachträglich ändern.
 
-Der Runenschild wird nur dann für die Runde gebrochen, wenn **zwei verschiedene Helden in derselben Runde Sonnen- und Mondrune aktivieren**. Das verursacht zusätzlichen Runenschaden und ermöglicht wirksame Angriffe der übrigen Gruppe. Der Golem kündigt Stampfen gegen die ganze Gruppe oder einen Faustschlag gegen ein bestimmtes Mitglied an; Deckung verringert den Schaden. Ein einzelner überlebender Held kann den Kampf nicht zu Ende führen. Ist der Golem nach zwölf Runden nicht besiegt, beendet seine Runenwut den Versuch.
+In der ersten Bossphase wird der Runenschild nur dann für die Runde gebrochen, wenn **zwei verschiedene Helden in derselben Runde Sonnen- und Mondrune aktivieren**. Das verursacht zusätzlichen Runenschaden und ermöglicht wirksame Angriffe der übrigen Gruppe. Nach dem Runenpanzer folgen Steinsturm und offener Kristallkern; dabei bleibt der Panzer offen. Der Golem kündigt Stampfen gegen die ganze Gruppe oder einen Faustschlag gegen ein bestimmtes Mitglied an; Deckung verringert den Schaden. Ein einzelner überlebender Held kann den Kampf nicht zu Ende führen. Ist der Golem nach zwölf Runden nicht besiegt, beendet seine Runenwut den Versuch.
 
 Nach **120 Sekunden** kann ein Gruppenmitglied über die Funktion zum Fortsetzen die Runde mit fehlenden Aktionen abschließen. Diese fehlenden Züge werden als Deckung behandelt; die Frist wird auf dem Server geprüft. Für eine Siegesbelohnung muss ein Konto im Kampf mindestens **eine echte Aktion selbst abgegeben** haben. Konten, die ausschließlich durch solche automatischen Deckungszüge vertreten wurden, erhalten keine Belohnung. Im laufenden Kampf kann die Gruppenleitung den gesamten Versuch beenden; Gegenstände oder XP gehen dabei nicht verloren.
 
@@ -223,6 +223,16 @@ Der **Turm der Prüfungen** zeigt steinerne Innenräume mit Fackeln, Runen, Fens
 Die 3D-Ansichten und ihre gezeichneten Ersatzansichten stellen dieselben Orte dar. Vorhandene Abenteuer, Entscheidungen, Belohnungen und Kampfregeln bleiben erhalten. Bewegungen berücksichtigen die Einstellung für reduzierte Bewegung.
 
 [Vorschau der neuen Abenteuerschauplätze](docs/aetheria-abenteuer.md)
+
+## Taktisches Kampfsystem
+
+Unter **Mein Held** wählst du drei unterschiedliche aktive Fähigkeiten. Grundangriff, Deckung und Heiltränke im Duell bleiben zusätzlich verfügbar. Angriffe und Deckung laden je **2 Ätherenergie** auf, maximal **6**; die meisten Helden starten mit 2 Energie, Luftnomaden mit 3. Spezialfähigkeiten kosten 2–4 Energie. Der gemeinsame Schildstoß wird auf Spielerlevel 3 und eine weitere Volksfähigkeit auf Level 5 freigeschaltet. Insgesamt gibt es 18 Fähigkeiten.
+
+Alle sechs Völker erhalten eine eigene Stärke und passende Fähigkeiten. **Markiert**, **geschwächt** und **geschützt** wirken auf den nächsten passenden Treffer und verfallen spätestens nach zwei eigenen Aktionen. Gruppenspiel erlaubt Heilung und Schutz auf gewählte lebende Mitspieler; Schutz und Markierungen werden vor schweren Angriffen aufgelöst. Der Runengolem besitzt die Phasen **Runenpanzer**, **Steinsturm** und **offener Kristallkern**. Auch der Gezeitenwächter verändert seinen Angriffsstil im Finale.
+
+Fähigkeiten, Volk, Werte und Ausrüstung werden beim Kampfstart gespeichert. Änderungen am Helden gelten für neue Kämpfe. Bereits vor diesem Update begonnene Kämpfe und Abenteuer behalten ihre bisherigen Regeln; neue Duelle, Turmversuche, Inselreisen und Bosskämpfe nutzen das taktische System.
+
+[Spielregeln, Volksboni und Vorschau des Kampfsystems](docs/aetheria-kampfsystem.md)
 
 ## Kampfanimationen
 

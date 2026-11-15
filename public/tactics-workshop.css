@@ -1,0 +1,19 @@
+.ability-workshop { margin:22px 0; }
+.ability-workshop h2 { margin:10px 0; font-size:23px; }
+.ability-workshop>p { color:var(--ae-muted); font-size:14px; line-height:1.8; }
+.ability-passive { display:flex; flex-direction:column; gap:6px; padding:16px; border:1px solid #72969b66; border-radius:12px; background:#1e3741; margin:18px 0; }
+.ability-passive strong { color:var(--ae-teal); }
+.ability-passive span { font-size:13px; color:#c0d4dc; line-height:1.7; }
+.ability-loadout-slots { display:grid; gap:16px; margin:22px 0; }
+.ability-loadout-slots label { display:block; margin-bottom:8px; color:#d2e4ec; }
+.ability-loadout-slots select { width:100%; font-size:16px; min-height:48px; }
+.ability-loadout-slots p { margin:8px 0 0; color:var(--ae-muted); font-size:13px; line-height:1.7; }
+.ability-workshop .ability-workshop-note { font-size:12px; margin-top:18px; }
+.ability-upcoming { display:grid; gap:12px; margin-top:20px; }
+.ability-upcoming>div { padding:14px; border:1px dashed #526479; border-radius:10px; background:#172439; }
+.ability-upcoming strong { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:14px; }
+.ability-upcoming strong span { font-weight:400; color:var(--ae-gold); font-size:12px; }
+.ability-upcoming p { margin:7px 0 0; font-size:13px; color:var(--ae-muted); line-height:1.7; }
+.battle-panel>.tactical-status { margin:12px 22px; }
+.compact-fighters .fighter>.tactical-energy, .compact-fighters .fighter>.tactical-effects { grid-column:1 / -1; width:100%; min-width:0; }
+.battle-actions.tactical-basic-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }

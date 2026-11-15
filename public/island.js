@@ -1,3 +1,4 @@
+import { renderTacticalStatus, renderAbilityActions } from './combat-skills.js';
 import { ISLAND_REWARDS } from '../lib/cosmetics.js';
 import { islandSceneFor, renderArchipelago, renderIslandBackdrop } from './island-scenery.js';
 const kinds = {
@@ -16,7 +17,7 @@ function rewardCards(state, ids, e) {
 }
 function attrs(island, e) { return `data-run-id="${e(island.id)}" data-version="${island.state.version}"`; }
 function hp(player, e) {
-  return `<div class="adventure-health-card"><div><strong>${e(player.characterName || player.name)}</strong><span>${player.hp} / ${player.maxHp} LP</span></div><div class="health-track"><span style="width:${Math.max(0, Math.min(100, player.hp / player.maxHp * 100))}%"></span></div></div>`;
+  return `<div class="adventure-health-card"><div><strong>${e(player.characterName || player.name)}</strong><span>${player.hp} / ${player.maxHp} LP</span></div><div class="health-track"><span style="width:${Math.max(0, Math.min(100, player.hp / player.maxHp * 100))}%"></span></div>${renderTacticalStatus(player, e)}</div>`;
 }
 
 function milestones(state, e) {
@@ -39,11 +40,11 @@ export function renderIsland({ state, e, icon, heroAvatar }) {
     content = `<div class="island-choice-heading"><span class="eyebrow">STATION ${run.cleared + 1} VON 7</span><h3>${run.cleared === 6 ? 'Der letzte Weg führt zum Wächter.' : 'Welchen Weg nimmst du?'}</h3><p>Wähle, auf welcher kleinen Insel du als Nächstes landest. Dein Reise-Luftschiff folgt dem schwebenden Ätherstrom dorthin.</p></div><div class="island-route-grid">${run.choices.map(choice => `<button class="island-route-card kind-${choice.kind}" data-action="island-choice" data-choice="${e(choice.id)}" ${attrs(island, e)}><span class="island-route-icon">${kinds[choice.kind][0]}</span><small>${kinds[choice.kind][1]}</small><strong>${e(choice.title)}</strong><p>${e(choice.description)}</p><span class="island-route-link">Zu dieser Insel weiterreisen ${icon('arrow', '', 17)}</span></button>`).join('')}</div>`;
   } else if (run.phase === 'combat') {
     content = `<div class="enemy-intent">${icon('clock')}<div><strong>${e(run.enemy.intentLabel)}</strong><p>${run.enemy.intent === 'heavy' ? 'Jetzt kann Deckung den schweren Treffer abschwächen.' : 'Deine Reisefähigkeiten und deine Strategie zählen.'}</p></div></div><div class="adventure-actions island-combat-actions">${[
-      ['attack', '⚔', 'Angreifen', run.boons.includes('echo') ? 'Jeder zweite Angriff löst Doppelblitz aus' : 'Direkter Schaden', false],
+      ['attack', '⚔', 'Angreifen', run.boons.includes('echo') ? 'Jeder zweite Angriff löst Doppelblitz aus' : run.player.tacticsVersion ? '+2 Ätherenergie · direkter Schaden' : 'Direkter Schaden', false],
       ['focus', '✦', 'Fokusstoß', run.player.focusCooldown ? `Noch ${run.player.focusCooldown} eigene Züge` : 'Kräftiger Angriff mit Abklingzeit', run.player.focusCooldown > 0],
-      ['guard', '◇', 'Deckung', run.boons.includes('mirror') ? 'Schützen, heilen und Schaden zurückwerfen' : 'Schützen und leicht regenerieren', false],
+      ['guard', '◇', 'Deckung', run.boons.includes('mirror') ? 'Schützen, heilen und Schaden zurückwerfen' : run.player.tacticsVersion ? '+2 Ätherenergie · schützen und regenerieren' : 'Schützen und leicht regenerieren', false],
       ['spring', '♡', 'Notquelle', run.springUsed ? 'In diesem Kampf bereits genutzt' : 'Einmal pro Kampf bis zu 20 LP', run.springUsed || run.player.hp >= run.player.maxHp],
-    ].map(([move, glyph, name, hint, disabled]) => `<button class="adventure-move" data-action="island-action" data-move="${move}" ${attrs(island, e)} ${disabled ? 'disabled' : ''}><span>${glyph}</span><strong>${name}</strong><small>${hint}</small></button>`).join('')}</div>`;
+    ].filter(([move]) => !run.player.tacticsVersion || move !== 'focus').map(([move, glyph, name, hint, disabled]) => `<button class="adventure-move" data-action="island-action" data-move="${move}" ${attrs(island, e)} ${disabled ? 'disabled' : ''}><span>${glyph}</span><strong>${name}</strong><small>${hint}</small></button>`).join('')}</div>${renderAbilityActions({ fighter: run.player, enemy: run.enemy, action: 'island-action', attributes: attrs(island, e), context: `island:${island.id}`, e, icon })}`;
   } else if (run.phase === 'boon') {
     content = `<div class="island-choice-heading"><span class="eyebrow">EIN SEGEN FÜR DIESE REISE</span><h3>Mit welcher Fähigkeit ziehst du weiter?</h3><p>Diese Kräfte bleiben auf der Insel. Deine normalen Fähigkeiten und Gegenstände ändern sich nicht.</p></div><div class="island-options">${run.offers.map(boon => `<button class="island-option boon-option" data-action="island-choice" data-choice="${e(boon.id)}" ${attrs(island, e)}><span>${e(boon.glyph)}</span><strong>${e(boon.name)}</strong><small>${e(boon.description)}</small></button>`).join('')}</div>`;
   } else {
@@ -75,7 +76,7 @@ export async function handleIslandAction(button, { api, mutate, toast, confirmDi
   }
   const body = { runId: button.dataset.runId, version: Number(button.dataset.version) };
   if (action === 'island-choice') { await mutate(() => api('/island/choice', { ...body, choice: button.dataset.choice })); return true; }
-  if (action === 'island-action') { await mutate(() => api('/island/action', { ...body, action: button.dataset.move })); return true; }
+  if (action === 'island-action') { await mutate(() => api('/island/action', { ...body, action: button.dataset.move, ...(button.dataset.targetId ? { targetId: button.dataset.targetId } : {}) })); return true; }
   if (action === 'island-bank' || action === 'island-abandon') {
     const bank = action === 'island-bank';
     if (await confirmDialog(bank ? 'Mit deinen Inselfunden zurückkehren?' : 'Diese Inselreise aufgeben?', bank ? 'Deine bisher entdeckten Sammlungsbelohnungen werden dauerhaft gesichert. Diese Reise endet hier.' : 'Nur ungesicherte Funde dieser Reise gehen verloren. Dein bisheriger Spielstand bleibt erhalten.', bank ? 'Funde sichern' : 'Reise aufgeben'))

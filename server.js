@@ -9,6 +9,7 @@ import { createAdventureApi } from './lib/adventure-api.js';
 import { createAirshipApi, rollChestCoins } from './lib/airships.js';
 import { catalogue, normalizeInventory, normalizeEquipment, resolveItem, compatibleSlot, rollChest, SLOTS, POTIONS } from './lib/items.js';
 import { DEFAULT_ANCESTRY, isAncestry, ancestryFor, legacyTraining, normalizeTraining, skillsFor, progressFor } from './shared/ancestries.js';
+import { availableAbilities, normalizeAbilityLoadout } from './shared/abilities.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const SESSION_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -209,9 +210,25 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
           }
         }
       }
-      db.prepare('UPDATE users SET character_name = ?, ancestry = ?, avatar = ?, appearance = ?, skills = ?, skill_upgrades = ? WHERE id = ?')
-        .run(character, ancestry, ancestry, JSON.stringify(appearance), JSON.stringify(skillsFor(ancestry, trained)), JSON.stringify(trained), user.id);
+      const abilityLoadout = normalizeAbilityLoadout(viewUser(user).abilityLoadout, ancestry, 1 + Math.floor(user.total_xp / 100));
+      db.prepare('UPDATE users SET character_name = ?, ancestry = ?, avatar = ?, appearance = ?, skills = ?, skill_upgrades = ?, ability_loadout = ? WHERE id = ?')
+        .run(character, ancestry, ancestry, JSON.stringify(appearance), JSON.stringify(skillsFor(ancestry, trained)), JSON.stringify(trained), JSON.stringify(abilityLoadout), user.id);
       return { user: viewUser(byId(user.id), { includeEmail: true }) };
+    }
+
+    if (path === '/api/abilities' && method === 'POST') {
+      studentOnly(user);
+      return transaction(() => {
+        const fresh = byId(user.id);
+        const available = new Set(availableAbilities(ancestryFor(fresh.ancestry || fresh.avatar).id,
+          1 + Math.floor(fresh.total_xp / 100)).map(ability => ability.id));
+        const ids = body.abilityLoadout;
+        requireThat(Array.isArray(ids) && ids.length === 3 && new Set(ids).size === 3
+          && ids.every(id => typeof id === 'string' && available.has(id)), 400,
+          'Wähle drei unterschiedliche, für dein Volk und Spielerlevel freigeschaltete Fähigkeiten.');
+        db.prepare('UPDATE users SET ability_loadout = ? WHERE id = ?').run(JSON.stringify(ids), fresh.id);
+        return { user: viewUser(byId(fresh.id), { includeEmail: true }) };
+      });
     }
 
     if (path === '/api/chests/open' && method === 'POST') {
@@ -368,7 +385,7 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         requireThat(battle.status === 'active', 409, 'Dieses Duell ist nicht aktiv.');
         const inventory = normalizeInventory(user.inventory);
         let result;
-        try { result = applyAction(JSON.parse(battle.state), user.id, body.action, inventory); }
+        try { result = applyAction(JSON.parse(battle.state), user.id, body.action, inventory, { targetId: body.targetId }); }
         catch (error) { throw new HttpError(400, error.message); }
         let state = result.state;
         if (battle.type === 'training' && state.status === 'active' && state.turnId === 'training-bot') {
@@ -412,6 +429,10 @@ export function createApp({ dbPath = join(root, '.data', 'klassenhelden.sqlite')
         '/shared/airships.js': ['../shared/airships.js', 'text/javascript'],
         '/ancestries.js': ['../shared/ancestries.js', 'text/javascript'],
         '/lib/cosmetics.js': ['../lib/cosmetics.js', 'text/javascript'],
+        '/shared/abilities.js': ['../shared/abilities.js', 'text/javascript'],
+        '/shared/ancestries.js': ['../shared/ancestries.js', 'text/javascript'],
+        '/combat-skills.js': ['combat-skills.js', 'text/javascript'], '/combat-skills.css': ['combat-skills.css', 'text/css'],
+        '/tactics-workshop.css': ['tactics-workshop.css', 'text/css'],
         '/adventures.js': ['adventures.js', 'text/javascript'], '/adventures.css': ['adventures.css', 'text/css'],
         '/adventure-scenery.js': ['adventure-scenery.js', 'text/javascript'], '/adventure-scenery.css': ['adventure-scenery.css', 'text/css'],
         '/adventure-scenery3d.js': ['adventure-scenery3d.js', 'text/javascript'],

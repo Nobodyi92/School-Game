@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { isAncestry } from './ancestries.js';
 import { normalizeAdventureEnvironment, makeAdventureScenery } from './adventure-scenery3d.js';
+import { combatEventVisual } from './battle-effects.js';
 
 // All models are built locally from geometry. No models, textures or user data
 // leave the browser; appearance and equipment come from the server's snapshots.
@@ -939,9 +940,13 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
     const actor = rigs.find(rig => rig.id === String(event.actorId));
     const target = rigs.find(rig => rig.id === String(event.targetId));
     if (!actor || !target) return Promise.resolve();
-    const action = event.action;
+    const feedback = combatEventVisual(event);
+    if (!feedback) return Promise.resolve();
+    const action = feedback.action;
+    const recipient = rigs.find(rig => rig.id === String(feedback.recipientId)) || actor;
     const runeAction = action === 'runeSun' || action === 'runeMoon';
-    const healingAction = action === 'rest' || action.startsWith('potion');
+    const healingAction = action === 'heal' || action === 'rest' || action.startsWith('potion');
+    const markingAction = action === 'mark';
     const mainDuration = action === 'surrender' ? 0 : 520;
     const duration = mainDuration + (event.winnerId ? 260 : 0);
     if (!duration) return Promise.resolve();
@@ -949,17 +954,18 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
     const start = performance.now();
     const props = [];
     let orb = null, bubble = null;
-    const glow = material(action === 'runeSun' ? 0xf3cd6a : action === 'focus' || action === 'runeMoon' ? 0xb18bea : action === 'guard' ? 0x90c1ea : 0x84d1a0,
-      { emissive: action === 'runeSun' ? 0xb19033 : action === 'focus' || action === 'runeMoon' ? 0x7550ae : action === 'guard' ? 0x4e8eb8 : 0x4da66d,
+    const glow = material(action === 'runeSun' ? 0xf3cd6a : action === 'focus' || action === 'runeMoon' || markingAction ? 0xb18bea : action === 'guard' ? 0x90c1ea : 0x84d1a0,
+      { emissive: action === 'runeSun' ? 0xb19033 : action === 'focus' || action === 'runeMoon' || markingAction ? 0x7550ae : action === 'guard' ? 0x4e8eb8 : 0x4da66d,
         emissiveIntensity: .55, transparent: true, opacity: .75, depthWrite: false });
     if (action === 'focus') orb = sphere(fx, glow, [0, 1.5, 0], [.20, .20, .20]);
-    if (action === 'guard') bubble = sphere(fx, glow, [actor.base.x, 1.51, actor.base.z], [.94, 1.38, .80]);
+    if (action === 'guard') bubble = sphere(fx, glow, [recipient.base.x, 1.51, recipient.base.z], [.94, 1.38, .80]);
+    if (markingAction) bubble = addMesh(fx, new THREE.TorusGeometry(.72, .055, 6, 24), glow, [recipient.base.x, 1.65, recipient.base.z + .12]);
     if (runeAction) {
       bubble = addMesh(fx, new THREE.TorusGeometry(.72, .045, 6, 24), glow, [actor.base.x, 2.35, actor.base.z]);
       addMesh(fx, action === 'runeSun' ? starGeometry(.26) : new THREE.TorusGeometry(.22, .045, 6, 14, Math.PI * 1.6), glow,
         [actor.base.x, 2.35, actor.base.z]);
     }
-    if (healingAction || action === 'guard' || runeAction) {
+    if (healingAction || action === 'guard' || markingAction || runeAction) {
       for (let index = 0; index < 6; index++) props.push(addMesh(fx, new THREE.OctahedronGeometry(.065), glow));
     }
     const victoryStars = [];
@@ -1002,17 +1008,17 @@ function mount(host, heroes, { arena = false, raid = false, userId, interactive 
             orb.rotation.y = p * TAU;
           }
           if (p > .65) for (const value of target.materials) value.mat.color.lerp(new THREE.Color(0xd6b5f6), .3 * Math.sin((p - .65) / .35 * Math.PI));
-        } else if (elapsed <= mainDuration && (action === 'guard' || healingAction || runeAction)) {
+        } else if (elapsed <= mainDuration && (action === 'guard' || healingAction || markingAction || runeAction)) {
           actor.arms[0].rotation.x = -pulse * .45;
           actor.arms[1].rotation.x = -pulse * .45;
           if (bubble) {
-            bubble.position.x = actor.root.position.x;
+            bubble.position.x = recipient.root.position.x;
             glow.opacity = .08 + pulse * .35;
-            if (runeAction) { bubble.rotation.z = p * Math.PI; bubble.scale.setScalar(.7 + pulse * .4); }
+            if (runeAction || markingAction) { bubble.rotation.z = p * Math.PI; bubble.scale.setScalar(.7 + pulse * .4); }
           }
           for (let index = 0; index < props.length; index++) {
             const angle = index / props.length * TAU + p * 4;
-            props[index].position.set(actor.base.x + Math.cos(angle) * .72, .40 + ((p + index / props.length) % 1) * 2.50, actor.base.z + Math.sin(angle) * .63);
+            props[index].position.set(recipient.base.x + Math.cos(angle) * .72, .40 + ((p + index / props.length) % 1) * 2.50, recipient.base.z + Math.sin(angle) * .63);
             props[index].rotation.y = p * TAU;
           }
         }

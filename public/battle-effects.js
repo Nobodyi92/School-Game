@@ -1,4 +1,29 @@
 // Visual effects only. All battle rules and final health values come from the server.
+import { abilityFor } from '../shared/abilities.js';
+
+/** Choose feedback from the trusted catalogue without changing the server event. */
+export function combatEventVisual(event) {
+  if (!event || typeof event.action !== 'string') return null;
+  const abilityId = event.action.startsWith('ability:') ? event.action.slice(8) : event.abilityId;
+  const ability = abilityFor(abilityId);
+  if (!ability) return event.action.startsWith('ability:') ? null : {
+    action: event.action, recipientId: ['guard', 'rest', 'runeSun', 'runeMoon'].includes(event.action) || event.action.startsWith('potion') ? event.actorId : event.targetId,
+    caption: null, abilityId: null, selfProtection: false,
+  };
+  const support = ability.target === 'ally' || ability.target === 'party' || ability.target === 'self';
+  // A life-steal heal is a separate event, even though its ability is physical.
+  const healing = Number(event.healing) > 0 && !(Number(event.damage) > 0);
+  const action = support && ability.effect === 'protected' ? 'guard' : healing ? 'heal'
+    : !ability.damageFactor && ['marked', 'weakened'].includes(ability.effect) ? 'mark'
+      : ability.kind === 'physical' ? 'attack' : ability.kind === 'special' ? 'focus' : 'guard';
+  return { action, recipientId: event.targetId || event.actorId,
+    caption: action === 'mark' ? ability.effect === 'marked' ? 'Markiert' : 'Geschwächt' : ability.name,
+    abilityId: ability.id, selfProtection: Boolean(ability.selfProtection) };
+}
+
+function healingRecipient(event) {
+  return combatEventVisual(event)?.abilityId ? event.targetId : event.actorId;
+}
 let generation = 0;
 let queue = Promise.resolve();
 const jobs = new Set();
@@ -162,9 +187,9 @@ function healthSnapshot(ctx, events) {
   // batch so the training bot's immediate reply can be played after our action.
   for (const event of [...events].reverse()) {
     const target = ctx.health.get(event.targetId);
-    const actor = ctx.health.get(event.actorId);
+    const recipient = ctx.health.get(healingRecipient(event));
     if (target && event.damage) target.hp = Math.min(target.maxHp, target.hp + event.damage);
-    if (actor && event.healing) actor.hp = Math.max(0, actor.hp - event.healing);
+    if (recipient && event.healing) recipient.hp = Math.max(0, recipient.hp - event.healing);
   }
   for (const health of ctx.health.values()) paintHealth(health, health.hp);
 }
@@ -180,7 +205,8 @@ function updateHealth(ctx, event) {
   const work = [];
   const changes = new Map();
   if (event.damage) changes.set(event.targetId, -(event.damage));
-  if (event.healing) changes.set(event.actorId, (changes.get(event.actorId) || 0) + event.healing);
+  const recipientId = healingRecipient(event);
+  if (event.healing) changes.set(recipientId, (changes.get(recipientId) || 0) + event.healing);
   for (const [id, amount] of changes) {
     const health = ctx.health.get(id);
     if (!health) continue;
@@ -206,9 +232,13 @@ function victory(ctx, winnerId) {
 
 async function playEvent(ctx, event) {
   if (!alive(ctx)) return;
+  const feedback = combatEventVisual(event);
+  if (!feedback) return;
+  const action = feedback.action;
   const controller = arenaController(ctx);
   const actor = fighter(ctx, event.actorId)?.querySelector('.fighter-avatar');
   const target = fighter(ctx, event.targetId)?.querySelector('.fighter-avatar');
+  const recipient = fighter(ctx, feedback.recipientId)?.querySelector('.fighter-avatar') || actor;
   if (!actor || !target) {
     if (controller) await playArenaEvent(ctx, controller, event);
     return;
@@ -216,7 +246,7 @@ async function playEvent(ctx, event) {
   const nodesBefore = new Set(ctx.nodes);
   const work = [updateHealth(ctx, event)];
   if (controller) work.push(playArenaEvent(ctx, controller, event));
-  if (event.action === 'attack' || event.action === 'focus') {
+  if (action === 'attack' || action === 'focus') {
     const direction = event.actorId === ctx.userId ? 1 : -1;
     const step = direction * Math.min(38, Math.max(14, Math.abs(target.getBoundingClientRect().left - actor.getBoundingClientRect().left) * .13));
     if (!controller) work.push(animate(ctx, actor, [
@@ -232,9 +262,9 @@ async function playEvent(ctx, event) {
       { transform: `translateX(${direction * 2}px)`, offset: .65 },
       { transform: 'translateX(0)', filter: 'brightness(1)' },
     ], { duration: 260, delay: 150 }));
-    work.push(ring(ctx, target, event.action === 'focus' ? 'purple' : 'damage', 140));
-    work.push(number(ctx, target, `−${event.damage}`, event.action === 'focus' ? 'purple' : 'damage', 150));
-    if (event.action === 'focus') {
+    work.push(ring(ctx, target, action === 'focus' ? 'purple' : 'damage', 140));
+    if (event.damage) work.push(number(ctx, target, `−${event.damage}`, action === 'focus' ? 'purple' : 'damage', 150));
+    if (action === 'focus') {
       work.push(ring(ctx, actor, 'purple'));
       if (!controller) work.push(focusBeam(ctx, actor, target));
     }
@@ -242,17 +272,21 @@ async function playEvent(ctx, event) {
       const caption = visual(ctx, target, 'fx-caption fx-blue', 'Deckung');
       work.push(animate(ctx, caption, [{ opacity: 0 }, { opacity: 1, offset: .3 }, { opacity: 0 }], { duration: 300, delay: 120 }));
     }
-  } else if (event.action === 'guard') {
-    const shield = visual(ctx, actor, 'fx-shield');
+  } else if (action === 'guard') {
+    const shield = visual(ctx, recipient, 'fx-shield');
     work.push(animate(ctx, shield, [
       { opacity: 0, transform: 'scale(.7)' },
       { opacity: .95, transform: 'scale(1.05)', offset: .45 },
       { opacity: 0, transform: 'scale(1.14)' },
     ], { duration: 450 }));
-    work.push(number(ctx, actor, event.healing ? `+${event.healing} LP` : 'Deckung', 'blue', 90));
-  } else if (event.action.startsWith('potion')) {
-    work.push(ring(ctx, actor, 'healing'), particles(ctx, actor, 'healing'));
-    work.push(number(ctx, actor, `+${event.healing} LP`, 'healing', 70));
+    work.push(number(ctx, recipient, event.healing ? `+${event.healing} LP` : feedback.caption || 'Deckung', 'blue', 90));
+  } else if (action === 'heal' || action.startsWith('potion')) {
+    work.push(ring(ctx, recipient, 'healing'), particles(ctx, recipient, 'healing'));
+    work.push(number(ctx, recipient, event.healing ? `+${event.healing} LP` : feedback.caption || 'Heilung', 'healing', 70));
+  } else if (action === 'mark') {
+    work.push(ring(ctx, recipient, 'purple'), particles(ctx, recipient, 'purple'));
+    work.push(number(ctx, recipient, `◎ ${feedback.caption}`, 'purple', 70));
+    if (!controller) work.push(focusBeam(ctx, actor, recipient));
   }
   if (event.winnerId) work.push(victory(ctx, event.winnerId));
   if (ctx.reduced) work.push(pause(ctx, 100));
@@ -294,7 +328,8 @@ export function cancelBattleEffects() {
 /** Play only newly received events, after rendering the server's final state. */
 export function playBattleEvents(events, { userId, battleId, finished = false } = {}) {
   const panel = matchingPanel(battleId);
-  const selected = Array.isArray(events) ? events.filter(event => event && ACTIONS.has(event.action) &&
+  const selected = Array.isArray(events) ? events.filter(event => event && (ACTIONS.has(event.action) ||
+    (typeof event.action === 'string' && event.action.startsWith('ability:') && combatEventVisual(event))) &&
     typeof event.actorId === 'string' && typeof event.targetId === 'string').slice(-64).map(event => ({
       ...event,
       damage: Math.max(0, Math.min(10_000, Number(event.damage) || 0)),
