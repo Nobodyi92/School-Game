@@ -5,6 +5,7 @@ import { mountWorldMap, disposeWorldMap } from './world-map.js';
 import { renderAirships, handleAirshipAction, mountAirships, updateAirshipClocks, resetAirshipUI } from './airships.js';
 import { mountAirship3D } from './airship3d.js';
 import { formatMoney, moneyRangeForLevel } from '../shared/airships.js';
+import { renderHousing, mountHousing, handleHousingAction, handleHousingChange, resetHousingUI, housingIsEditing } from './housing.js';
 import { enemyPortrait } from './enemy-portraits.js';
 import { ABILITIES } from '../shared/abilities.js';
 import { renderTacticalStatus, renderAbilityActions, handleTacticalTargetAction, resetTacticalUI } from './combat-skills.js';
@@ -47,6 +48,7 @@ const initials = name => String(name || '?').split(' ').filter(Boolean).slice(0,
 
 function icon(name, className = '', size = 20) {
   const paths = {
+    home: '<path d="m3 11 9-8 9 8M5 10v11h14V10M9 21v-7h6v7"/>',
     compass: '<circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6 6-2Z"/>',
     grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
     swords: '<path d="m14.5 3 6.5 0 0 6.5L7 23l-6-6L14.5 3Z" transform="translate(1 -1) scale(.91)"/><path d="m3 3 6.5 0L21 15l-6 6L3 9.5V3Zm1 17 4-4m8-8 4-4M2 22l3-3m14 0 3 3"/>',
@@ -167,6 +169,7 @@ function mount3DViews() {
   }
   mountAdventure3D({ state, mountHero3D, mountArena3D, mountRaid3D, register });
   mountAirships({ state, register, mountAirship3D });
+  mountHousing({ state, register });
 }
 
 function defaultAppearance() { return { color: 'amber', outfit: 'adventurer', emblem: 'star' }; }
@@ -243,7 +246,7 @@ async function api(path, body) {
     if (response.status === 401 && state) {
       resetAdventureState();
       resetAirshipUI();
-      resetTacticalUI(); abilityDraft = null;
+      resetTacticalUI(); resetHousingUI(); abilityDraft = null;
       lastDrops = null; lastCoinsAwarded = 0;
       state = null; profileDraft = null; inventoryOrigin = 'all'; lastStateJSON = '';
       renderAuth();
@@ -267,7 +270,7 @@ async function refresh(force = false) {
   state = data;
   if (!profileDraft) profileDraft = { characterName: data.user.characterName || '', ancestry: data.user.ancestry || DEFAULT_ANCESTRY, avatar: data.user.ancestry || DEFAULT_ANCESTRY, appearance: { ...defaultAppearance(), ...data.user.appearance } };
   if (!rewardDraft.studentId && data.students.length) rewardDraft.studentId = data.students[0].id;
-  if (force || (json !== lastStateJSON && !document.activeElement?.matches('input, textarea, select') && !busy && !isAnimating() && !adventureIsAnimating())) {
+  if (force || (json !== lastStateJSON && !document.activeElement?.matches('input, textarea, select') && !busy && !isAnimating() && !adventureIsAnimating() && !housingIsEditing())) {
     render();
     lastStateJSON = json;
     const battle = data.battles.find(value => value.id === selectedBattleId);
@@ -298,7 +301,7 @@ function renderDemoSection() {
 function navItems() {
   return state.user.role === 'teacher'
     ? [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'class', name: 'Meine Klasse', icon: 'users' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }]
-    : [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'arena', name: 'Arena', icon: 'swords' }, { id: 'adventures', name: 'Abenteuer', icon: 'book' }, { id: 'airships', name: 'Luftschiff', icon: 'compass' }, { id: 'collection', name: 'Sammlung', icon: 'trophy' }, { id: 'character', name: 'Mein Held', icon: 'hero' }, { id: 'inventory', name: 'Inventar', icon: 'chest' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }];
+    : [{ id: 'overview', name: 'Übersicht', icon: 'grid' }, { id: 'arena', name: 'Arena', icon: 'swords' }, { id: 'adventures', name: 'Abenteuer', icon: 'book' }, { id: 'airships', name: 'Luftschiff', icon: 'compass' }, { id: 'home', name: 'Mein Haus', icon: 'home' }, { id: 'collection', name: 'Sammlung', icon: 'trophy' }, { id: 'character', name: 'Mein Held', icon: 'hero' }, { id: 'inventory', name: 'Inventar', icon: 'chest' }, { id: 'rewards', name: 'Belohnungen', icon: 'gift' }];
 }
 
 function render() {
@@ -310,7 +313,7 @@ function render() {
   if (!items.some(x => x.id === tab)) tab = 'overview';
   const currentNav = items.find(x => x.id === tab);
   dispose3DViews();
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><a href="/" class="brand" data-action="nav" data-tab="overview">${brand()}</a><div class="campus-switch"><span class="campus-icon">${icon('book')}</span><span><strong>${e(user.schoolName || 'Campus Nord')}</strong><small>${teacher ? 'Lehrkraftbereich' : 'Dein Schülerbereich'}</small></span><span class="online-dot" title="Verbunden"></span></div><div class="nav-label">DEIN CAMPUS</div><nav class="${teacher ? 'teacher-navigation' : 'student-navigation'}" aria-label="Hauptnavigation" style="--nav-columns:${items.length}">${items.map(item => `<button class="nav-item ${tab === item.id ? 'active' : ''}" data-action="nav" data-tab="${item.id}" aria-label="${e(item.name)}" ${tab === item.id ? 'aria-current="page"' : ''}>${icon(item.icon)}<span>${item.name}</span>${item.id === 'arena' && pending ? `<span class="nav-count">${pending}</span>` : ''}</button>`).join('')}</nav><div class="sidebar-note"><span class="note-icon">${icon(teacher ? 'spark' : 'book', '', 25)}</span><h3>${teacher ? 'Anerkennung, die ankommt.' : 'Dein Einsatz zählt.'}</h3><p>${teacher ? 'Mach aus guter Mitarbeit einen besonderen Moment.' : 'Erfahrung sammelst du durch gute Mitarbeit im Schulalltag.'}</p><span class="note-stars">✦<i>✧</i>✦</span></div><div class="sidebar-profile">${teacher ? `<span class="profile-initials">${e(initials(user.name))}</span>` : heroAvatar(user)}<span><strong>${e(user.name)}</strong><small>${teacher ? 'Lehrkraft' : `Level ${user.level} · Schüleraccount`}</small></span><button class="icon-button" data-action="logout" aria-label="Abmelden" title="Abmelden">${icon('logout', '', 18)}</button></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">${icon('book', '', 16)}<span>${e(user.schoolName || 'Campus Nord')}</span><span>/</span><strong>${currentNav.name}</strong></div><div class="topbar-right">${teacher ? '' : `<button class="wallet-badge" data-action="nav" data-tab="airships" aria-label="Geldbeutel: ${e(formatMoney(user.wallet))}. Zur Luftschiffwerft">✦ ${e(formatMoney(user.wallet))}</button>`}<span class="live-label"><i></i> Dein Abenteuer läuft</span><span class="role-badge">${demoMode ? 'Demo · ' : ''}${teacher ? 'Lehrkraft' : 'Schüler:in'}</span><button class="icon-button mobile-logout" data-action="logout" aria-label="Abmelden">${icon('logout')}</button></div></header><main id="main-content" tabindex="-1">${tab === 'overview' ? renderOverview() : tab === 'arena' ? renderArena() : tab === 'character' ? renderCharacter() : tab === 'class' ? renderClass() : tab === 'inventory' ? renderInventory() : tab === 'adventures' ? renderAdventures({ state, e, icon, heroAvatar }) : tab === 'collection' ? renderCollection({ state, e, icon }) : tab === 'airships' ? renderAirships({ state, e, icon }) : renderRewardsPage()}</main><footer class="app-footer"><span>klassenhelden <i>✦</i> Gemeinsam wachsen.</span><span>Fair spielen. Stärker werden.</span></footer></div></div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><a href="/" class="brand" data-action="nav" data-tab="overview">${brand()}</a><div class="campus-switch"><span class="campus-icon">${icon('book')}</span><span><strong>${e(user.schoolName || 'Campus Nord')}</strong><small>${teacher ? 'Lehrkraftbereich' : 'Dein Schülerbereich'}</small></span><span class="online-dot" title="Verbunden"></span></div><div class="nav-label">DEIN CAMPUS</div><nav class="${teacher ? 'teacher-navigation' : 'student-navigation'}" aria-label="Hauptnavigation" style="--nav-columns:${items.length}">${items.map(item => `<button class="nav-item ${tab === item.id ? 'active' : ''}" data-action="nav" data-tab="${item.id}" aria-label="${e(item.name)}" ${tab === item.id ? 'aria-current="page"' : ''}>${icon(item.icon)}<span>${item.name}</span>${item.id === 'arena' && pending ? `<span class="nav-count">${pending}</span>` : ''}</button>`).join('')}</nav><div class="sidebar-note"><span class="note-icon">${icon(teacher ? 'spark' : 'book', '', 25)}</span><h3>${teacher ? 'Anerkennung, die ankommt.' : 'Dein Einsatz zählt.'}</h3><p>${teacher ? 'Mach aus guter Mitarbeit einen besonderen Moment.' : 'Erfahrung sammelst du durch gute Mitarbeit im Schulalltag.'}</p><span class="note-stars">✦<i>✧</i>✦</span></div><div class="sidebar-profile">${teacher ? `<span class="profile-initials">${e(initials(user.name))}</span>` : heroAvatar(user)}<span><strong>${e(user.name)}</strong><small>${teacher ? 'Lehrkraft' : `Level ${user.level} · Schüleraccount`}</small></span><button class="icon-button" data-action="logout" aria-label="Abmelden" title="Abmelden">${icon('logout', '', 18)}</button></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">${icon('book', '', 16)}<span>${e(user.schoolName || 'Campus Nord')}</span><span>/</span><strong>${currentNav.name}</strong></div><div class="topbar-right">${teacher ? '' : `<button class="wallet-badge" data-action="nav" data-tab="airships" aria-label="Geldbeutel: ${e(formatMoney(user.wallet))}. Zur Luftschiffwerft">✦ ${e(formatMoney(user.wallet))}</button>`}<span class="live-label"><i></i> Dein Abenteuer läuft</span><span class="role-badge">${demoMode ? 'Demo · ' : ''}${teacher ? 'Lehrkraft' : 'Schüler:in'}</span><button class="icon-button mobile-logout" data-action="logout" aria-label="Abmelden">${icon('logout')}</button></div></header><main id="main-content" tabindex="-1">${tab === 'overview' ? renderOverview() : tab === 'arena' ? renderArena() : tab === 'character' ? renderCharacter() : tab === 'class' ? renderClass() : tab === 'inventory' ? renderInventory() : tab === 'adventures' ? renderAdventures({ state, e, icon, heroAvatar }) : tab === 'collection' ? renderCollection({ state, e, icon }) : tab === 'airships' ? renderAirships({ state, e, icon }) : tab === 'home' ? renderHousing({ state, e, icon }) : renderRewardsPage()}</main><footer class="app-footer"><span>klassenhelden <i>✦</i> Gemeinsam wachsen.</span><span>Fair spielen. Stärker werden.</span></footer></div></div>`;
   mount3DViews();
   updateAdventureClocks();
   updateAirshipClocks();
@@ -486,6 +489,7 @@ app.addEventListener('click', async event => {
   if ((busy || isAnimating() || adventureIsAnimating()) && !['nav', 'select-battle', 'dismiss-battle'].includes(action)) return;
   if (action === 'auth-mode') { authMode = button.dataset.mode; renderAuth(); return; }
   if (action === 'nav') { cancelBattleEffects(); cancelAdventureAnimations(); document.body.classList.remove('is-animating'); tab = button.dataset.tab; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (action.startsWith('home-')) { await handleHousingAction(button, { state, api, mutate, render, toast }); return; }
   if (action === 'combat-target') { handleTacticalTargetAction(button, { render }); return; }
   if (action.startsWith('airship-')) { await handleAirshipAction(button, { api, mutate, render, toast }); return; }
   if (/^(adventure-|tower-|island-|raid-|cosmetic-)/.test(action)) { await handleAdventureAction(button, { api, mutate, render, toast, confirmDialog }); return; }
@@ -500,7 +504,7 @@ app.addEventListener('click', async event => {
   if (action === 'logout') {
     resetAdventureState();
     resetAirshipUI();
-    resetTacticalUI(); abilityDraft = null;
+    resetTacticalUI(); resetHousingUI(); abilityDraft = null;
     lastCoinsAwarded = 0;
     try { await api('/auth/logout', {}); state = null; profileDraft = null; inventoryOrigin = 'all'; lastStateJSON = ''; selectedBattleId = null; selectedEquipmentSlot = null; seenBattleEvents.clear(); lastDrops = null; rewardDraft = { studentId: '', xp: '50', item: 'chest', reason: '' }; renderAuth(); }
     catch (error) { toast(error.message, true); }
@@ -561,6 +565,7 @@ app.addEventListener('input', event => {
   if (input.closest('#character-form') && input.name === 'characterName') profileDraft.characterName = input.value;
 });
 app.addEventListener('change', event => {
+  if (event.target.dataset.homeField) { handleHousingChange(event.target, { toast }); return; }
   if (event.target.matches('[data-ability-slot]')) {
     abilityDraft[Number(event.target.dataset.abilitySlot)] = event.target.value;
     const id = event.target.id; render(); document.getElementById(id)?.focus({ preventScroll: true });
